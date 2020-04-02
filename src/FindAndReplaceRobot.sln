@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29806.167
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FindAndReplaceRobot.Language", "FindAndReplaceRobot.Language\FindAndReplaceRobot.Language.csproj", "{842456C0-97C4-4303-A099-378D58D40DD6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{06A752B2-02B3-4E42-9C71-38105AF05C7F}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FindAndReplaceRobot.Language.Driver", "FindAndReplaceRobot.Language.Driver\FindAndReplaceRobot.Language.Driver.csproj", "{EC86263C-2205-49F6-9E0E-626B1CE1737E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{842456C0-97C4-4303-A099-378D58D40DD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{842456C0-97C4-4303-A099-378D58D40DD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{842456C0-97C4-4303-A099-378D58D40DD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{842456C0-97C4-4303-A099-378D58D40DD6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC86263C-2205-49F6-9E0E-626B1CE1737E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC86263C-2205-49F6-9E0E-626B1CE1737E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC86263C-2205-49F6-9E0E-626B1CE1737E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC86263C-2205-49F6-9E0E-626B1CE1737E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {56C7A230-BC73-4BC7-9E71-B6C047585D02}
+	EndGlobalSection
+EndGlobal
