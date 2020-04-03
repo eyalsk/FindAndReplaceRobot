@@ -108,6 +108,7 @@
                         while (char.IsWhiteSpace(whitespace))
                         {
                             level++;
+                            _columnNumber++;
                             whitespace = _text.Span[++index];
                         }
                         break;
