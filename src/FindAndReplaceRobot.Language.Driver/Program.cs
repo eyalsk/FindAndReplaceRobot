@@ -13,20 +13,22 @@
 
             var text = File.ReadAllText(filePath).AsMemory();
             var scanner = new Scanner(text);
-            
-            while(scanner.Next())
+
+            Console.WriteLine($"Index\tLine Number\tColumn Number\tLevel\tCharacter");
+
+            while (scanner.Next())
             {
                 var ch = scanner.GetCurrentValue();
 
                 if (ch.Value != InvisibleCharacters.EndOfFile)
                 {
-                    Console.WriteLine($"{ch.Position.Index}:{ch.Position.LineNumber}:{ch.Position.ColumnNumber}, {ch}");
+                    Console.WriteLine($"{ch.Position.Index}\t{ch.Position.LineNumber}\t\t{ch.Position.ColumnNumber}\t\t{new string('*', ch.Position.Level)}\t{ch}");
                 }
             }
 
             {
                 var ch = scanner.GetCurrentValue();
-                Console.WriteLine($"{ch.Position.Index}:{ch.Position.LineNumber}:{ch.Position.ColumnNumber}, {ch}");
+                Console.WriteLine($"{ch.Position.Index}\t{ch.Position.LineNumber}\t\t{ch.Position.ColumnNumber}\t\t{new string('*', ch.Position.Level)}\t{ch}");
             }
         }
     }

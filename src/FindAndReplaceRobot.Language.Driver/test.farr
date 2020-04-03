@@ -54,8 +54,8 @@ WebsitesInfo        -> WebsiteInfo
 WebsiteStats        -> WebsiteStat
 WhiteLabels         -> WhiteLabel
 DesignSets          -> DesignSet
- @AddTo(EntityContext)
-    Mscreenshot     -> MScreenshot
+    @AddTo(EntityContext)
+  Mscreenshot     -> MScreenshot
 
 @Files
 EntityContext

@@ -8,10 +8,12 @@
     {
         private ReadOnlyMemory<char> _text;
         private readonly int _length;
+        private int _baseIndex = -1;
         private int _lineNumber = 1;
         private int _columnNumber = 0;
-        private int _index = -1;
-        
+        private int _jumpIndex = 0;
+        private int _skipIndex = 0;
+
         public Scanner(ReadOnlyMemory<char> text)
         {
             _text = text;
@@ -20,74 +22,108 @@
 
         public bool Next()
         {
-            bool canIncrement = _index < _length;
-
-            if (canIncrement)
+            if (_baseIndex < _length)
             {
-                _index++;
+                _baseIndex++;
 
-                if (_index == _length) return false;
+                if (_baseIndex == _length) return false;
 
-                SkipCarriageReturn();
+                SkipCharacters();
             }
 
-            return canIncrement;
+            return true;
 
-            void SkipCarriageReturn()
+            void SkipCharacters()
             {
-                var currentChar = _text.Span[_index];
+                var currentChar = _text.Span[_baseIndex];
 
+                if (_jumpIndex == _baseIndex)
+                {
+                    _baseIndex = _skipIndex;
+                    _jumpIndex = _skipIndex = 0;
+                }
+                else
+                {
+                    SkipCarriageReturn(ref currentChar);
+                    SkipLeadingSpaces(ref currentChar);
+                }
+            }
+
+            void SkipCarriageReturn(ref char currentChar)
+            {
                 if (currentChar == Return)
                 {
-                    currentChar = _text.Span[_index + 1];
+                    currentChar = _text.Span[_baseIndex + 1];
 
                     if (currentChar == NewLine)
                     {
-                        _index++;
+                        _baseIndex++;
+                    }
+                }
+            }
+
+            void SkipLeadingSpaces(ref char currentChar)
+            {
+                if (currentChar == NewLine)
+                {
+                    currentChar = _text.Span[_baseIndex + 1];
+
+                    if (currentChar == Space || currentChar == Tab)
+                    {
+                        _jumpIndex = _skipIndex = _baseIndex + 2;
+
+                        var whitespace = _text.Span[++_skipIndex];
+
+                        while (char.IsWhiteSpace(whitespace))
+                        {
+                            whitespace = _text.Span[++_skipIndex];
+                        }
                     }
                 }
             }
         }
-
+        
         public Character GetCurrentValue()
         {
             Character? ch;
 
-            int level = 1;
-
-            if (_index < _length)
+            if (_baseIndex < _length)
             {
-                var currentChar = _text.Span[_index];
+                var level = 1;
+                var currentChar = _text.Span[_baseIndex];
 
-                if (currentChar == NewLine)
+                switch (currentChar)
                 {
-                    _lineNumber++;
-                    _columnNumber = 0;
-                    level = 1;
-                }
-                else if (currentChar == Tab || currentChar == Space)
-                {
-                    // todo: look how deep
+                    case NewLine:
+                        _lineNumber++;
+                        _columnNumber = 0;
+                        break;
+                    case Space when _columnNumber == 0:
+                    case Tab when _columnNumber == 0:
+                        _columnNumber++;
 
-                    level++;
-                }
-                else
-                {
-                    _columnNumber++;
+                        var index = _baseIndex;
+                        var whitespace = _text.Span[++index];
+
+                        while (char.IsWhiteSpace(whitespace))
+                        {
+                            level++;
+                            whitespace = _text.Span[++index];
+                        }
+                        break;
+                    default:
+                        _columnNumber++;
+                        break;
                 }
 
-                ch = new Character(currentChar, new Position(_index, _lineNumber, _columnNumber));
+                ch = new Character(currentChar, new Position(_baseIndex, _lineNumber, _columnNumber, level));
             }
             else
             {
-                ch = new Character(EndOfFile, new Position(_index, _lineNumber + 1));
+                ch = new Character(EndOfFile, new Position(_baseIndex, _lineNumber + 1));
             }
 
             return ch.Value;
         }
-
-        /*public Character Lookahead(int offset)
-        {
-        }*/
     }
 }
