@@ -18,7 +18,7 @@
 
             while (scanner.Next())
             {
-                var ch = scanner.GetCurrentValue();
+                var ch = scanner.ReadChar();
 
                 if (ch.Value != InvisibleCharacters.EndOfFile)
                 {
@@ -27,7 +27,7 @@
             }
 
             {
-                var ch = scanner.GetCurrentValue();
+                var ch = scanner.ReadChar();
                 Console.WriteLine($"{ch.Position.Index}\t{ch.Position.LineNumber}\t\t{ch.Position.ColumnNumber}\t\t{new string('*', ch.Position.Level)}\t{ch}");
             }
         }

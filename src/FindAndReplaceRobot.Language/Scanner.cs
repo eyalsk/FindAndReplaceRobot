@@ -83,7 +83,7 @@
             }
         }
         
-        public Character GetCurrentValue()
+        public Character ReadChar()
         {
             Character? ch;
 

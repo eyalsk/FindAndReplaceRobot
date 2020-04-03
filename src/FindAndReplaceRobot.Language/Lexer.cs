@@ -15,7 +15,7 @@
         {
             while (_scanner.Next())
             {
-                var ch = _scanner.GetCurrentValue();
+                var ch = _scanner.ReadChar();
 
                 switch (ch.Value)
                 {
