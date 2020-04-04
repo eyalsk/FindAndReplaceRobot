@@ -11,8 +11,8 @@
         private int _baseIndex = -1;
         private int _lineNumber = 1;
         private int _columnNumber = 0;
-        private int _jumpIndex = 0;
         private int _skipIndex = 0;
+        private int _skipOffset = 0;
 
         public Scanner(ReadOnlyMemory<char> text)
         {
@@ -37,10 +37,10 @@
             {
                 var currentChar = _text.Span[_baseIndex];
 
-                if (_jumpIndex == _baseIndex)
+                if (_skipIndex == _baseIndex)
                 {
-                    _baseIndex = _skipIndex;
-                    _jumpIndex = _skipIndex = 0;
+                    _baseIndex = _skipIndex + _skipOffset;
+                    _skipIndex = _skipOffset = 0;
                 }
                 else
                 {
@@ -70,13 +70,14 @@
 
                     if (currentChar == Space || currentChar == Tab)
                     {
-                        _jumpIndex = _skipIndex = _baseIndex + 2;
-
-                        var whitespace = _text.Span[++_skipIndex];
+                        _skipOffset += 2;
+                        _skipIndex = _baseIndex + _skipOffset;
+                        
+                        var whitespace = _text.Span[++_skipOffset];
 
                         while (char.IsWhiteSpace(whitespace))
                         {
-                            whitespace = _text.Span[++_skipIndex];
+                            whitespace = _text.Span[++_skipOffset];
                         }
                     }
                 }
