@@ -11,7 +11,7 @@
         private int _baseIndex = -1;
         private int _lineNumber = 1;
         private int _columnNumber = 0;
-        private int _skipIndex = 0;
+        private int _skipIndex = -1;
         private int _skipOffset = 0;
 
         public Scanner(ReadOnlyMemory<char> text)
@@ -40,7 +40,8 @@
                 if (_skipIndex == _baseIndex)
                 {
                     _baseIndex = _skipIndex + _skipOffset;
-                    _skipIndex = _skipOffset = 0;
+                    _skipOffset = 0;
+                    _skipIndex = -1;
                 }
                 else
                 {
