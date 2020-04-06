@@ -10,9 +10,10 @@
         private readonly int _length;
         private int _baseIndex = -1;
         private int _lineNumber = 1;
-        private int _columnNumber = 0;
+        private int _columnNumber;
         private int _skipIndex = -1;
-        private int _skipOffset = 0;
+        private int _skipOffset;
+        private int _level = 1;
 
         public Scanner(ReadOnlyMemory<char> text)
         {
@@ -28,70 +29,57 @@
 
                 if (_baseIndex == _length) return false;
 
-                SkipCharacters();
-            }
-
-            return true;
-
-            void SkipCharacters()
-            {
                 var currentChar = _text.Span[_baseIndex];
 
                 if (_skipIndex == _baseIndex)
                 {
+                    _level = _skipOffset + 1;
                     _baseIndex = _skipIndex + _skipOffset;
-                    _skipOffset = 0;
                     _skipIndex = -1;
+                    _skipOffset = 0;
                 }
                 else
                 {
-                    SkipCarriageReturn(ref currentChar);
-                    SkipLeadingSpaces(ref currentChar);
-                }
-            }
-
-            void SkipCarriageReturn(ref char currentChar)
-            {
-                if (currentChar == Return)
-                {
-                    currentChar = _text.Span[_baseIndex + 1];
-
-                    if (currentChar == NewLine)
+                    if (TryNextChar(ref currentChar, Return) && currentChar == NewLine)
                     {
                         _baseIndex++;
                     }
-                }
-            }
-
-            void SkipLeadingSpaces(ref char currentChar)
-            {
-                if (currentChar == NewLine)
-                {
-                    currentChar = _text.Span[_baseIndex + 1];
-
-                    if (currentChar == Space || currentChar == Tab)
+                    
+                    if (TryNextChar(ref currentChar, NewLine, out var index) && IsIndentChar(currentChar))
                     {
-                        _skipOffset += 2;
-                        _skipIndex = _baseIndex + _skipOffset;
-                        
-                        var whitespace = _text.Span[++_skipOffset];
+                        _skipIndex = index;
 
-                        while (char.IsWhiteSpace(whitespace))
+                        if (++index < _text.Length)
                         {
-                            whitespace = _text.Span[++_skipOffset];
+                            var ch = _text.Span[index];
+
+                            while (IsIndentChar(ch))
+                            {
+                                _skipOffset++;
+
+                                if (++index < _text.Length)
+                                {
+                                    ch = _text.Span[index];
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
             }
+
+            return true;
         }
-        
+
         public Character ReadChar()
         {
             Character? ch;
 
             if (_baseIndex < _length)
             {
-                var level = 1;
                 var currentChar = _text.Span[_baseIndex];
 
                 switch (currentChar)
@@ -99,27 +87,18 @@
                     case NewLine:
                         _lineNumber++;
                         _columnNumber = 0;
+                        _level = 1;
                         break;
                     case Space when _columnNumber == 0:
                     case Tab when _columnNumber == 0:
                         _columnNumber++;
-
-                        var index = _baseIndex;
-                        var whitespace = _text.Span[++index];
-
-                        while (char.IsWhiteSpace(whitespace))
-                        {
-                            level++;
-                            _columnNumber++;
-                            whitespace = _text.Span[++index];
-                        }
                         break;
                     default:
-                        _columnNumber++;
+                        _columnNumber += _level;
                         break;
                 }
 
-                ch = new Character(currentChar, new Position(_baseIndex, _lineNumber, _columnNumber, level));
+                ch = new Character(currentChar, new Position(_baseIndex, _lineNumber, _columnNumber, _level));
             }
             else
             {
@@ -128,5 +107,23 @@
 
             return ch.Value;
         }
+
+        private static bool IsIndentChar(char currentChar) => currentChar == Space || currentChar == Tab;
+
+        private bool TryNextChar(ref char currentChar, char nextChar, out int index)
+        {
+            index = _baseIndex + 1;
+
+            var canGetNextChar = index < _text.Length && currentChar == nextChar;
+
+            if (canGetNextChar)
+            {
+                currentChar = _text.Span[index];
+            }
+
+            return canGetNextChar;
+        }
+
+        private bool TryNextChar(ref char currentChar, char nextChar) => TryNextChar(ref currentChar, nextChar, out _);
     }
 }
