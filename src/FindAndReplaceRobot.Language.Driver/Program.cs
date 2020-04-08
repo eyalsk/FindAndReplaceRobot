@@ -5,25 +5,31 @@
 
     internal static class Program
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
             var basePath = AppContext.BaseDirectory;
             var projectPath = basePath.Substring(0, basePath.IndexOf("bin"));
             var filePath = Path.Combine(projectPath, "test.farr");
 
-            var text = File.ReadAllText(filePath).AsMemory();
+            var text = File.ReadAllText(filePath);
             var scanner = new Scanner(text);
+
+            Console.WriteLine($"Index\tLine Number\tColumn Number\tCharacter");
 
             while (scanner.Next())
             {
-                var ch = scanner.ReadChar();
-
-                Console.WriteLine(ch.ToReadableString());
+                Print();
             }
 
+            scanner.Next();
+            Print();
+
+            void Print()
             {
                 var ch = scanner.ReadChar();
-                Console.WriteLine(ch.ToReadableString());
+                var pos = scanner.Position;
+
+                Console.WriteLine($"{pos.Index}\t{pos.LineNumber}\t\t{pos.ColumnNumber}\t\t{ch.ToReadableString()}");
             }
         }
     }
