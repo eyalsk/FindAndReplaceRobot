@@ -16,20 +16,14 @@
 
             Console.WriteLine($"Index\tLine Number\tColumn Number\tCharacter");
 
-            while (scanner.Next())
-            {
-                Print();
-            }
-
-            scanner.Next();
-            Print();
-
-            void Print()
+            while (true)
             {
                 var ch = scanner.ReadChar();
                 var pos = scanner.Position;
 
                 Console.WriteLine($"{pos.Index}\t{pos.LineNumber}\t\t{pos.ColumnNumber}\t\t{ch.ToReadableString()}");
+
+                if (scanner.Next()) break;
             }
         }
     }
