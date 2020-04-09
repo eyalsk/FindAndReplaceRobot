@@ -1,9 +1,11 @@
-﻿namespace FindAndReplaceRobot.Language
+﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("FindAndReplaceRobot.Language.Driver")]
+
+namespace FindAndReplaceRobot.Language
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
 
-    public readonly struct Position : IEquatable<Position>
+    internal readonly struct Position : IEquatable<Position>
     {
         public Position(int index = 0, int lineNumber = 1, int columnNumber = 1)
         {

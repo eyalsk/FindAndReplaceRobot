@@ -22,7 +22,7 @@
         {
         }
 
-        public Position Position => new Position(_baseIndex, _lineNumber, _columnNumber);
+        internal Position Position => new Position(_baseIndex, _lineNumber, _columnNumber);
 
         public bool Next()
         {
