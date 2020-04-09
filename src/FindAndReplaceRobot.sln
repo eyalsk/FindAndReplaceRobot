@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FindAndReplaceRobot.Language.Driver", "FindAndReplaceRobot.Language.Driver\FindAndReplaceRobot.Language.Driver.csproj", "{EC86263C-2205-49F6-9E0E-626B1CE1737E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FindAndReplaceRobot.Language.Tests", "FindAndReplaceRobot.Language.Tests\FindAndReplaceRobot.Language.Tests.csproj", "{998DE764-67E4-4E58-9ED2-EB8476CB790E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{EC86263C-2205-49F6-9E0E-626B1CE1737E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC86263C-2205-49F6-9E0E-626B1CE1737E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC86263C-2205-49F6-9E0E-626B1CE1737E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{998DE764-67E4-4E58-9ED2-EB8476CB790E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{998DE764-67E4-4E58-9ED2-EB8476CB790E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{998DE764-67E4-4E58-9ED2-EB8476CB790E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{998DE764-67E4-4E58-9ED2-EB8476CB790E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
