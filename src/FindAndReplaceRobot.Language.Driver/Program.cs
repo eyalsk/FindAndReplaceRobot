@@ -14,16 +14,13 @@
             var text = File.ReadAllText(filePath);
             var scanner = new Scanner(text);
 
-            Console.WriteLine($"Index\tLine Number\tColumn Number\tCharacter");
-
             while (true)
             {
                 var ch = scanner.ReadChar();
-                var pos = scanner.Position;
 
-                Console.WriteLine($"{pos.Index}\t{pos.LineNumber}\t\t{pos.ColumnNumber}\t\t{ch.ToReadableString()}");
+                Console.WriteLine(ch.ToReadableString());
 
-                if (scanner.Next()) break;
+                if (!scanner.Next()) break;
             }
         }
     }

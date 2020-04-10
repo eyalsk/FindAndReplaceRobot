@@ -9,8 +9,7 @@
         private ReadOnlyMemory<char> _text;
         private readonly int _length;
         private int _baseIndex;
-        private int _lineNumber = 1;
-        private int _columnNumber = 1;
+        private int _offset = 1;
 
         public Scanner(ReadOnlyMemory<char> text)
         {
@@ -22,83 +21,25 @@
         {
         }
 
-        internal Position Position => new Position(_baseIndex, _lineNumber, _columnNumber);
+        public bool Next() => _baseIndex < _length && ++_baseIndex < _length;
 
-        public bool Next()
+        public void MoveAhead()
         {
-            if (_baseIndex < _length)
-            {
-                var currentChar = _text.Span[_baseIndex];
-
-                if (TryNextChar(ref currentChar, Return) && currentChar == NewLine)
-                {
-                    _baseIndex++;
-                }
-
-                if (currentChar == NewLine)
-                {
-                    _lineNumber++;
-                    _columnNumber = 1;
-                }
-
-                if (TryNextChar(ref currentChar, NewLine, out var index) && IsIndentChar(currentChar))
-                {
-                    _baseIndex = index;
-
-                    if (++index < _text.Length)
-                    {
-                        var ch = _text.Span[index];
-
-                        while (IsIndentChar(ch))
-                        {
-                            _baseIndex++;
-                            _columnNumber++;
-
-                            if (++index < _text.Length)
-                            {
-                                ch = _text.Span[index];
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                _baseIndex++;
-
-                return true;
-            }
-
-            return false;
+            _baseIndex += _offset;
+            _offset = 1;
         }
 
         public char ReadChar() => _baseIndex < _length ? _text.Span[_baseIndex] : EndOfFile;
 
-        public char ReadAhead(int offset = 1) {
-            offset = offset >= 0 ? offset : throw new ArgumentOutOfRangeException("offset");
-
-            return _baseIndex + offset is var position &&
-                    position < _length ? _text.Span[position] : EndOfFile;
-        }
-            
-        private static bool IsIndentChar(char currentChar) => currentChar == Space || currentChar == Tab;
-
-        private bool TryNextChar(ref char currentChar, char nextChar, out int index)
+        public char ReadAhead(int offset = 1)
         {
-            index = _baseIndex + 1;
+            if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
 
-            var canGetNextChar = index < _text.Length && currentChar == nextChar;
+            _offset = offset;
 
-            if (canGetNextChar)
-            {
-                currentChar = _text.Span[index];
-            }
+            var position = _baseIndex + offset;
 
-            return canGetNextChar;
+            return position < _length ? _text.Span[position] : EndOfFile;
         }
-
-        private bool TryNextChar(ref char currentChar, char nextChar) => TryNextChar(ref currentChar, nextChar, out _);
     }
 }
