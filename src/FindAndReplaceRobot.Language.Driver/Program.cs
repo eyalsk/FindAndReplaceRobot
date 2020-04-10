@@ -13,15 +13,9 @@
 
             var text = File.ReadAllText(filePath);
             var scanner = new Scanner(text);
+            var lexer = new Lexer(scanner);
 
-            while (true)
-            {
-                var ch = scanner.ReadChar();
-
-                Console.WriteLine(ch.ToReadableString());
-
-                if (!scanner.Next()) break;
-            }
+            lexer.ReadToken();
         }
     }
 }
