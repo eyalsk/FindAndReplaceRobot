@@ -7,7 +7,15 @@ namespace FindAndReplaceRobot.Language.Tests
     internal class ScannerTests
     {
         [Test]
-        public void Should_read_1st_character()
+        public void Should_return_end_of_file_when_empty()
+        {
+            var scanner = new Scanner("");
+
+            scanner.ReadChar().ShouldBe('\0');
+        }
+
+        [Test]
+        public void Should_return_1st_character()
         {
             var scanner = new Scanner("X");
 
@@ -36,34 +44,25 @@ namespace FindAndReplaceRobot.Language.Tests
         }
 
         [Test]
-        public void Should_go_to_end_of_file_when_empty()
-        {
-            var scanner = new Scanner("");
-
-            scanner.Next();
-
-            scanner.ReadChar().ShouldBe('\0');
-        }
-
-        [Test]
-        public void Should_go_to_next_character_when_lookahead()
+        public void Should_read_ahead_to_2nd_character()
         {
             var scanner = new Scanner("XY");
 
             scanner.ReadAhead(offset: 1).ShouldBe('Y');
         }
 
-        [Test]
-        public void Should_go_to_end_of_file_when_lookahead_looks_beyond_text_length()
+        [TestCase(2)]
+        [TestCase(3)]
+        public void Should_read_ahead_to_end_of_file(int offset)
         {
             var scanner = new Scanner("XY");
 
-            scanner.ReadAhead(offset: 2).ShouldBe('\0');
+            scanner.ReadAhead(offset).ShouldBe('\0');
         }
 
         [TestCase(0)]
         [TestCase(1)]
-        public void Should_not_throw_when_lookahead_offset_above_or_equal_to_zero(int offset)
+        public void Should_not_throw_when_offset_above_or_equal_to_zero(int offset)
         {
             var scanner = new Scanner("XY");
 
@@ -71,11 +70,21 @@ namespace FindAndReplaceRobot.Language.Tests
         }
 
         [Test]
-        public void Should_not_throw_when_lookahead_offset_below_zero()
+        public void Should_throw_when_offset_below_zero()
         {
             var scanner = new Scanner("XY");
 
             Should.Throw<ArgumentOutOfRangeException>(() => scanner.ReadAhead(offset: -1));
+        }
+
+        [Test]
+        public void Should_read_ahead_and_move_ahead_to_3rd_character()
+        {
+            var scanner = new Scanner("XYZ");
+
+            scanner.ReadAhead(2);
+            scanner.MoveAhead();
+            scanner.ReadChar().ShouldBe('Z');
         }
     }
 }
