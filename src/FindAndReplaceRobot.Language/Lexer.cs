@@ -18,11 +18,11 @@
                 switch (_scanner.ReadChar())
                 {
                     case '@':
-                        ParseAnnotations();
+                        LexAnnotations();
                         Console.WriteLine();
                         break;
                     case '[':
-                        ParseSections();
+                        LexSections();
                         Console.WriteLine();
                         break;
                 }
@@ -31,7 +31,7 @@
             }
         }
 
-        private void ParseAnnotations()
+        private void LexAnnotations()
         {
             for (int index = 0; ; index++)
             {
@@ -48,7 +48,7 @@
             _scanner.MoveAhead();
         }
 
-        private void ParseSections()
+        private void LexSections()
         {
             for (int index = 0; ; index++)
             {
