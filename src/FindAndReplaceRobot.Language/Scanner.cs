@@ -21,6 +21,8 @@
         {
         }
 
+        public int Position => _baseIndex + _offset;
+
         public bool Next() => _baseIndex < _length && ++_baseIndex < _length;
 
         public void MoveAhead()
