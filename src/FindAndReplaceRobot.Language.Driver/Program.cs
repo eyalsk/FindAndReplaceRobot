@@ -15,13 +15,13 @@
             var scanner = new Scanner(text);
             var lexer = new Lexer(scanner);
 
-            while(true)
+            while (true)
             {
                 var token = lexer.ReadToken();
 
                 if (token is null) break;
 
-                Console.WriteLine(token.Value);
+                Console.WriteLine(token);
             }
         }
     }

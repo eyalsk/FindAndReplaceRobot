@@ -8,7 +8,6 @@
     {
         private ReadOnlyMemory<char> _text;
         private readonly int _length;
-        private int _baseIndex;
         private int _offset;
 
         public Scanner(ReadOnlyMemory<char> text)
@@ -17,21 +16,29 @@
             _length = text.Length;
         }
 
-        public Scanner(string text) : this(text.AsMemory())
-        {
-        }
+        public Scanner(string text) : this(text.AsMemory()) { }
 
-        public int Position => _baseIndex + _offset;
+        public int CurrentPosition { get; private set; }
 
-        public bool Next() => _baseIndex < _length && ++_baseIndex < _length;
+        public int AbsolutePosition => CurrentPosition + _offset;
+
+        public bool MoveNext() => CurrentPosition < _length && ++CurrentPosition < _length;
 
         public void MoveAhead()
         {
-            _baseIndex += _offset;
+            CurrentPosition += _offset;
             _offset = 0;
         }
 
-        public char ReadChar() => _baseIndex < _length ? _text.Span[_baseIndex] : EndOfFile;
+        public char ReadChar() => CurrentPosition < _length ? _text.Span[CurrentPosition] : EndOfFile;
+
+        public ReadOnlyMemory<char> ReadSlice(int start, int end)
+        {
+            if (start < 0) throw new ArgumentOutOfRangeException(nameof(start));
+            if (end > _length) throw new ArgumentOutOfRangeException(nameof(end));
+
+            return _text[start..end];
+        }
 
         public char ReadAhead(int offset = 1)
         {
@@ -39,9 +46,7 @@
 
             _offset = offset;
 
-            var position = _baseIndex + offset;
-
-            return position < _length ? _text.Span[position] : EndOfFile;
+            return AbsolutePosition < _length ? _text.Span[AbsolutePosition] : EndOfFile;
         }
     }
 }

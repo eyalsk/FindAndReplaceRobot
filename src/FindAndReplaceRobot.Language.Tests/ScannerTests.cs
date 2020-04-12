@@ -27,7 +27,7 @@ namespace FindAndReplaceRobot.Language.Tests
         {
             var scanner = new Scanner("XY");
 
-            scanner.Next();
+            scanner.MoveNext();
 
             scanner.ReadChar().ShouldBe('Y');
         }
@@ -37,8 +37,8 @@ namespace FindAndReplaceRobot.Language.Tests
         {
             var scanner = new Scanner("XY");
 
-            scanner.Next();
-            scanner.Next();
+            scanner.MoveNext();
+            scanner.MoveNext();
 
             scanner.ReadChar().ShouldBe('\0');
         }

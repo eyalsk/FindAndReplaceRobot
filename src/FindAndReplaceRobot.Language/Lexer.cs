@@ -1,5 +1,6 @@
 ﻿namespace FindAndReplaceRobot.Language
 {
+    using System;
     using FindAndReplaceRobot.Language.Tokens;
 
     using static InvisibleCharacters;
@@ -7,81 +8,61 @@
     public sealed class Lexer
     {
         private readonly Scanner _scanner;
-        private readonly TokenBuilder _builder;
-        
-        public Lexer(Scanner scanner)
-        {
-            _scanner = scanner;
-            _builder = new TokenBuilder();
-        }
+
+        public Lexer(Scanner scanner) => _scanner = scanner;
 
         public Token? ReadToken()
         {
-            while(true)
+            while (true)
             {
                 switch (_scanner.ReadChar())
                 {
                     case '@':
-                        LexAnnotation();
-                        break;
+                        return LexAnnotation();
                     case '[':
-                        LexSection();
-                        break;
+                        return LexSection();
                     case EndOfFile:
                         return null;
                 }
 
-                if (_builder.HasValidToken)
-                {
-                    return _builder.Build();
-                }
-
-                _scanner.Next();
+                _scanner.MoveNext();
             }
         }
 
-        private void LexAnnotation()
+        private Token LexAnnotation()
         {
-            _builder.StartAt(_scanner.Position);
-
             for (int index = 1; ; index++)
             {
                 var ch = _scanner.ReadAhead(index);
 
                 if (ch != '@' && !char.IsLetterOrDigit(ch))
                 {
-                    _builder
-                        .EndAt(_scanner.Position)
-                        .SetKind(TokenKind.Annotation);
-                    break;
+                    var token = new Token(_scanner.CurrentPosition, TokenKind.Annotation, ReadSlice());
+
+                    _scanner.MoveAhead();
+
+                    return token;
                 }
-
-                _builder.AppendChar(ch);
             }
-
-            _scanner.MoveAhead();
         }
 
-        private void LexSection()
+        private Token LexSection()
         {
-            _builder.StartAt(_scanner.Position);
-
             for (int index = 1; ; index++)
             {
                 var ch = _scanner.ReadAhead(index);
 
                 if (ch == ']')
                 {
-                    _builder
-                        .EndAt(_scanner.Position)
-                        .SetKind(TokenKind.Section);
-                    break;
+                    var token = new Token(_scanner.CurrentPosition, TokenKind.Section, ReadSlice());
+
+                    _scanner.MoveAhead();
+
+                    return token;
                 }
-
-                _builder.AppendChar(ch);
             }
-
-            _scanner.MoveAhead();
         }
+
+        private ReadOnlyMemory<char> ReadSlice() => _scanner.ReadSlice(_scanner.CurrentPosition + 1, _scanner.AbsolutePosition);
     }
 }
