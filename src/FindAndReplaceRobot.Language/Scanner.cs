@@ -9,7 +9,7 @@
         private ReadOnlyMemory<char> _text;
         private readonly int _length;
         private int _baseIndex;
-        private int _offset = 1;
+        private int _offset;
 
         public Scanner(ReadOnlyMemory<char> text)
         {
@@ -26,7 +26,7 @@
         public void MoveAhead()
         {
             _baseIndex += _offset;
-            _offset = 1;
+            _offset = 0;
         }
 
         public char ReadChar() => _baseIndex < _length ? _text.Span[_baseIndex] : EndOfFile;
