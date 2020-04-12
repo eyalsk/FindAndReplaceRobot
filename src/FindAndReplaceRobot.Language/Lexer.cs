@@ -1,66 +1,84 @@
 ﻿namespace FindAndReplaceRobot.Language
 {
-    using System;
+    using FindAndReplaceRobot.Language.Tokens;
+
+    using static InvisibleCharacters;
 
     public sealed class Lexer
     {
         private readonly Scanner _scanner;
-
+        private readonly TokenBuilder _builder;
+        
         public Lexer(Scanner scanner)
         {
             _scanner = scanner;
+            _builder = new TokenBuilder();
         }
 
-        public void ReadToken()
+        public Token? ReadToken()
         {
-            while (true)
+            while(true)
             {
                 switch (_scanner.ReadChar())
                 {
                     case '@':
-                        LexAnnotations();
-                        Console.WriteLine();
+                        LexAnnotation();
                         break;
                     case '[':
-                        LexSections();
-                        Console.WriteLine();
+                        LexSection();
                         break;
+                    case EndOfFile:
+                        return null;
                 }
 
-                if (!_scanner.Next()) break;
+                if (_builder.HasValidToken)
+                {
+                    return _builder.Build();
+                }
+
+                _scanner.Next();
             }
         }
 
-        private void LexAnnotations()
+        private void LexAnnotation()
         {
-            for (int index = 0; ; index++)
+            _builder.StartAt(_scanner.Position);
+
+            for (int index = 1; ; index++)
             {
                 var ch = _scanner.ReadAhead(index);
 
                 if (ch != '@' && !char.IsLetterOrDigit(ch))
                 {
+                    _builder
+                        .EndAt(_scanner.Position)
+                        .SetKind(TokenKind.Annotation);
                     break;
                 }
 
-                Console.Write(ch);
+                _builder.AppendChar(ch);
             }
 
             _scanner.MoveAhead();
         }
 
-        private void LexSections()
+        private void LexSection()
         {
-            for (int index = 0; ; index++)
+            _builder.StartAt(_scanner.Position);
+
+            for (int index = 1; ; index++)
             {
                 var ch = _scanner.ReadAhead(index);
 
                 if (ch == ']')
                 {
-                    Console.Write(ch);
+                    _builder
+                        .EndAt(_scanner.Position)
+                        .SetKind(TokenKind.Section);
                     break;
                 }
 
-                Console.Write(ch);
+                _builder.AppendChar(ch);
             }
 
             _scanner.MoveAhead();
