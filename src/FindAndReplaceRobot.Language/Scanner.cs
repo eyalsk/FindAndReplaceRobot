@@ -32,13 +32,7 @@
 
         public char ReadChar() => CurrentPosition < _length ? _text.Span[CurrentPosition] : EndOfFile;
 
-        public ReadOnlyMemory<char> ReadSlice(int start, int end)
-        {
-            if (start < 0) throw new ArgumentOutOfRangeException(nameof(start));
-            if (end > _length) throw new ArgumentOutOfRangeException(nameof(end));
-
-            return _text[start..end];
-        }
+        public ReadOnlyMemory<char> ReadSlice(int start, int end) => _text[start..end];
 
         public char ReadAhead(int offset = 1)
         {

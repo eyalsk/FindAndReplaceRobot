@@ -9,7 +9,7 @@
     {
         private readonly Scanner _scanner;
 
-        public Lexer(Scanner scanner) => _scanner = scanner;
+        public Lexer(Scanner scanner) => _scanner = scanner ?? throw new ArgumentNullException(nameof(scanner));
 
         public Token? ReadToken()
         {
