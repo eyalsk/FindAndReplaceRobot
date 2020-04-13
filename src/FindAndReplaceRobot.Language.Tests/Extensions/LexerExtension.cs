@@ -2,7 +2,7 @@
 {
     using FindAndReplaceRobot.Language.Tokens;
 
-    public static class LexerExtension
+    internal static class LexerExtension
     {
         public static Token? ReadTokenByKind(this Lexer lexer, TokenKind kind)
         {
