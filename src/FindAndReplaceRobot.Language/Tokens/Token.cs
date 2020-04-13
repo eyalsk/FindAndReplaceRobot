@@ -6,6 +6,9 @@
     {
         public Token(int start, TokenKind kind, ReadOnlyMemory<char> value)
         {
+            if (start < 0) throw new ArgumentOutOfRangeException(nameof(start));
+            if (!Enum.IsDefined(typeof(TokenKind), kind)) throw new ArgumentException(nameof(kind));
+
             Start = start;
             Kind = kind;
             Value = value;
@@ -18,7 +21,5 @@
         public TokenKind Kind { get; }
 
         public ReadOnlyMemory<char> Value { get; }
-
-        public override string ToString() => $"{Start} {Length} {Kind} {Value}";
     }
 }
