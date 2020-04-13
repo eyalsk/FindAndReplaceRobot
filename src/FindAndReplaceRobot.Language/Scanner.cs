@@ -32,7 +32,7 @@
 
         public char ReadChar() => CurrentPosition < _length ? _text.Span[CurrentPosition] : EndOfFile;
 
-        public ReadOnlyMemory<char> ReadSlice(int start, int end) => _text[start..end];
+        public ReadOnlyMemory<char> GetSlice(Range range) => _text[range];
 
         public char ReadAhead(int offset = 1)
         {

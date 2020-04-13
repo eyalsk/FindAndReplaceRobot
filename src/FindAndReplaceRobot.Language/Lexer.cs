@@ -37,7 +37,7 @@
 
                 if (ch != '@' && !char.IsLetterOrDigit(ch))
                 {
-                    var token = new Token(_scanner.CurrentPosition, TokenKind.Annotation, ReadSlice());
+                    var token = new Token(_scanner.CurrentPosition, TokenKind.Annotation, GetSlice());
 
                     _scanner.MoveAhead();
 
@@ -54,7 +54,7 @@
 
                 if (ch == ']')
                 {
-                    var token = new Token(_scanner.CurrentPosition, TokenKind.Section, ReadSlice());
+                    var token = new Token(_scanner.CurrentPosition, TokenKind.Section, GetSlice());
 
                     _scanner.MoveAhead();
 
@@ -63,6 +63,6 @@
             }
         }
 
-        private ReadOnlyMemory<char> ReadSlice() => _scanner.ReadSlice(_scanner.CurrentPosition + 1, _scanner.AbsolutePosition);
+        private ReadOnlyMemory<char> GetSlice() => _scanner.GetSlice((_scanner.CurrentPosition + 1).._scanner.AbsolutePosition);
     }
 }
