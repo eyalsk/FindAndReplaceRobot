@@ -15,13 +15,15 @@
             var scanner = new Scanner(text);
             var lexer = new Lexer(scanner);
 
+            Console.WriteLine($"Text\t\t\tStart Position\tLength\tToken Type");
+
             while (true)
             {
                 var token = lexer.ReadToken();
 
                 if (token is null) break;
 
-                Console.WriteLine(token);
+                Console.WriteLine($"{token.Value}\n\t\t\t{token.Start}\t\t{token.Length}\t{token.Kind}");
             }
         }
     }
