@@ -22,7 +22,7 @@
 
         public int AbsolutePosition => CurrentPosition + _offset;
 
-        public bool MoveNext() => CurrentPosition < _length && ++CurrentPosition < _length;
+        public ReadOnlyMemory<char> GetSlice(Range range) => _text[range];
 
         public void MoveAhead()
         {
@@ -30,9 +30,7 @@
             _offset = 0;
         }
 
-        public char ReadChar() => CurrentPosition < _length ? _text.Span[CurrentPosition] : EndOfFile;
-
-        public ReadOnlyMemory<char> GetSlice(Range range) => _text[range];
+        public bool MoveNext() => CurrentPosition < _length && ++CurrentPosition < _length;
 
         public char ReadAhead(int offset = 1)
         {
@@ -42,5 +40,7 @@
 
             return AbsolutePosition < _length ? _text.Span[AbsolutePosition] : EndOfFile;
         }
+
+        public char ReadChar() => CurrentPosition < _length ? _text.Span[CurrentPosition] : EndOfFile;
     }
 }
