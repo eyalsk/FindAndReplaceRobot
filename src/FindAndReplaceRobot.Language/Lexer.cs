@@ -8,6 +8,7 @@
     public sealed class Lexer
     {
         private readonly Scanner _scanner;
+        private bool _canAnnotate = true;
 
         public Lexer(Scanner scanner) => _scanner = scanner ?? throw new ArgumentNullException(nameof(scanner));
 
@@ -17,10 +18,14 @@
             {
                 switch (_scanner.ReadChar())
                 {
-                    case '@':
+                    case '@' when _canAnnotate:
                         return LexAnnotation();
                     case '[':
+                        _canAnnotate = false;
                         return LexSection();
+                    case NewLine when _scanner.ReadAhead() == NewLine:
+                        _canAnnotate = true;
+                        break;
                     case EndOfFile:
                         return null;
                 }
@@ -31,19 +36,39 @@
 
         private Token LexAnnotation()
         {
+            TokenBuilder builder = new TokenBuilder();
+            builder.SetPosition(_scanner.CurrentPosition);
+
             for (int index = 1; ; index++)
             {
                 var ch = _scanner.ReadAhead(index);
 
-                if (ch != '@' && !char.IsLetterOrDigit(ch))
+                if (ch == '(' || ch == NewLine || ch == EndOfFile)
                 {
-                    var token = new Token(_scanner.CurrentPosition, TokenKind.Annotation, GetSlice());
+                    builder
+                        .SetKind(TokenKind.Annotation)
+                        .SetValue(GetSlice());
 
                     _scanner.MoveAhead();
 
-                    return token;
+                    if (ch == '(')
+                    {
+                        //builder.AddToken(LexAnnotationArgumentList());
+                    }
+
+                    break;
+                }
+                else if (!char.IsLetter(ch))
+                {
+                    // todo: Error
+
+                    _scanner.MoveAhead();
+
+                    break;
                 }
             }
+
+            return builder.Build();
         }
 
         private Token LexSection()

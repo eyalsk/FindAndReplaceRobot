@@ -21,6 +21,8 @@ namespace FindAndReplaceRobot.Language.Tests
         }
 
         [TestCase("@MyCustomAnnotation")]
+        [TestCase("@MyCustomAnnotation\r\n")]
+        [TestCase("@MyCustomAnnotation\n")]
         [TestCase("@MyCustomAnnotation()")]
         public void Should_succeed_lexing_annotations(string text)
         {

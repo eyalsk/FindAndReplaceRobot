@@ -1,7 +1,9 @@
 ﻿namespace FindAndReplaceRobot.Language.Driver
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
+    using FindAndReplaceRobot.Language.Tokens;
 
     internal static class Program
     {
