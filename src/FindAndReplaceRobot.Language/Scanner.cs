@@ -6,7 +6,7 @@
 
     public sealed class Scanner
     {
-        private ReadOnlyMemory<char> _text;
+        private readonly ReadOnlyMemory<char> _text;
         private int _offset;
 
         public Scanner(ReadOnlyMemory<char> text)
@@ -66,7 +66,7 @@
                 if (nextChar == NewLine)
                 {
                     ch = nextChar;
-                    
+      
                     return true;
                 }
             }
