@@ -8,9 +8,10 @@
     public sealed class Lexer
     {
         private readonly Scanner _scanner;
-        private bool _canAnnotate = true;
+        private TokenKind _tokenMarker;
 
-        public Lexer(Scanner scanner) => _scanner = scanner ?? throw new ArgumentNullException(nameof(scanner));
+        public Lexer(Scanner scanner) =>
+            _scanner = scanner ?? throw new ArgumentNullException(nameof(scanner));
 
         public Token? ReadToken()
         {
@@ -18,14 +19,22 @@
             {
                 switch (_scanner.ReadChar())
                 {
-                    case '@' when _canAnnotate:
+                    case '(' when _tokenMarker == TokenKind.AnnotationArgument:
+                    case ',' when _tokenMarker == TokenKind.AnnotationArgument:
+                    case '@' when _tokenMarker == TokenKind.None:
+                        _tokenMarker = TokenKind.Annotation;
                         return LexAnnotation();
-                    case '[':
-                        _canAnnotate = false;
+                    case '[' when _tokenMarker == TokenKind.None:
+                        _tokenMarker = TokenKind.Section;
                         return LexSection();
-                    case NewLine when _scanner.ReadAhead() == NewLine:
-                        _canAnnotate = true;
+                    case '/' when _tokenMarker == TokenKind.Section:
+                        _tokenMarker = TokenKind.Regex;
                         break;
+                    case Tab when _tokenMarker == TokenKind.Indent:
+                    case Space when _tokenMarker == TokenKind.Indent:
+                        return LexIndentation();
+                    case NewLine:
+                        return LexNewLine();
                     case EndOfFile:
                         return null;
                 }
@@ -34,48 +43,83 @@
             }
         }
 
+        private static bool IsIndentChar(char currentChar) => currentChar == Space || currentChar == Tab;
+
+        private Token LexNewLine()
+        {
+            _tokenMarker = TokenKind.None;
+
+            DetermineIndentations();
+
+            _scanner.MoveNext();
+
+            return new Token(_scanner.CurrentPosition, TokenKind.Newline, GetSlice());
+
+            void DetermineIndentations()
+            {
+                var offset = 1;
+
+                if (_scanner.ReadAhead() is var nextChar && IsIndentChar(nextChar))
+                {
+                    nextChar = _scanner.ReadAhead(++offset);
+
+                    if (IsIndentChar(nextChar)) _tokenMarker = TokenKind.Indent;
+                }
+            }
+        }
+
+        private Token LexIndentation()
+        {
+            var ch = _scanner.ReadChar();
+            var start = _scanner.CurrentPosition;
+            var nextChar = _scanner.ReadAhead(2);
+
+            _scanner.MoveAhead();
+
+            while (IsIndentChar(nextChar))
+            {
+                nextChar = _scanner.ReadAhead();
+                _scanner.MoveAhead();
+            }
+
+            _tokenMarker = TokenKind.None;
+
+            return new Token(start, ch == Space ? TokenKind.Space : TokenKind.Tab, _scanner.GetSlice(start.._scanner.AbsolutePosition));
+        }
+
         private Token LexAnnotation()
         {
-            TokenBuilder builder = new TokenBuilder();
-            builder.SetPosition(_scanner.CurrentPosition);
-
-            for (int index = 1; ; index++)
+            for (int offset = 1; ; offset++)
             {
-                var ch = _scanner.ReadAhead(index);
+                var ch = _scanner.ReadAhead(offset);
 
                 if (ch == '(' || ch == NewLine || ch == EndOfFile)
                 {
-                    builder
-                        .SetKind(TokenKind.Annotation)
-                        .SetValue(GetSlice());
+                    var token = new Token(_scanner.CurrentPosition, TokenKind.Annotation, GetSlice());
 
                     _scanner.MoveAhead();
 
-                    if (ch == '(')
+                    if (ch == '(' && _scanner.ReadAhead(offset) != ')')
                     {
-                        //builder.AddToken(LexAnnotationArgumentList());
+                        _tokenMarker = TokenKind.AnnotationArgument;
+
+                        _scanner.MoveAhead();
                     }
 
-                    break;
+                    return token;
                 }
                 else if (!char.IsLetter(ch))
                 {
-                    // todo: Error
-
-                    _scanner.MoveAhead();
-
-                    break;
+                    return new Token(_scanner.CurrentPosition, TokenKind.Error, ReadOnlyMemory<char>.Empty);
                 }
             }
-
-            return builder.Build();
         }
 
         private Token LexSection()
         {
-            for (int index = 1; ; index++)
+            for (int offset = 1; ; offset++)
             {
-                var ch = _scanner.ReadAhead(index);
+                var ch = _scanner.ReadAhead(offset);
 
                 if (ch == ']')
                 {

@@ -24,6 +24,8 @@ namespace FindAndReplaceRobot.Language.Tests
         [TestCase("@MyCustomAnnotation\r\n")]
         [TestCase("@MyCustomAnnotation\n")]
         [TestCase("@MyCustomAnnotation()")]
+        [TestCase("@MyCustomAnnotation\r\n@MyCustomAnnotation")]
+        [TestCase("@MyCustomAnnotation\n@MyCustomAnnotation()")]
         public void Should_succeed_lexing_annotations(string text)
         {
             var scanner = new Scanner(text);
@@ -48,11 +50,10 @@ namespace FindAndReplaceRobot.Language.Tests
             token.ShouldBeNull();
         }
 
-        [TestCase("[MyCustomSection]")]
-        [TestCase("@MyCustomAnnotation([MyCustomSection])")]
-        public void Should_succeed_lexing_sections(string text)
+        [Test]
+        public void Should_succeed_lexing_sections()
         {
-            var scanner = new Scanner(text);
+            var scanner = new Scanner("[MyCustomSection]");
             var lexer = new Lexer(scanner);
 
             var token = lexer.ReadTokenByKind(TokenKind.Section);

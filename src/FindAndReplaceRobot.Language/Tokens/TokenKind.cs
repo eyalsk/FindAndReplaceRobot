@@ -24,9 +24,14 @@
 
         Whitespace = 500,
         EndOfLine = 501,
-        Indent = 502,
-        Newline = 503,
+        Newline = 502,
+        Indent = 503,
+        Tab = 504,
+        Space = 505,
+        
 
-        Keyword = 600
+        Error = 600,
+
+        Keyword = 700
     }
 }
