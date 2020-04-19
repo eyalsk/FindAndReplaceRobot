@@ -49,7 +49,7 @@ value
     ;
 
 label
-    : [` identifier `]`
+    : `[` identifier `]`
     ;
 
 identifier
