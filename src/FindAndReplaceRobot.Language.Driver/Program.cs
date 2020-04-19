@@ -25,7 +25,7 @@
 
                 if (token is null) break;
 
-                Console.WriteLine($"{token.Value}\n\t\t\t{token.Start}\t\t{token.Length}\t{token.Kind}");
+                Console.WriteLine($"{token}\n\t\t\t{token.Start}\t\t{token.Length}\t{token.Kind}");
             }
         }
     }

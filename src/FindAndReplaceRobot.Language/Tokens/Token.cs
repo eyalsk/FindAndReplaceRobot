@@ -21,5 +21,11 @@
         public TokenKind Kind { get; }
 
         public ReadOnlyMemory<char> Value { get; }
+
+        public override string ToString() =>
+            Kind == TokenKind.Space ||
+            Kind == TokenKind.Tab ||
+            Kind == TokenKind.Newline ||
+            Kind == TokenKind.EndOfLine ? string.Empty : Value.ToString();
     }
 }
