@@ -29,7 +29,8 @@
         public void MoveAhead()
         {
             CurrentPosition += _offset;
-            _offset = 0;
+
+            Reset();
         }
 
         public bool MoveNext() => CurrentPosition < TextLength && ++CurrentPosition < TextLength;
@@ -55,6 +56,8 @@
 
             return ch;
         }
+
+        public void Reset() => _offset = 0;
 
         private bool TrySkipCarriageReturn(int pos, ref char ch)
         {
