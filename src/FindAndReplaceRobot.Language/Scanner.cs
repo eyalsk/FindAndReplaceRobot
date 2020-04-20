@@ -28,7 +28,7 @@
 
         public void MoveAhead()
         {
-            CurrentPosition += _offset;
+            CurrentPosition = AbsolutePosition < TextLength ? AbsolutePosition : TextLength;
 
             Reset();
         }
