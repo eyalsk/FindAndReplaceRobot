@@ -25,7 +25,7 @@
         public override string ToString() =>
             Kind == TokenKind.Space ||
             Kind == TokenKind.Tab ||
-            Kind == TokenKind.Newline ||
+            Kind == TokenKind.NewLine ||
             Kind == TokenKind.EndOfLine ? string.Empty : Value.ToString();
     }
 }

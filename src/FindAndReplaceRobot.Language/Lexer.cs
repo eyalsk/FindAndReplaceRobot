@@ -8,7 +8,15 @@
     public sealed class Lexer
     {
         private readonly Scanner _scanner;
-        private TokenKind _tokenMarker;
+        private SectionMarker _marker = SectionMarker.Header;
+
+        private enum SectionMarker
+        {
+            None,
+            Header,
+            Subsection,
+            Item
+        }
 
         public Lexer(Scanner scanner) =>
             _scanner = scanner ?? throw new ArgumentNullException(nameof(scanner));
@@ -19,19 +27,12 @@
             {
                 switch (_scanner.ReadChar())
                 {
-                    case '(' when _tokenMarker == TokenKind.AnnotationArgument:
-                    case ',' when _tokenMarker == TokenKind.AnnotationArgument:
-                    case '@' when _tokenMarker == TokenKind.None:
-                        _tokenMarker = TokenKind.Annotation;
+                    case '@' when _marker == SectionMarker.Header:
                         return LexAnnotation();
-                    case '[' when _tokenMarker == TokenKind.None:
-                        _tokenMarker = TokenKind.Section;
+                    case '[' when _marker == SectionMarker.Header:
                         return LexSection();
-                    case '/' when _tokenMarker == TokenKind.Section:
-                        _tokenMarker = TokenKind.Regex;
-                        break;
-                    case Tab when _tokenMarker == TokenKind.Indent:
-                    case Space when _tokenMarker == TokenKind.Indent:
+                    case Tab when _marker == SectionMarker.Subsection:
+                    case Space when _marker == SectionMarker.Subsection:
                         return LexIndentation();
                     case NewLine:
                         return LexNewLine();
@@ -47,25 +48,32 @@
 
         private Token LexNewLine()
         {
-            _tokenMarker = TokenKind.None;
+            SetSectionMarker();
 
-            DetermineIndentations();
-
-            var token = new Token(_scanner.CurrentPosition, TokenKind.Newline, SliceOne());
+            var token = new Token(_scanner.CurrentPosition, TokenKind.NewLine, SliceOne());
 
             _scanner.MoveNext();
 
             return token;
 
-            void DetermineIndentations()
+            void SetSectionMarker()
             {
                 var offset = 1;
+                var nextChar = _scanner.ReadAhead();
 
-                if (_scanner.ReadAhead() is var nextChar && IsIndentChar(nextChar))
+                if (IsIndentChar(nextChar))
                 {
                     nextChar = _scanner.ReadAhead(++offset);
 
-                    if (IsIndentChar(nextChar)) _tokenMarker = TokenKind.Indent;
+                    if (IsIndentChar(nextChar)) _marker = SectionMarker.Subsection;
+                }
+                else if (nextChar == '@' || nextChar == '[')
+                {
+                    _marker = SectionMarker.Header;
+                }
+                else
+                {
+                    _marker = SectionMarker.None;
                 }
 
                 _scanner.Reset();
@@ -86,9 +94,12 @@
                 _scanner.MoveAhead();
             }
 
-            _tokenMarker = TokenKind.None;
+            SetSectionMarker(nextChar);
 
             return new Token(start, ch == Space ? TokenKind.Space : TokenKind.Tab, SliceFrom(start));
+
+            void SetSectionMarker(char nextChar) =>
+                _marker = nextChar == '@' ? SectionMarker.Header : SectionMarker.Item;
         }
 
         private Token LexAnnotation()
@@ -103,18 +114,25 @@
 
                     _scanner.MoveAhead();
 
-                    if (ch == '(' && _scanner.ReadAhead(offset) != ')')
+                    if (ch == '(')
                     {
-                        _tokenMarker = TokenKind.AnnotationArgument;
+                        if (_scanner.ReadAhead(++offset) != ')')
+                        {
+                            _scanner.Reset();
 
-                        _scanner.MoveAhead();
+                            // todo: LexAnnotationArguments()
+                        }
+                        else
+                        {
+                            _scanner.MoveAhead();
+                        }
                     }
 
                     return token;
                 }
                 else if (!char.IsLetter(ch))
                 {
-                    return new Token(_scanner.CurrentPosition, TokenKind.Error, ReadOnlyMemory<char>.Empty);
+                    _scanner.MoveAhead();
                 }
             }
         }

@@ -24,7 +24,7 @@
 
         Whitespace = 500,
         EndOfLine = 501,
-        Newline = 502,
+        NewLine = 502,
         Indent = 503,
         Tab = 504,
         Space = 505,
