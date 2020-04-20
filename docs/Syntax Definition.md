@@ -13,10 +13,10 @@ subsection
     ;
 
 section
-    : annotation* [label newline] set newline
+    : annotation* [label newline] item newline
     ;
 
-set
+item
     : (value newline)+ 
     | (map newline)+
     ;
