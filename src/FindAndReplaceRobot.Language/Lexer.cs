@@ -50,7 +50,7 @@
         {
             SetSectionMarker();
 
-            var token = new Token(_scanner.CurrentPosition, TokenKind.NewLine, SliceOne());
+            var token = CreateToken(TokenKind.NewLine, SliceOne());
 
             _scanner.MoveNext();
 
@@ -96,7 +96,7 @@
 
             SetSectionMarker(nextChar);
 
-            return new Token(start, ch == Space ? TokenKind.Space : TokenKind.Tab, SliceFrom(start));
+            return CreateToken(start, ch == Space ? TokenKind.Space : TokenKind.Tab, SliceFrom(start));
 
             void SetSectionMarker(char nextChar) =>
                 _marker = nextChar == '@' ? SectionMarker.Header : SectionMarker.Item;
@@ -110,7 +110,7 @@
 
                 if (ch == '(' || ch == NewLine || ch == EndOfFile)
                 {
-                    var token = new Token(_scanner.CurrentPosition, TokenKind.Annotation, SkipFirstSliceRest());
+                    var token = CreateToken(TokenKind.Annotation, SkipFirstSliceRest());
 
                     _scanner.MoveAhead();
 
@@ -120,7 +120,7 @@
                         {
                             _scanner.Reset();
 
-                            // todo: LexAnnotationArguments()
+                            // todo: LexAnnotationArguments();
                         }
                         else
                         {
@@ -145,13 +145,23 @@
 
                 if (ch == ']')
                 {
-                    var token = new Token(_scanner.CurrentPosition, TokenKind.Section, SkipFirstSliceRest());
+                    var token = CreateToken(TokenKind.Section, SkipFirstSliceRest());
 
                     _scanner.MoveAhead();
 
                     return token;
                 }
             }
+        }
+
+        private Token CreateToken(TokenKind kind, ReadOnlyMemory<char> value)
+        {
+            return new Token(_scanner.CurrentPosition, kind, value);
+        }
+
+        private Token CreateToken(int start, TokenKind kind, ReadOnlyMemory<char> value)
+        {
+            return new Token(start, kind, value);
         }
 
         private ReadOnlyMemory<char> SliceOne() => _scanner.GetSlice(_scanner.CurrentPosition..(_scanner.CurrentPosition + 1));
