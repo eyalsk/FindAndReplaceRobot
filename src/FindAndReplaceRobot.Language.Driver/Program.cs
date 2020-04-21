@@ -17,7 +17,7 @@
             var scanner = new Scanner(text);
             var lexer = new Lexer(scanner);
 
-            Console.WriteLine($"Text\t\t\tStart Position\tLength\tToken Type");
+            Console.WriteLine($"Text\t\t\tStart Position\tEnd\tToken Type");
 
             while (true)
             {
@@ -25,7 +25,7 @@
 
                 if (token is null) break;
 
-                Console.WriteLine($"{token}\n\t\t\t{token.Start}\t\t{token.Length}\t{token.Kind}");
+                Console.WriteLine($"{token}\n\t\t\t{token.Start}\t\t{token.End}\t{token.Kind}");
             }
         }
     }

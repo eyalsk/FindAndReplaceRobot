@@ -145,7 +145,11 @@
 
                 if (ch == ']')
                 {
-                    var token = CreateToken(TokenKind.Section, SkipFirstSliceRest());
+                    var token = CreateToken(
+                        _scanner.CurrentPosition,
+                        _scanner.AbsolutePosition + 1,
+                        TokenKind.Section,
+                        SkipFirstSliceRest());
 
                     _scanner.MoveAhead();
 
@@ -154,15 +158,14 @@
             }
         }
 
-        private Token CreateToken(TokenKind kind, ReadOnlyMemory<char> value)
-        {
-            return new Token(_scanner.CurrentPosition, kind, value);
-        }
+        private Token CreateToken(TokenKind kind, ReadOnlyMemory<char> value) =>
+            new Token(_scanner.CurrentPosition, _scanner.AbsolutePosition, kind, value);
 
-        private Token CreateToken(int start, TokenKind kind, ReadOnlyMemory<char> value)
-        {
-            return new Token(start, kind, value);
-        }
+        private Token CreateToken(int start, TokenKind kind, ReadOnlyMemory<char> value) =>
+            new Token(start, _scanner.AbsolutePosition, kind, value);
+
+        private Token CreateToken(int start, int end, TokenKind kind, ReadOnlyMemory<char> value) =>
+            new Token(start, end, kind, value);
 
         private ReadOnlyMemory<char> SliceOne() => _scanner.GetSlice(_scanner.CurrentPosition..(_scanner.CurrentPosition + 1));
         private ReadOnlyMemory<char> SliceFrom(Index start) => _scanner.GetSlice(start.._scanner.AbsolutePosition);
