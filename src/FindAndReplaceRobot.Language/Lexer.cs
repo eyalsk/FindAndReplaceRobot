@@ -1,6 +1,7 @@
 ﻿namespace FindAndReplaceRobot.Language
 {
     using System;
+    using System.Collections.Generic;
     using FindAndReplaceRobot.Language.Tokens;
 
     using static InvisibleCharacters;
@@ -8,6 +9,7 @@
     public sealed class Lexer
     {
         private readonly Scanner _scanner;
+        private readonly Queue<Token> _pendingTokens;
         private SectionMarker _marker = SectionMarker.Header;
 
         private enum SectionMarker
@@ -18,13 +20,21 @@
             Item
         }
 
-        public Lexer(Scanner scanner) =>
+        public Lexer(Scanner scanner)
+        {
             _scanner = scanner ?? throw new ArgumentNullException(nameof(scanner));
+            _pendingTokens = new Queue<Token>();
+        }
 
         public Token? ReadToken()
         {
             while (true)
             {
+                if (_pendingTokens.Count > 0)
+                {
+                    return _pendingTokens.Dequeue();
+                }
+
                 switch (_scanner.ReadChar())
                 {
                     case '@' when _marker == SectionMarker.Header:
@@ -44,7 +54,7 @@
             }
         }
 
-        private static bool IsIndentChar(char currentChar) => currentChar == Space || currentChar == Tab;
+        private static bool IsSpaceChar(char currentChar) => currentChar == Space || currentChar == Tab;
 
         private Token LexNewLine()
         {
@@ -61,11 +71,11 @@
                 var offset = 1;
                 var nextChar = _scanner.ReadAhead();
 
-                if (IsIndentChar(nextChar))
+                if (IsSpaceChar(nextChar))
                 {
                     nextChar = _scanner.ReadAhead(++offset);
 
-                    if (IsIndentChar(nextChar)) _marker = SectionMarker.Subsection;
+                    if (IsSpaceChar(nextChar)) _marker = SectionMarker.Subsection;
                 }
                 else if (nextChar == '@' || nextChar == '[')
                 {
@@ -85,10 +95,9 @@
             var ch = _scanner.ReadChar();
             var start = _scanner.CurrentPosition;
             var nextChar = _scanner.ReadAhead(2);
-
             _scanner.MoveAhead();
 
-            while (IsIndentChar(nextChar))
+            while (IsSpaceChar(nextChar))
             {
                 nextChar = _scanner.ReadAhead();
                 _scanner.MoveAhead();
@@ -114,26 +123,83 @@
 
                     _scanner.MoveAhead();
 
-                    if (ch == '(')
-                    {
-                        if (_scanner.ReadAhead(++offset) != ')')
-                        {
-                            _scanner.Reset();
-
-                            // todo: LexAnnotationArguments();
-                        }
-                        else
-                        {
-                            _scanner.MoveAhead();
-                        }
-                    }
+                    LexAnnotationArguments();
 
                     return token;
                 }
                 else if (!char.IsLetter(ch))
                 {
+                    // todo: Add error "Invalid annotation identifier at {position}. Annotation identifier can only contain letters."
+
                     _scanner.MoveAhead();
                 }
+            }
+        }
+
+        private void LexAnnotationArguments()
+        {
+            var start = _scanner.CurrentPosition;
+            var end = _scanner.AbsolutePosition;
+            int openingCharCount = 0;
+            char? closingChar = null;
+
+            while (true)
+            {
+                var ch = _scanner.ReadChar();
+
+                if (closingChar is null && (ch == '[' || ch == '"'))
+                {
+                    start = _scanner.CurrentPosition;
+                    closingChar = ch;
+                }
+                else if ((closingChar == '[' && ch == ']') || (closingChar == '"' && ch == '"'))
+                {
+                    end = _scanner.CurrentPosition + 1;
+                    closingChar = null;
+                }
+                else if (closingChar is null && (ch == ',' || ch == ')'))
+                {
+                    _scanner.MoveNext();
+
+                    if (end > start)
+                    {
+                        _pendingTokens.Enqueue(
+                            CreateToken(
+                                start,
+                                end,
+                                TokenKind.AnnotationArgument,
+                                _scanner.GetSlice(start..end)));
+                    }
+                    else
+                    {
+                        break;
+                    }
+
+                    if (ch == ')') closingChar = ch;
+                }
+                else if (ch == '(' && ++openingCharCount > 1)
+                {
+                    // todo: Add error "Annotation '{identifier}' contains illegal opening parenthesis."
+                }
+                else if(ch == NewLine || ch == EndOfFile)
+                {
+                    if (closingChar is null)
+                    {
+                        // todo: Add error "Annotation '{identifier}' does not contain closing parenthesis."
+                    }
+
+                    break;
+                }
+                else if (closingChar is object && ch == '[')
+                {
+                    // todo: Add error "Annotation argument contains unescaped opening bracket at '{position}'."
+                }
+                else if (closingChar is null && !IsSpaceChar(ch))
+                {
+                    // todo: Add error "Annotation argument contains unquoted characters at '{position}'."
+                }
+
+                _scanner.MoveNext();
             }
         }
 

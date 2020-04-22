@@ -1,6 +1,8 @@
 namespace FindAndReplaceRobot.Language.Tests
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using FindAndReplaceRobot.Language.Tests.Extensions;
     using FindAndReplaceRobot.Language.Tokens;
     using NUnit.Framework;
@@ -24,6 +26,7 @@ namespace FindAndReplaceRobot.Language.Tests
         [TestCase("@MyCustomAnnotation\r\n")]
         [TestCase("@MyCustomAnnotation\n")]
         [TestCase("@MyCustomAnnotation()")]
+        [TestCase("@MyCustomAnnotation( )")]
         [TestCase("@MyCustomAnnotation\r\n@MyCustomAnnotation")]
         [TestCase("@MyCustomAnnotation\n@MyCustomAnnotation()")]
         public void Should_succeed_lexing_annotations(string text)
@@ -46,6 +49,34 @@ namespace FindAndReplaceRobot.Language.Tests
             var lexer = new Lexer(scanner);
 
             var token = lexer.ReadTokenByKind(TokenKind.Annotation);
+
+            token.ShouldBeNull();
+        }
+
+        [TestCase("@MyCustomAnnotation([MySection])", "[MySection]")]
+        [TestCase("@MyCustomAnnotation( [MySection])", "[MySection]")]
+        [TestCase("@MyCustomAnnotation([MySection] )", "[MySection]")]
+        [TestCase("@MyCustomAnnotation( [MySection] )", "[MySection]")]
+        [TestCase("@MyCustomAnnotation([MySe ction])", "[MySe ction]")]
+        [TestCase("@MyCustomAnnotation(\"MySection\")", "\"MySection\"")]
+        [TestCase("@MyCustomAnnotation(\"MySection\", [MySection])", "\"MySection\"", "[MySection]")]
+        public void Should_succeed_lexing_annotations_with_arguments(string text, params string[] args)
+        {
+            var scanner = new Scanner(text);
+            var lexer = new Lexer(scanner);
+
+            var tokens = lexer.ReadTokensByKind(TokenKind.AnnotationArgument);
+
+            tokens.ShouldAllBe(t => args.Contains(t.Value.ToString()));
+        }
+
+        [TestCase("@MyCustomAnnotation([MySection]")]
+        public void Should_fail_lexing_annotations_with_arguments(string text)
+        {
+            var scanner = new Scanner(text);
+            var lexer = new Lexer(scanner);
+
+            var token = lexer.ReadTokenByKind(TokenKind.AnnotationArgument);
 
             token.ShouldBeNull();
         }
