@@ -24,7 +24,7 @@
 
         public int AbsolutePosition => CurrentPosition + _offset;
 
-        public ReadOnlyMemory<char> GetSlice(Range range) => _text[range].TrimEnd('\r');
+        public ReadOnlyMemory<char> GetSlice(Range range) => _text[range];
 
         public void MoveAhead()
         {
@@ -41,30 +41,33 @@
 
             _offset = offset;
 
-            var ch = AbsolutePosition < TextLength ? _text.Span[AbsolutePosition] : EndOfFile;
-
-            if (skipReturns && TrySkipCarriageReturn(AbsolutePosition, ref ch)) _offset++;
-
-            return ch;
+            return GetChar(AbsolutePosition, skipReturns);
         }
 
         public char PeekAhead(int offset = 1, bool skipReturns = true)
         {
             if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
 
-            var pos = CurrentPosition + offset;
-            var ch = pos < TextLength ? _text.Span[pos] : EndOfFile;
-
-            _ = skipReturns && TrySkipCarriageReturn(pos, ref ch);
-
-            return ch;
+            return GetChar(CurrentPosition + offset, skipReturns);
         }
 
-        public char ReadChar(bool skipReturns = true)
-        {
-            var ch = CurrentPosition < TextLength ? _text.Span[CurrentPosition] : EndOfFile;
+        public char ReadChar(bool skipReturns = true) => GetChar(CurrentPosition, skipReturns);
 
-            if (skipReturns && TrySkipCarriageReturn(CurrentPosition, ref ch)) CurrentPosition++;
+        private char GetChar(int index, bool skipReturns = true)
+        {
+            var ch = index < TextLength ? _text.Span[index] : EndOfFile;
+
+            if (skipReturns && TrySkipCarriageReturn(index, ref ch))
+            {
+                if (index == CurrentPosition)
+                {
+                    CurrentPosition++;
+                }
+                else if (index == AbsolutePosition)
+                {
+                    _offset++;
+                }
+            }
 
             return ch;
         }
