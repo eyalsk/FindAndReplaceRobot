@@ -30,7 +30,7 @@
         {
             CurrentPosition = AbsolutePosition < TextLength ? AbsolutePosition : TextLength;
 
-            Reset();
+            _offset = 0;
         }
 
         public bool MoveNext() => CurrentPosition < TextLength && ++CurrentPosition < TextLength;
@@ -48,6 +48,18 @@
             return ch;
         }
 
+        public char PeekAhead(int offset = 1, bool skipReturns = true)
+        {
+            if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
+
+            var pos = CurrentPosition + offset;
+            var ch = pos < TextLength ? _text.Span[pos] : EndOfFile;
+
+            _ = skipReturns && TrySkipCarriageReturn(pos, ref ch);
+
+            return ch;
+        }
+
         public char ReadChar(bool skipReturns = true)
         {
             var ch = CurrentPosition < TextLength ? _text.Span[CurrentPosition] : EndOfFile;
@@ -56,8 +68,6 @@
 
             return ch;
         }
-
-        public void Reset() => _offset = 0;
 
         private bool TrySkipCarriageReturn(int pos, ref char ch)
         {
@@ -69,7 +79,7 @@
                 if (nextChar == NewLine)
                 {
                     ch = nextChar;
-      
+
                     return true;
                 }
             }

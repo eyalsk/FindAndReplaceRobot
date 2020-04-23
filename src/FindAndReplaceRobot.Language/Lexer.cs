@@ -69,11 +69,11 @@
             void SetSectionMarker()
             {
                 var offset = 1;
-                var nextChar = _scanner.ReadAhead();
+                var nextChar = _scanner.PeekAhead();
 
                 if (IsSpaceChar(nextChar))
                 {
-                    nextChar = _scanner.ReadAhead(++offset);
+                    nextChar = _scanner.PeekAhead(++offset);
 
                     if (IsSpaceChar(nextChar)) _marker = SectionMarker.Subsection;
                 }
@@ -85,8 +85,6 @@
                 {
                     _marker = SectionMarker.None;
                 }
-
-                _scanner.Reset();
             }
         }
 
