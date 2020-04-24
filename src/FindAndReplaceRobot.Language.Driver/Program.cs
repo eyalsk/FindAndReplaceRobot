@@ -17,15 +17,14 @@
             var scanner = new Scanner(text);
             var lexer = new Lexer(scanner);
 
-            Console.WriteLine($"Text\t\t\tStart Position\tEnd\tToken Type");
-
             while (true)
             {
                 var token = lexer.ReadToken();
 
                 if (token is null) break;
 
-                Console.WriteLine($"{token}\n\t\t\t{token.Start}\t\t{token.End}\t{token.Kind}");
+                Console.WriteLine($" {token}\n\t\t\t\t[{token.Start} - {token.End}]\t\t{token.Kind}");
+                Console.WriteLine("--------------------------------------------------------------------------------------------------------");
             }
         }
     }
