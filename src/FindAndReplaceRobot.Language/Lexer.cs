@@ -91,7 +91,7 @@
         private Token LexIndentation()
         {
             var ch = _scanner.ReadChar();
-            var start = _scanner.CurrentPosition;
+            var start = _scanner.CurrentIndex;
             var nextChar = _scanner.ReadAhead(2);
             _scanner.MoveAhead();
 
@@ -136,8 +136,8 @@
 
         private void LexAnnotationArguments()
         {
-            var start = _scanner.CurrentPosition;
-            var end = _scanner.AbsolutePosition;
+            var start = _scanner.CurrentIndex;
+            var end = _scanner.AbsoluteIndex;
             int openingCharCount = 0;
             char? closingChar = null;
 
@@ -147,12 +147,12 @@
 
                 if (closingChar is null && (ch == '[' || ch == '"'))
                 {
-                    start = _scanner.CurrentPosition;
+                    start = _scanner.CurrentIndex;
                     closingChar = ch;
                 }
                 else if ((closingChar == '[' && ch == ']') || (closingChar == '"' && ch == '"'))
                 {
-                    end = _scanner.CurrentPosition + 1;
+                    end = _scanner.CurrentIndex + 1;
                     closingChar = null;
                 }
                 else if (closingChar is null && (ch == ',' || ch == ')'))
@@ -177,13 +177,13 @@
                 }
                 else if (ch == '(' && ++openingCharCount > 1)
                 {
-                    // todo: Add error "Annotation '{identifier}' contains illegal opening parenthesis."
+                    // todo: Add error "Annotation at '{position}' contains illegal opening parenthesis."
                 }
                 else if(ch == NewLine || ch == EndOfFile)
                 {
                     if (closingChar is null)
                     {
-                        // todo: Add error "Annotation '{identifier}' does not contain closing parenthesis."
+                        // todo: Add error "Annotation at '{position}' does not contain closing parenthesis."
                     }
 
                     break;
@@ -210,8 +210,8 @@
                 if (ch == ']')
                 {
                     var token = CreateToken(
-                        _scanner.CurrentPosition,
-                        _scanner.AbsolutePosition + 1,
+                        _scanner.CurrentIndex,
+                        _scanner.AbsoluteIndex + 1,
                         TokenKind.Section,
                         SkipFirstSliceRest());
 
@@ -223,16 +223,16 @@
         }
 
         private Token CreateToken(TokenKind kind, ReadOnlyMemory<char> value) =>
-            new Token(_scanner.CurrentPosition, _scanner.AbsolutePosition, kind, value);
+            new Token(_scanner.CurrentIndex, _scanner.AbsoluteIndex, kind, value);
 
         private Token CreateToken(int start, TokenKind kind, ReadOnlyMemory<char> value) =>
-            new Token(start, _scanner.AbsolutePosition, kind, value);
+            new Token(start, _scanner.AbsoluteIndex, kind, value);
 
         private Token CreateToken(int start, int end, TokenKind kind, ReadOnlyMemory<char> value) =>
             new Token(start, end, kind, value);
 
-        private ReadOnlyMemory<char> SliceOne() => _scanner.GetSlice(_scanner.CurrentPosition..(_scanner.CurrentPosition + 1));
-        private ReadOnlyMemory<char> SliceFrom(Index start) => _scanner.GetSlice(start.._scanner.AbsolutePosition);
-        private ReadOnlyMemory<char> SkipFirstSliceRest() => _scanner.GetSlice((_scanner.CurrentPosition + 1).._scanner.AbsolutePosition);
+        private ReadOnlyMemory<char> SliceOne() => _scanner.GetSlice(_scanner.CurrentIndex..(_scanner.CurrentIndex + 1));
+        private ReadOnlyMemory<char> SliceFrom(Index start) => _scanner.GetSlice(start.._scanner.AbsoluteIndex);
+        private ReadOnlyMemory<char> SkipFirstSliceRest() => _scanner.GetSlice((_scanner.CurrentIndex + 1).._scanner.AbsoluteIndex);
     }
 }

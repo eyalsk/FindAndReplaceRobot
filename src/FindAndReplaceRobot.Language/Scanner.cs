@@ -8,76 +8,100 @@
     {
         private readonly ReadOnlyMemory<char> _text;
         private int _offset;
+        private int _prevIndex = -1;
+
+        private enum ReadMode
+        {
+            Normal,
+            Lookahead,
+            Peeking
+        }
 
         public Scanner(ReadOnlyMemory<char> text)
         {
             _text = text;
 
             TextLength = text.Length;
+
+            Position = new Position(0);
         }
 
         public Scanner(string text) : this(text.AsMemory()) { }
 
         public int TextLength { get; }
 
-        public int CurrentPosition { get; private set; }
+        public int CurrentIndex { get; private set; }
 
-        public int AbsolutePosition => CurrentPosition + _offset;
+        public int AbsoluteIndex => CurrentIndex + _offset;
+
+        public Position Position { get; private set; }
 
         public ReadOnlyMemory<char> GetSlice(Range range) => _text[range];
 
         public void MoveAhead()
         {
-            CurrentPosition = AbsolutePosition < TextLength ? AbsolutePosition : TextLength;
+            CurrentIndex = AbsoluteIndex < TextLength ? AbsoluteIndex : TextLength;
 
             _offset = 0;
         }
 
-        public bool MoveNext() => CurrentPosition < TextLength && ++CurrentPosition < TextLength;
+        public bool MoveNext() => CurrentIndex < TextLength && ++CurrentIndex < TextLength;
 
-        public char ReadAhead(int offset = 1, bool skipReturns = true)
+        public char ReadAhead(int offset = 1)
         {
             if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
 
             _offset = offset;
 
-            return GetChar(AbsolutePosition, skipReturns);
+            return GetChar(AbsoluteIndex, ReadMode.Lookahead);
         }
 
-        public char PeekAhead(int offset = 1, bool skipReturns = true)
+        public char PeekAhead(int offset = 1)
         {
             if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
 
-            return GetChar(CurrentPosition + offset, skipReturns);
+            return GetChar(CurrentIndex + offset, ReadMode.Peeking);
         }
 
-        public char ReadChar(bool skipReturns = true) => GetChar(CurrentPosition, skipReturns);
+        public char ReadChar() => GetChar(CurrentIndex, ReadMode.Normal);
 
-        private char GetChar(int index, bool skipReturns = true)
+        private char GetChar(int index, ReadMode mode)
         {
             var ch = index < TextLength ? _text.Span[index] : EndOfFile;
 
-            if (skipReturns && TrySkipCarriageReturn(index, ref ch))
+            if (TrySkipCarriageReturn(index, ref ch))
             {
-                if (index == CurrentPosition)
+                index++;
+
+                switch (mode)
                 {
-                    CurrentPosition++;
+                    case ReadMode.Normal:
+                        CurrentIndex++;
+                        break;
+                    case ReadMode.Lookahead:
+                        _offset++;
+                        break;
+                    case ReadMode.Peeking:
+                        index = -1;
+                        break;
                 }
-                else if (index == AbsolutePosition)
-                {
-                    _offset++;
-                }
+            }
+
+            if (index > _prevIndex)
+            {
+                Position = ch == NewLine ? Position.NextLine(index) : Position.NextColumn(index);
+
+                _prevIndex = index;
             }
 
             return ch;
         }
 
-        private bool TrySkipCarriageReturn(int pos, ref char ch)
+        private bool TrySkipCarriageReturn(int index, ref char ch)
         {
             if (ch == Return)
             {
-                var index = pos + 1;
-                var nextChar = index < TextLength ? _text.Span[index] : ch;
+                var nextChar = ++index < TextLength ? _text.Span[index] : ch;
 
                 if (nextChar == NewLine)
                 {
