@@ -73,17 +73,13 @@
             {
                 index++;
 
-                switch (mode)
+                if (mode == ReadMode.Normal)
                 {
-                    case ReadMode.Normal:
-                        CurrentIndex++;
-                        break;
-                    case ReadMode.Lookahead:
-                        _offset++;
-                        break;
-                    case ReadMode.Peeking:
-                        index = -1;
-                        break;
+                    CurrentIndex++;
+                }
+                else if (mode == ReadMode.Lookahead)
+                {
+                    _offset++;
                 }
             }
 
