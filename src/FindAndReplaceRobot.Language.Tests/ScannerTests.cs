@@ -105,15 +105,15 @@ namespace FindAndReplaceRobot.Language.Tests
             }
 
             results.ShouldBe(new[] {
-                ('a', 0, 0, new Position(0, 1, 1)),
-                ('\n', 2, 2, new Position(2, 2, 0)),
-                ('b', 3, 3, new Position(3, 2, 1)),
-                ('\n', 4, 4, new Position(4, 3, 0)),
-                ('c', 5, 5, new Position(5, 3, 1)),
-                ('\n', 6, 6, new Position(6, 4, 0)),
-                ('\n', 7, 7, new Position(7, 5, 0)),
-                ('d', 8, 8, new Position(8, 5, 1)),
-                (EndOfFile, 9, 9, new Position(9, 5, 2))
+                ('a', 0, 0, new Position(1, 1)),
+                ('\n', 2, 2, new Position(2, 0)),
+                ('b', 3, 3, new Position(2, 1)),
+                ('\n', 4, 4, new Position(3, 0)),
+                ('c', 5, 5, new Position(3, 1)),
+                ('\n', 6, 6, new Position(4, 0)),
+                ('\n', 7, 7, new Position(5, 0)),
+                ('d', 8, 8, new Position(5, 1)),
+                (EndOfFile, 9, 9, new Position(5, 2))
             });
         }
     }

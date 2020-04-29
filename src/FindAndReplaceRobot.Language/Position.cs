@@ -5,33 +5,29 @@
 
     public readonly struct Position : IEquatable<Position>
     {
-        public Position(int index = 0, int lineNumber = 1, int columnNumber = 0)
+        public Position(int lineNumber, int columnNumber)
         {
-            Index = index;
             LineNumber = lineNumber;
             ColumnNumber = columnNumber;
         }
 
         public int ColumnNumber { get; }
 
-        public int Index { get; }
-
         public int LineNumber { get; }
 
-        public Position NextColumn(int index) =>
-            new Position(index, LineNumber, ColumnNumber + 1);
+        public Position NextColumn() =>
+            new Position(LineNumber, ColumnNumber + 1);
 
-        public Position NextLine(int index) =>
-            new Position(index, LineNumber + 1, 0);
+        public Position NextLine() =>
+            new Position(LineNumber + 1, 0);
 
         public bool Equals([AllowNull] Position other) =>
-            (Index == other.Index) &&
             (LineNumber == other.LineNumber) &&
             (ColumnNumber == other.ColumnNumber);
 
         public override bool Equals(object? other) => other is Position position && Equals(position);
 
-        public override int GetHashCode() => HashCode.Combine(Index, LineNumber, ColumnNumber);
+        public override int GetHashCode() => HashCode.Combine(LineNumber, ColumnNumber);
 
         public static bool operator ==(Position left, Position right)
         {
@@ -43,6 +39,6 @@
             return !Equals(left, right);
         }
 
-        public override string ToString() => $"{Index} {LineNumber} {ColumnNumber}";
+        public override string ToString() => $"{LineNumber} {ColumnNumber}";
     }
 }

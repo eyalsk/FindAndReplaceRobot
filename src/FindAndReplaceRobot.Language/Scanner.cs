@@ -23,7 +23,7 @@
 
             TextLength = text.Length;
 
-            Position = new Position(0);
+            Position = new Position(1, 0);
         }
 
         public Scanner(string text) : this(text.AsMemory()) { }
@@ -85,7 +85,7 @@
 
             if (index > _prevIndex)
             {
-                Position = ch == NewLine ? Position.NextLine(index) : Position.NextColumn(index);
+                Position = ch == NewLine ? Position.NextLine() : Position.NextColumn();
 
                 _prevIndex = index;
             }
