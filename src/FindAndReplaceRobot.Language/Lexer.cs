@@ -69,11 +69,12 @@
             void SetSectionMarker()
             {
                 var offset = 1;
-                var nextChar = _scanner.PeekAhead();
+                var nextChar = _scanner.PeekAhead(ref offset);
 
                 if (IsSpaceChar(nextChar))
                 {
-                    nextChar = _scanner.PeekAhead(++offset);
+                    offset++;
+                    nextChar = _scanner.PeekAhead(ref offset);
 
                     if (IsSpaceChar(nextChar)) _marker = SectionMarker.Subsection;
                 }
@@ -111,9 +112,9 @@
 
         private Token LexAnnotation()
         {
-            for (int offset = 1; ; offset++)
+            while (true)
             {
-                var ch = _scanner.ReadAhead(offset);
+                var ch = _scanner.ReadAhead();
 
                 if (ch == '(' || ch == NewLine || ch == EndOfFile)
                 {
@@ -203,9 +204,9 @@
 
         private Token LexSection()
         {
-            for (int offset = 1; ; offset++)
+            while (true)
             {
-                var ch = _scanner.ReadAhead(offset);
+                var ch = _scanner.ReadAhead();
 
                 if (ch == ']')
                 {
@@ -218,6 +219,14 @@
                     _scanner.MoveAhead();
 
                     return token;
+                }
+                else if (ch == NewLine || ch == EndOfFile)
+                {
+                    _scanner.MoveAhead();
+
+                    // todo: Add error
+
+                    return CreateToken(TokenKind.Error, ReadOnlyMemory<char>.Empty);
                 }
             }
         }

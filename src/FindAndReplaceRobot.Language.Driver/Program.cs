@@ -1,9 +1,8 @@
 ﻿namespace FindAndReplaceRobot.Language.Driver
 {
     using System;
-    using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
-    using FindAndReplaceRobot.Language.Tokens;
 
     internal static class Program
     {
@@ -17,13 +16,17 @@
             var scanner = new Scanner(text);
             var lexer = new Lexer(scanner);
 
+            Trace.Listeners.Clear();
+            Trace.Listeners.Add(new ConsoleTraceListener());
+
             while (true)
             {
                 var token = lexer.ReadToken();
 
                 if (token is null) break;
 
-                Console.WriteLine($" {token}\n\t\t\t\t[{token.Start} - {token.End}]\t\t{token.Kind}");
+                Console.WriteLine("--------------------------------------------------------------------------------------------------------");
+                Console.WriteLine($" {token}\n\t\t[{token.Start}-{token.End}]\t\t{token.Kind}");
                 Console.WriteLine("--------------------------------------------------------------------------------------------------------");
             }
         }

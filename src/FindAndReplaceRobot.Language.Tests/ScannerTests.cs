@@ -10,54 +10,38 @@ namespace FindAndReplaceRobot.Language.Tests
     internal class ScannerTests
     {
         [Test]
-        public void Should_read_ahead_to_2nd_character()
+        public void Should_read_ahead_and_not_throw_when_start_above_zero()
         {
             var scanner = new Scanner("XY");
 
-            scanner.ReadAhead(offset: 1).ShouldBe('Y');
-        }
-
-        [TestCase(2)]
-        [TestCase(3)]
-        public void Should_read_ahead_to_end_of_file(int offset)
-        {
-            var scanner = new Scanner("XY");
-
-            scanner.ReadAhead(offset).ShouldBe(EndOfFile);
+            Should.NotThrow(() => scanner.ReadAhead(start: 1));
         }
 
         [TestCase(0)]
-        [TestCase(1)]
-        public void Should_read_ahead_and_not_throw_when_offset_above_or_equal_to_zero(int offset)
+        [TestCase(-1)]
+        public void Should_read_ahead_and_throw_when_start_below_or_equal_to_zero(int start)
         {
             var scanner = new Scanner("XY");
 
-            Should.NotThrow(() => scanner.ReadAhead(offset));
+            Should.Throw<ArgumentOutOfRangeException>(() => scanner.ReadAhead(start));
         }
 
         [Test]
-        public void Should_read_ahead_and_throw_when_offset_below_zero()
+        public void Should_peek_ahead_and_not_throw_when_offset_above_zero()
         {
             var scanner = new Scanner("XY");
+            var offset = 1;
 
-            Should.Throw<ArgumentOutOfRangeException>(() => scanner.ReadAhead(offset: -1));
+            Should.NotThrow(() => scanner.PeekAhead(ref offset));
         }
 
         [TestCase(0)]
-        [TestCase(1)]
-        public void Should_peek_ahead_and_not_throw_when_offset_above_or_equal_to_zero(int offset)
+        [TestCase(-1)]
+        public void Should_peek_ahead_and_throw_when_offset_below_or_equal_to_zero(int offset)
         {
             var scanner = new Scanner("XY");
 
-            Should.NotThrow(() => scanner.PeekAhead(offset));
-        }
-
-        [Test]
-        public void Should_peek_ahead_and_throw_when_offset_below_zero()
-        {
-            var scanner = new Scanner("XY");
-
-            Should.Throw<ArgumentOutOfRangeException>(() => scanner.PeekAhead(offset: -1));
+            Should.Throw<ArgumentOutOfRangeException>(() => scanner.PeekAhead(ref offset));
         }
 
         [Test]
@@ -74,8 +58,9 @@ namespace FindAndReplaceRobot.Language.Tests
         public void Should_peek_ahead_to_3rd_character()
         {
             var scanner = new Scanner("XYZ");
+            var offset = 2;
 
-            scanner.PeekAhead(2).ShouldBe('Z');
+            scanner.PeekAhead(ref offset).ShouldBe('Z');
         }
 
         [Test]
@@ -114,6 +99,84 @@ namespace FindAndReplaceRobot.Language.Tests
                 ('\n', 7, 7, new Position(5, 0)),
                 ('d', 8, 8, new Position(5, 1)),
                 (EndOfFile, 9, 9, new Position(5, 2))
+            });
+        }
+
+        [Test]
+        public void Should_read_ahead_to_end_of_file()
+        {
+            var scanner = new Scanner("a\r\nb\nc!ab\n\nc");
+
+            var results = new List<(
+                char ch,
+                int currentIndex,
+                int absoluteIndex,
+                Position pos)>();
+
+            while (true)
+            {
+                var ch = scanner.ReadAhead();
+
+                results.Add((
+                    ch,
+                    scanner.CurrentIndex,
+                    scanner.AbsoluteIndex,
+                    scanner.Position));
+
+                if (ch == '!') scanner.MoveAhead();
+
+                if (ch == EndOfFile) break;
+            }
+
+            results.ShouldBe(new[] {
+                ('\n', 0, 2, new Position(2, 0)),
+                ('b', 0, 3, new Position(2, 1)),
+                ('\n', 0, 4, new Position(3, 0)),
+                ('c', 0, 5, new Position(3, 1)),
+                ('!', 0, 6, new Position(3, 2)),
+                ('a', 6, 7, new Position(3, 3)),
+                ('b', 6, 8, new Position(3, 4)),
+                ('\n', 6, 9, new Position(4, 0)),
+                ('\n', 6, 10, new Position(5, 0)),
+                ('c', 6, 11, new Position(5, 1)),
+                (EndOfFile, 6, 12, new Position(5, 2))
+            });
+        }
+
+        [Test]
+        public void Should_peek_ahead_to_end_of_file()
+        {
+            var scanner = new Scanner("a\r\nbc\n");
+
+            var results = new List<(
+                char ch,
+                int currentIndex,
+                int absoluteIndex,
+                Position pos)>();
+
+            var offset = 1;
+
+            while (true)
+            {
+                var ch = scanner.PeekAhead(ref offset);
+
+                results.Add((
+                    ch,
+                    scanner.CurrentIndex,
+                    scanner.AbsoluteIndex,
+                    scanner.Position));
+
+                offset++;
+
+                if (ch == EndOfFile) break;
+            }
+
+            results.ShouldBe(new[] {
+                ('\n', 0, 0, new Position(2, 0)),
+                ('b', 0, 0, new Position(2, 1)),
+                ('c', 0, 0, new Position(2, 2)),
+                ('\n', 0, 0, new Position(3, 0)),
+                (EndOfFile, 0, 0, new Position(3, 1))
             });
         }
     }

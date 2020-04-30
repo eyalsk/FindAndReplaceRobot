@@ -1,7 +1,7 @@
 ﻿namespace FindAndReplaceRobot.Language
 {
     using System;
-
+    using System.Diagnostics;
     using static InvisibleCharacters;
 
     public sealed class Scanner
@@ -47,25 +47,37 @@
 
         public bool MoveNext() => CurrentIndex < TextLength && ++CurrentIndex < TextLength;
 
-        public char ReadAhead(int offset = 1)
+        public char ReadAhead(int start = 1)
         {
-            if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
+            if (start <= 0) throw new ArgumentOutOfRangeException(nameof(start));
 
-            _offset = offset;
+            if (_offset == 0)
+            {
+                _offset = start;
+            }
+            else
+            {
+                _offset++;
+            }
 
-            return GetChar(AbsoluteIndex, ReadMode.Lookahead);
+            return GetChar(AbsoluteIndex, ref _offset, ReadMode.Lookahead);
         }
 
-        public char PeekAhead(int offset = 1)
+        public char PeekAhead(ref int offset)
         {
-            if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
+            if (offset <= 0) throw new ArgumentOutOfRangeException(nameof(offset));
 
-            return GetChar(CurrentIndex + offset, ReadMode.Peeking);
+            return GetChar(CurrentIndex + offset, ref offset, ReadMode.Peeking);
         }
 
-        public char ReadChar() => GetChar(CurrentIndex, ReadMode.Normal);
+        public char ReadChar()
+        {
+            var offset = 0;
 
-        private char GetChar(int index, ReadMode mode)
+            return GetChar(CurrentIndex, ref offset, ReadMode.Normal);
+        }
+
+        private char GetChar(int index, ref int offset, ReadMode mode)
         {
             var ch = index < TextLength ? _text.Span[index] : EndOfFile;
 
@@ -77,9 +89,9 @@
                 {
                     CurrentIndex++;
                 }
-                else if (mode == ReadMode.Lookahead)
+                else if (mode == ReadMode.Lookahead || mode == ReadMode.Peeking)
                 {
-                    _offset++;
+                    offset++;
                 }
             }
 
@@ -89,6 +101,8 @@
 
                 _prevIndex = index;
             }
+
+            Debug.WriteLine($"{ch.ToReadableString()}\t\t[{index}+{offset}]\t\t[{Position.LineNumber}:{Position.ColumnNumber}]\t\t{mode}");
 
             return ch;
         }

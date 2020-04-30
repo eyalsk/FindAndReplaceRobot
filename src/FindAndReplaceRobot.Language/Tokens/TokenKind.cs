@@ -29,7 +29,6 @@
         Tab = 504,
         Space = 505,
         
-
         Error = 600,
 
         Keyword = 700
