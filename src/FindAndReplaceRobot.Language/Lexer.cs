@@ -26,7 +26,7 @@
             _pendingTokens = new Queue<Token>();
         }
 
-        public Token? ReadToken()
+        public Token ReadToken()
         {
             while (true)
             {
@@ -47,7 +47,7 @@
                     case NewLine:
                         return LexNewLine();
                     case EndOfFile:
-                        return null;
+                        return CreateToken(TokenKind.EndOfLine, ReadOnlyMemory<char>.Empty);
                 }
 
                 _scanner.MoveNext();

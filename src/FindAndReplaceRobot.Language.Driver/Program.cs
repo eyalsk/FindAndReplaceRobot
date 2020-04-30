@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.IO;
+    using FindAndReplaceRobot.Language.Tokens;
 
     internal static class Program
     {
@@ -23,7 +24,7 @@
             {
                 var token = lexer.ReadToken();
 
-                if (token is null) break;
+                if (token.Kind == TokenKind.EndOfLine) break;
 
                 Console.WriteLine("--------------------------------------------------------------------------------------------------------");
                 Console.WriteLine($" {token}\n\t\t[{token.Start}-{token.End}]\t\t{token.Kind}");

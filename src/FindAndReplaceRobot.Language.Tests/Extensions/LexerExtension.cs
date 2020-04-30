@@ -5,17 +5,24 @@
 
     internal static class LexerExtension
     {
-        public static Token? ReadTokenByKind(this Lexer lexer, TokenKind kind)
+        public static Token ReadTokenByKind(this Lexer lexer, TokenKind kind)
         {
             while (true)
             {
                 var token = lexer.ReadToken();
 
-                if (token == null || token.Kind == kind) return token;
+                if (token.Kind == kind)
+                {
+                    return token;
+                }
+                else if (token.Kind == TokenKind.EndOfLine)
+                {
+                    return new Token(token.Start, token.End, TokenKind.Error, token.Value);
+                }
             }
         }
 
-        public static IReadOnlyList<Token> ReadTokensByKind(this Lexer lexer, TokenKind kind)
+        public static IEnumerable<Token> ReadTokensByKind(this Lexer lexer, TokenKind kind)
         {
             var tokens = new List<Token>();
 
@@ -23,11 +30,11 @@
             {
                 var token = lexer.ReadToken();
 
-                if (token?.Kind == kind)
+                if (token.Kind == kind)
                 {
                     tokens.Add(token);
                 }
-                else if (token == null)
+                else if (token.Kind == TokenKind.EndOfLine)
                 {
                     break;
                 }

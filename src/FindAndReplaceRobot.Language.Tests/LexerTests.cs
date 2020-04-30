@@ -50,7 +50,7 @@ namespace FindAndReplaceRobot.Language.Tests
 
             var token = lexer.ReadTokenByKind(TokenKind.Annotation);
 
-            token.ShouldBeNull();
+            token.Kind.ShouldBe(TokenKind.Error);
         }
 
         [TestCase("@MyCustomAnnotation([MySection])", "[MySection]")]
@@ -78,7 +78,7 @@ namespace FindAndReplaceRobot.Language.Tests
 
             var token = lexer.ReadTokenByKind(TokenKind.AnnotationArgument);
 
-            token.ShouldBeNull();
+            token.Kind.ShouldBe(TokenKind.Error);
         }
 
         [Test]
@@ -103,7 +103,7 @@ namespace FindAndReplaceRobot.Language.Tests
 
             var token = lexer.ReadTokenByKind(TokenKind.Section);
 
-            token.ShouldBeNull();
+            token.Kind.ShouldBe(TokenKind.Error);
         }
     }
 }
