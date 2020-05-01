@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+
     using FindAndReplaceRobot.Language.Tokens;
 
     using static InvisibleCharacters;
@@ -12,6 +13,12 @@
         private readonly Queue<Token> _pendingTokens;
         private SectionMarker _marker = SectionMarker.Header;
 
+        public Lexer(Scanner scanner)
+        {
+            _scanner = scanner ?? throw new ArgumentNullException(nameof(scanner));
+            _pendingTokens = new Queue<Token>();
+        }
+
         private enum SectionMarker
         {
             None,
@@ -20,11 +27,11 @@
             Item
         }
 
-        public Lexer(Scanner scanner)
-        {
-            _scanner = scanner ?? throw new ArgumentNullException(nameof(scanner));
-            _pendingTokens = new Queue<Token>();
-        }
+        private static bool IsSpaceChar(char currentChar) =>
+            currentChar == Space || currentChar == Tab;
+
+        private static bool IsNewLineOrEOF(char ch) =>
+            ch == NewLine || ch == EndOfFile;
 
         public Token ReadToken()
         {
@@ -53,11 +60,6 @@
                 _scanner.MoveNext();
             }
         }
-
-        private static bool IsSpaceChar(char currentChar) => currentChar == Space || currentChar == Tab;
-
-        private static bool IsNewLineOrEOF(char ch) =>
-            ch == NewLine || ch == EndOfFile;
 
         private Token LexNewLine()
         {
@@ -243,8 +245,13 @@
         private Token CreateToken(int start, int end, TokenKind kind, ReadOnlyMemory<char> value) =>
             new Token(start, end, kind, value);
 
-        private ReadOnlyMemory<char> SliceOne() => _scanner.GetSlice(_scanner.CurrentIndex..(_scanner.CurrentIndex + 1));
-        private ReadOnlyMemory<char> SliceFrom(Index start) => _scanner.GetSlice(start.._scanner.AbsoluteIndex);
-        private ReadOnlyMemory<char> SkipFirstSliceRest() => _scanner.GetSlice((_scanner.CurrentIndex + 1).._scanner.AbsoluteIndex);
+        private ReadOnlyMemory<char> SliceOne() => 
+            _scanner.GetSlice(_scanner.CurrentIndex..(_scanner.CurrentIndex + 1));
+
+        private ReadOnlyMemory<char> SliceFrom(Index start) => 
+            _scanner.GetSlice(start.._scanner.AbsoluteIndex);
+
+        private ReadOnlyMemory<char> SkipFirstSliceRest() => 
+            _scanner.GetSlice((_scanner.CurrentIndex + 1).._scanner.AbsoluteIndex);
     }
 }

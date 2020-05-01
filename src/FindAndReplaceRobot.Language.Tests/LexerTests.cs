@@ -1,11 +1,13 @@
 namespace FindAndReplaceRobot.Language.Tests
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
+
     using FindAndReplaceRobot.Language.Tests.Extensions;
     using FindAndReplaceRobot.Language.Tokens;
+
     using NUnit.Framework;
+
     using Shouldly;
 
     internal class LexerTests

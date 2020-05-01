@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+
     using static InvisibleCharacters;
 
     public sealed class Scanner

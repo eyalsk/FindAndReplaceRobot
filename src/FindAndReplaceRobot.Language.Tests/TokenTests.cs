@@ -1,8 +1,11 @@
 namespace FindAndReplaceRobot.Language.Tests
 {
     using System;
+
     using FindAndReplaceRobot.Language.Tokens;
+
     using NUnit.Framework;
+
     using Shouldly;
 
     internal class TokenTests
@@ -11,7 +14,7 @@ namespace FindAndReplaceRobot.Language.Tests
         [TestCase(1)]
         public void Should_not_throw_when_start_above_or_equal_to_zero(int start)
         {
-            Should.NotThrow(() => 
+            Should.NotThrow(() =>
                 new Token(start, end: start + 1, kind: TokenKind.None, value: ReadOnlyMemory<char>.Empty));
         }
 

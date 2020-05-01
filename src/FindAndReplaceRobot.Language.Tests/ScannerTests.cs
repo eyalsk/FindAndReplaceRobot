@@ -2,7 +2,9 @@ namespace FindAndReplaceRobot.Language.Tests
 {
     using System;
     using System.Collections.Generic;
+
     using NUnit.Framework;
+
     using Shouldly;
 
     using static InvisibleCharacters;
