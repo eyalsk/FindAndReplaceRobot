@@ -56,6 +56,9 @@
 
         private static bool IsSpaceChar(char currentChar) => currentChar == Space || currentChar == Tab;
 
+        private static bool IsNewLineOrEOF(char ch) =>
+            ch == NewLine || ch == EndOfFile;
+
         private Token LexNewLine()
         {
             SetSectionMarker();
@@ -116,7 +119,7 @@
             {
                 var ch = _scanner.ReadAhead();
 
-                if (ch == '(' || ch == NewLine || ch == EndOfFile)
+                if (ch == '(' || IsNewLineOrEOF(ch))
                 {
                     var token = CreateToken(TokenKind.Annotation, SkipFirstSliceRest());
 
@@ -180,7 +183,7 @@
                 {
                     // todo: Add error "Annotation at '{position}' contains illegal opening parenthesis."
                 }
-                else if(ch == NewLine || ch == EndOfFile)
+                else if (IsNewLineOrEOF(ch))
                 {
                     if (closingChar is null)
                     {
@@ -220,7 +223,7 @@
 
                     return token;
                 }
-                else if (ch == NewLine || ch == EndOfFile)
+                else if (IsNewLineOrEOF(ch))
                 {
                     _scanner.MoveAhead();
 
