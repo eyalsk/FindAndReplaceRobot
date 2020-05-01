@@ -16,7 +16,7 @@
                 {
                     return token;
                 }
-                else if (token.Kind == TokenKind.EndOfLine)
+                else if (token.Kind == TokenKind.EndOfFile)
                 {
                     return new Token(token.Start, token.End, TokenKind.Error, token.Value);
                 }
@@ -35,7 +35,7 @@
                 {
                     tokens.Add(token);
                 }
-                else if (token.Kind == TokenKind.EndOfLine)
+                else if (token.Kind == TokenKind.EndOfFile)
                 {
                     break;
                 }

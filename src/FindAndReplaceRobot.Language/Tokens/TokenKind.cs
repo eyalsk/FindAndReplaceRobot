@@ -23,7 +23,7 @@
         Regex = 403,
 
         Whitespace = 500,
-        EndOfLine = 501,
+        EndOfFile = 501,
         NewLine = 502,
         Indent = 503,
         Tab = 504,

@@ -25,7 +25,7 @@
             {
                 var token = lexer.ReadToken();
 
-                if (token.Kind == TokenKind.EndOfLine) break;
+                if (token.Kind == TokenKind.EndOfFile) break;
 
                 Console.WriteLine("--------------------------------------------------------------------------------------------------------");
                 Console.WriteLine($" {token}\n\t\t[{token.Start}-{token.End}]\t\t{token.Kind}");

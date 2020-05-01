@@ -28,6 +28,6 @@
             Kind == TokenKind.Space ||
             Kind == TokenKind.Tab ||
             Kind == TokenKind.NewLine ||
-            Kind == TokenKind.EndOfLine ? string.Empty : Value.ToString();
+            Kind == TokenKind.EndOfFile ? string.Empty : Value.ToString();
     }
 }

@@ -54,7 +54,7 @@
                     case NewLine:
                         return LexNewLine();
                     case EndOfFile:
-                        return CreateToken(TokenKind.EndOfLine, ReadOnlyMemory<char>.Empty);
+                        return CreateToken(TokenKind.EndOfFile, ReadOnlyMemory<char>.Empty);
                 }
 
                 _scanner.MoveNext();
