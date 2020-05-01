@@ -27,8 +27,8 @@
             Item
         }
 
-        private static bool IsSpaceChar(char currentChar) =>
-            currentChar == Space || currentChar == Tab;
+        private static bool IsSpace(char ch) =>
+            ch == Space || ch == Tab;
 
         private static bool IsNewLineOrEOF(char ch) =>
             ch == NewLine || ch == EndOfFile;
@@ -76,12 +76,12 @@
                 var offset = 1;
                 var nextChar = _scanner.PeekAhead(ref offset);
 
-                if (IsSpaceChar(nextChar))
+                if (IsSpace(nextChar))
                 {
                     offset++;
                     nextChar = _scanner.PeekAhead(ref offset);
 
-                    if (IsSpaceChar(nextChar)) _marker = SectionMarker.Subsection;
+                    if (IsSpace(nextChar)) _marker = SectionMarker.Subsection;
                 }
                 else if (nextChar == '@' || nextChar == '[')
                 {
@@ -101,7 +101,7 @@
             var nextChar = _scanner.ReadAhead(2);
             _scanner.MoveAhead();
 
-            while (IsSpaceChar(nextChar))
+            while (IsSpace(nextChar))
             {
                 nextChar = _scanner.ReadAhead();
                 _scanner.MoveAhead();
@@ -198,7 +198,7 @@
                 {
                     // todo: Add error "Annotation argument contains unescaped opening bracket at '{position}'."
                 }
-                else if (closingChar is null && !IsSpaceChar(ch))
+                else if (closingChar is null && !IsSpace(ch))
                 {
                     // todo: Add error "Annotation argument contains unquoted characters at '{position}'."
                 }
