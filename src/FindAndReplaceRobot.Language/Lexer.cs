@@ -3,8 +3,6 @@
     using System;
     using System.Collections.Generic;
 
-    using FindAndReplaceRobot.Language.Tokens;
-
     using static InvisibleCharacters;
 
     public sealed class Lexer

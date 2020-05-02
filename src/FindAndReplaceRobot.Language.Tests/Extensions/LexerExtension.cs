@@ -1,8 +1,7 @@
 ﻿namespace FindAndReplaceRobot.Language.Tests.Extensions
 {
     using System.Collections.Generic;
-
-    using FindAndReplaceRobot.Language.Tokens;
+    using FindAndReplaceRobot.Language;
 
     internal static class LexerExtension
     {

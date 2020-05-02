@@ -1,4 +1,4 @@
-﻿namespace FindAndReplaceRobot.Language.Tokens
+﻿namespace FindAndReplaceRobot.Language
 {
     using System;
 

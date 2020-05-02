@@ -1,8 +1,7 @@
 namespace FindAndReplaceRobot.Language.Tests
 {
     using System;
-
-    using FindAndReplaceRobot.Language.Tokens;
+    using FindAndReplaceRobot.Language;
 
     using NUnit.Framework;
 
