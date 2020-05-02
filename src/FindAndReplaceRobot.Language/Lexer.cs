@@ -107,7 +107,7 @@
 
             SetSectionMarker(nextChar);
 
-            return CreateToken(start, ch == Space ? TokenKind.Space : TokenKind.Tab, SliceFrom(start));
+            return CreateToken(start, TokenKind.Indent, ch == Space ? TokenKind.Space : TokenKind.Tab, SliceFrom(start));
 
             void SetSectionMarker(char nextChar) =>
                 _marker = nextChar == '@' ? SectionMarker.Header : SectionMarker.Item;
@@ -142,6 +142,7 @@
         {
             var start = _scanner.CurrentIndex;
             var end = _scanner.AbsoluteIndex;
+            var context = TokenKind.None;
             int openingCharCount = 0;
             char? closingChar = null;
 
@@ -152,6 +153,7 @@
                 if (closingChar is null && (ch == '[' || ch == '"'))
                 {
                     start = _scanner.CurrentIndex;
+                    context = ch == '[' ? TokenKind.Section : TokenKind.String;
                     closingChar = ch;
                 }
                 else if ((closingChar == '[' && ch == ']') || (closingChar == '"' && ch == '"'))
@@ -170,7 +172,10 @@
                                 start,
                                 end,
                                 TokenKind.AnnotationArgument,
-                                _scanner.GetSlice(start..end)));
+                                context,
+                                _scanner.GetSlice((start + 1)..(end - 1))));
+
+                        context = TokenKind.None;
                     }
                     else
                     {
@@ -217,6 +222,7 @@
                         _scanner.CurrentIndex,
                         _scanner.AbsoluteIndex + 1,
                         TokenKind.Section,
+                        TokenKind.None,
                         SkipFirstSliceRest());
 
                     _scanner.MoveAhead();
@@ -235,21 +241,21 @@
         }
 
         private Token CreateToken(TokenKind kind, ReadOnlyMemory<char> value) =>
-            new Token(_scanner.CurrentIndex, _scanner.AbsoluteIndex, kind, value);
+            new Token(_scanner.CurrentIndex, _scanner.AbsoluteIndex, kind, TokenKind.None, value);
 
-        private Token CreateToken(int start, TokenKind kind, ReadOnlyMemory<char> value) =>
-            new Token(start, _scanner.AbsoluteIndex, kind, value);
+        private Token CreateToken(int start, TokenKind kind, TokenKind context, ReadOnlyMemory<char> value) =>
+            new Token(start, _scanner.AbsoluteIndex, kind, context, value);
 
-        private Token CreateToken(int start, int end, TokenKind kind, ReadOnlyMemory<char> value) =>
-            new Token(start, end, kind, value);
+        private Token CreateToken(int start, int end, TokenKind kind, TokenKind context, ReadOnlyMemory<char> value) =>
+            new Token(start, end, kind, context, value);
 
-        private ReadOnlyMemory<char> SliceOne() => 
+        private ReadOnlyMemory<char> SliceOne() =>
             _scanner.GetSlice(_scanner.CurrentIndex..(_scanner.CurrentIndex + 1));
 
-        private ReadOnlyMemory<char> SliceFrom(Index start) => 
+        private ReadOnlyMemory<char> SliceFrom(Index start) =>
             _scanner.GetSlice(start.._scanner.AbsoluteIndex);
 
-        private ReadOnlyMemory<char> SkipFirstSliceRest() => 
+        private ReadOnlyMemory<char> SkipFirstSliceRest() =>
             _scanner.GetSlice((_scanner.CurrentIndex + 1).._scanner.AbsoluteIndex);
     }
 }

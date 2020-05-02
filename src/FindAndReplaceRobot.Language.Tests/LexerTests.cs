@@ -54,13 +54,13 @@ namespace FindAndReplaceRobot.Language.Tests
             token.Kind.ShouldBe(TokenKind.Error);
         }
 
-        [TestCase("@MyCustomAnnotation([MySection])", "[MySection]")]
-        [TestCase("@MyCustomAnnotation( [MySection])", "[MySection]")]
-        [TestCase("@MyCustomAnnotation([MySection] )", "[MySection]")]
-        [TestCase("@MyCustomAnnotation( [MySection] )", "[MySection]")]
-        [TestCase("@MyCustomAnnotation([MySe ction])", "[MySe ction]")]
-        [TestCase("@MyCustomAnnotation(\"MySection\")", "\"MySection\"")]
-        [TestCase("@MyCustomAnnotation(\"MySection\", [MySection])", "\"MySection\"", "[MySection]")]
+        [TestCase("@MyCustomAnnotation([MySection])", "MySection")]
+        [TestCase("@MyCustomAnnotation( [MySection])", "MySection")]
+        [TestCase("@MyCustomAnnotation([MySection] )", "MySection")]
+        [TestCase("@MyCustomAnnotation( [MySection] )", "MySection")]
+        [TestCase("@MyCustomAnnotation([MySe ction])", "MySe ction")]
+        [TestCase("@MyCustomAnnotation(\"MySection\")", "MySection")]
+        [TestCase("@MyCustomAnnotation(\"MySection\", MySection)", "MySection", "MySection")]
         public void Should_succeed_lexing_annotations_with_arguments(string text, params string[] args)
         {
             var scanner = new Scanner(text);

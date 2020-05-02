@@ -27,7 +27,7 @@
                 if (token.Kind == TokenKind.EndOfFile) break;
 
                 Console.WriteLine("--------------------------------------------------------------------------------------------------------");
-                Console.WriteLine($" {token}\n\t\t[{token.Start}-{token.End}]\t\t{token.Kind}");
+                Console.WriteLine($" {token}\n\t\t[{token.Start}-{token.End}]\t\t{token.Kind}|{token.Context}");
                 Console.WriteLine("--------------------------------------------------------------------------------------------------------");
             }
         }
