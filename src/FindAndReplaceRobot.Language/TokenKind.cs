@@ -6,7 +6,7 @@
 
         Section = 100,
         Subsection = 101,
-        Set = 102,
+        Item = 102,
 
         Annotation = 200,
         AnnotationArgumentList = 201,
