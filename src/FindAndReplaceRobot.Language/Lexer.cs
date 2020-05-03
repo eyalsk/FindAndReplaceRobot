@@ -17,12 +17,14 @@
             _pendingTokens = new Queue<Token>();
         }
 
+        [Flags]
         private enum SectionMarker
         {
             None,
-            Header,
-            Subsection,
-            Item
+            Header = 1 << 0,
+            Section = 1 << 1,
+            Subsection = 1 << 2,
+            Item = 1 << 3
         }
 
         private static bool IsSpace(char ch) =>
@@ -46,8 +48,8 @@
                         return LexAnnotation();
                     case '[' when _marker == SectionMarker.Header:
                         return LexSection();
-                    case Tab when _marker == SectionMarker.Subsection:
-                    case Space when _marker == SectionMarker.Subsection:
+                    case Tab when (_marker & SectionMarker.Subsection) != 0:
+                    case Space when (_marker & SectionMarker.Subsection) != 0:
                         return LexIndentation();
                     case NewLine:
                         return LexNewLine();
@@ -79,11 +81,15 @@
                     offset++;
                     nextChar = _scanner.PeekAhead(ref offset);
 
-                    if (IsSpace(nextChar)) _marker = SectionMarker.Subsection;
+                    if (IsSpace(nextChar)) _marker |= SectionMarker.Subsection;
                 }
                 else if (nextChar == '@' || nextChar == '[')
                 {
                     _marker = SectionMarker.Header;
+                }
+                else if ((_marker & (SectionMarker.Header | SectionMarker.Section | SectionMarker.Item)) != 0)
+                {
+                    _marker = SectionMarker.Item;
                 }
                 else
                 {
@@ -226,6 +232,8 @@
                         SkipFirstSliceRest());
 
                     _scanner.MoveAhead();
+
+                    _marker = SectionMarker.Section;
 
                     return token;
                 }
