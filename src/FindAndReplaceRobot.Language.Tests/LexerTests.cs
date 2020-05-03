@@ -1,6 +1,7 @@
 namespace FindAndReplaceRobot.Language.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using FindAndReplaceRobot.Language;
     using FindAndReplaceRobot.Language.Tests.Extensions;
@@ -54,24 +55,45 @@ namespace FindAndReplaceRobot.Language.Tests
             token.Kind.ShouldBe(TokenKind.Error);
         }
 
-        [TestCase("@MyCustomAnnotation([MySection])", "MySection")]
-        [TestCase("@MyCustomAnnotation( [MySection])", "MySection")]
-        [TestCase("@MyCustomAnnotation([MySection] )", "MySection")]
-        [TestCase("@MyCustomAnnotation( [MySection] )", "MySection")]
-        [TestCase("@MyCustomAnnotation([MySe ction])", "MySe ction")]
-        [TestCase("@MyCustomAnnotation(\"MySection\")", "MySection")]
-        [TestCase("@MyCustomAnnotation(\"MySection\", MySection)", "MySection", "MySection")]
-        public void Should_succeed_lexing_annotations_with_arguments(string text, params string[] args)
+        [Test]
+        public void Should_succeed_lexing_annotations_with_arguments()
         {
-            var scanner = new Scanner(text);
-            var lexer = new Lexer(scanner);
+            var cases = new List<string>
+            {
+                "@MyCustomAnnotation([MySection])",
+                "@MyCustomAnnotation( [MySection])",
+                "@MyCustomAnnotation([MySection] )",
+                "@MyCustomAnnotation( [MySection] )",
+                "@MyCustomAnnotation([MySe ction])",
+                "@MyCustomAnnotation(\"MySection\")",
+                "@MyCustomAnnotation([MySection], \"MySection\")"
+            };
 
-            var tokens = lexer.ReadTokensByKind(TokenKind.AnnotationArgument);
+            var results = new List<(string, TokenKind)>();
 
-            tokens.ShouldAllBe(t => args.Contains(t.Value.ToString()));
+            foreach (var text in cases)
+            {
+                var scanner = new Scanner(text);
+                var lexer = new Lexer(scanner);
+
+                results.AddRange(lexer.ReadTokensByKind(TokenKind.AnnotationArgument).Select(t => (t.Value.ToString(), t.Context)));
+            }
+
+            results.ShouldBe(new[] {
+                ("MySection", TokenKind.Section),
+                ("MySection", TokenKind.Section),
+                ("MySection", TokenKind.Section),
+                ("MySection", TokenKind.Section),
+                ("MySe ction", TokenKind.Section),
+                ("MySection", TokenKind.String),
+                ("MySection", TokenKind.Section),
+                ("MySection", TokenKind.String),
+            });
         }
 
         [TestCase("@MyCustomAnnotation([MySection]")]
+        [TestCase("@MyCustomAnnotation[MySection]")]
+        [TestCase("@MyCustomAnnotation(\"MySection])")]
         public void Should_fail_lexing_annotations_with_arguments(string text)
         {
             var scanner = new Scanner(text);
