@@ -142,8 +142,15 @@
                 }
                 else if (closingChar == ch)
                 {
-                    end = _scanner.CurrentIndex + 1;
-                    closingChar = null;
+                    if (closingChar == ')')
+                    {
+                        // todo: Add error "Annotation at '{position}' contains illegal closing parenthesis."
+                    }
+                    else
+                    {
+                        end = _scanner.CurrentIndex + 1;
+                        closingChar = null;
+                    }
                 }
                 else if (closingChar is null && (ch == ',' || ch == ')'))
                 {
