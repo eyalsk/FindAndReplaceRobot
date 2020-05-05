@@ -50,7 +50,7 @@
                         return LexSection();
                     case Tab when (_marker & SectionMarker.Subsection) != 0:
                     case Space when (_marker & SectionMarker.Subsection) != 0:
-                        return LexIndentation();
+                        return LexSubsection();
                     case NewLine:
                         SetSectionMarker();
                         _scanner.MoveNext();
@@ -89,7 +89,7 @@
             }
         }
 
-        private Token LexIndentation()
+        private Token LexSubsection()
         {
             var ch = _scanner.ReadChar();
             var start = _scanner.CurrentIndex;
