@@ -52,24 +52,15 @@
                     case Space when (_marker & SectionMarker.Subsection) != 0:
                         return LexIndentation();
                     case NewLine:
-                        return LexNewLine();
+                        SetSectionMarker();
+                        _scanner.MoveNext();
+                        break;
                     case EndOfFile:
                         return CreateToken(TokenKind.EndOfFile, ReadOnlyMemory<char>.Empty);
                 }
 
                 _scanner.MoveNext();
             }
-        }
-
-        private Token LexNewLine()
-        {
-            SetSectionMarker();
-
-            var token = CreateToken(TokenKind.NewLine, SliceOne());
-
-            _scanner.MoveNext();
-
-            return token;
 
             void SetSectionMarker()
             {
@@ -256,9 +247,6 @@
 
         private Token CreateToken(int start, int end, TokenKind kind, TokenKind context, ReadOnlyMemory<char> value) =>
             new Token(start, end, kind, context, value);
-
-        private ReadOnlyMemory<char> SliceOne() =>
-            _scanner.GetSlice(_scanner.CurrentIndex..(_scanner.CurrentIndex + 1));
 
         private ReadOnlyMemory<char> SliceFrom(Index start) =>
             _scanner.GetSlice(start.._scanner.AbsoluteIndex);
