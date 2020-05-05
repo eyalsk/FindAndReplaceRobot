@@ -53,7 +53,6 @@
                         return LexSubsection();
                     case NewLine:
                         SetSectionMarker();
-                        _scanner.MoveNext();
                         break;
                     case EndOfFile:
                         return CreateToken(TokenKind.EndOfFile, ReadOnlyMemory<char>.Empty);

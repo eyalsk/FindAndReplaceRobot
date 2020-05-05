@@ -128,5 +128,25 @@ namespace FindAndReplaceRobot.Language.Tests
 
             token.Kind.ShouldBe(TokenKind.Error);
         }
+
+        [Test]
+        public void Should_succeed_lexing_newlines()
+        {
+            var scanner = new Scanner("@Annotation\r\n@Annotation\n[Section]");
+            var lexer = new Lexer(scanner);
+
+            var results = new List<Token>();
+
+            while (true)
+            {
+                var token = lexer.ReadToken();
+
+                if (token.Kind == TokenKind.EndOfFile) break;
+
+                results.Add(token);
+            }
+
+            results.Count.ShouldBe(3);
+        }
     }
 }
