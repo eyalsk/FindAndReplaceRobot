@@ -128,10 +128,19 @@
                 if (closingChar is null && (ch == '[' || ch == '"'))
                 {
                     start = _scanner.CurrentIndex;
-                    context = ch == '[' ? TokenKind.Section : TokenKind.String;
-                    closingChar = ch;
+
+                    if (ch == '[')
+                    {
+                        context = TokenKind.Section;
+                        closingChar = ']';
+                    }
+                    else
+                    {
+                        context = TokenKind.String;
+                        closingChar = '"';
+                    }
                 }
-                else if ((closingChar == '[' && ch == ']') || (closingChar == '"' && ch == '"'))
+                else if (closingChar == ch)
                 {
                     end = _scanner.CurrentIndex + 1;
                     closingChar = null;
