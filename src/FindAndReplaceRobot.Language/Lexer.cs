@@ -89,27 +89,6 @@
             }
         }
 
-        private Token LexSubsection()
-        {
-            var ch = _scanner.ReadChar();
-            var start = _scanner.CurrentIndex;
-            var nextChar = _scanner.ReadAhead(2);
-            _scanner.MoveAhead();
-
-            while (IsSpace(nextChar))
-            {
-                nextChar = _scanner.ReadAhead();
-                _scanner.MoveAhead();
-            }
-
-            SetSectionMarker(nextChar);
-
-            return CreateToken(start, TokenKind.Indent, ch == Space ? TokenKind.Space : TokenKind.Tab, SliceFrom(start));
-
-            void SetSectionMarker(char nextChar) =>
-                _marker = nextChar == '@' ? SectionMarker.Header : SectionMarker.Item;
-        }
-
         private Token LexAnnotation()
         {
             while (true)
@@ -237,6 +216,27 @@
                     return CreateToken(TokenKind.Error, ReadOnlyMemory<char>.Empty);
                 }
             }
+        }
+
+        private Token LexSubsection()
+        {
+            var ch = _scanner.ReadChar();
+            var start = _scanner.CurrentIndex;
+            var nextChar = _scanner.ReadAhead(2);
+            _scanner.MoveAhead();
+
+            while (IsSpace(nextChar))
+            {
+                nextChar = _scanner.ReadAhead();
+                _scanner.MoveAhead();
+            }
+
+            SetSectionMarker(nextChar);
+
+            return CreateToken(start, TokenKind.Indent, ch == Space ? TokenKind.Space : TokenKind.Tab, SliceFrom(start));
+
+            void SetSectionMarker(char nextChar) =>
+                _marker = nextChar == '@' ? SectionMarker.Header : SectionMarker.Item;
         }
 
         private Token CreateToken(TokenKind kind, ReadOnlyMemory<char> value) =>
