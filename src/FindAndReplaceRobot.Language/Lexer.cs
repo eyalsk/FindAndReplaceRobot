@@ -24,7 +24,9 @@
             Header = 1 << 0,
             Section = 1 << 1,
             Subsection = 1 << 2,
-            Item = 1 << 3
+            Item = 1 << 3,
+            Space = 1 << 4,
+            Tab = 1 << 5
         }
 
         private static bool IsSpace(char ch) =>
@@ -41,6 +43,8 @@
                 {
                     return _pendingTokens.Dequeue();
                 }
+
+                // todo: It's an error to mix tabs and spaces so we should handle this here.
 
                 switch (_scanner.ReadChar())
                 {
@@ -66,12 +70,16 @@
                 var offset = 1;
                 var nextChar = _scanner.PeekAhead(ref offset);
 
-                if (IsSpace(nextChar))
+                if (nextChar == Space)
                 {
                     offset++;
                     nextChar = _scanner.PeekAhead(ref offset);
 
-                    if (IsSpace(nextChar)) _marker |= SectionMarker.Subsection;
+                    if (nextChar == Space) _marker |= SectionMarker.Subsection | SectionMarker.Space;
+                }
+                else if (nextChar == Tab)
+                {
+                    _marker |= SectionMarker.Subsection | SectionMarker.Tab;
                 }
                 else if (nextChar == '@' || nextChar == '[')
                 {
@@ -237,7 +245,8 @@
         {
             var ch = _scanner.ReadChar();
             var start = _scanner.CurrentIndex;
-            var nextChar = _scanner.ReadAhead(2);
+            var spaceOffset = (_marker & SectionMarker.Space) != 0 ? 2 : 1;
+            var nextChar = _scanner.ReadAhead(spaceOffset);
             _scanner.MoveAhead();
 
             while (IsSpace(nextChar))
