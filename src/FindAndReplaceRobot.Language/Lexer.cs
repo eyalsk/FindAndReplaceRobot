@@ -246,12 +246,9 @@
                 _scanner.MoveAhead();
             }
 
-            SetSectionMarker(nextChar);
+            _marker = nextChar == '@' ? SectionMarker.Header : SectionMarker.Item;
 
             return CreateToken(start, TokenKind.Indent, ch == Space ? TokenKind.Space : TokenKind.Tab, SliceFrom(start));
-
-            void SetSectionMarker(char nextChar) =>
-                _marker = nextChar == '@' ? SectionMarker.Header : SectionMarker.Item;
         }
 
         private Token CreateToken(TokenKind kind, ReadOnlyMemory<char> value) =>
