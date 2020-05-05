@@ -152,7 +152,7 @@ namespace FindAndReplaceRobot.Language.Tests
         [Test]
         public void Should_succeed_lexing_indents()
         {
-            var scanner = new Scanner("[Section]\nItem1\n  @Annotation\n@Annotation\n\tItem2");
+            var scanner = new Scanner("[Section]\nItem1\n  @Annotation\n@Annotation\n\tItem2\t -> Item3");
             var lexer = new Lexer(scanner);
 
             var tokens = lexer.ReadTokensByKind(TokenKind.Indent).ToList();
