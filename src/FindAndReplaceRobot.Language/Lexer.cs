@@ -17,14 +17,12 @@
             _pendingTokens = new Queue<Token>();
         }
 
-        [Flags]
         private enum SectionMarker
         {
             None,
-            Header = 1 << 0,
-            Section = 1 << 1,
-            Subsection = 1 << 2,
-            Item = 1 << 3
+            Header,
+            Subsection,
+            Item
         }
 
         private static bool IsSpace(char ch) =>
@@ -50,9 +48,10 @@
                         return LexAnnotation();
                     case '[' when _marker == SectionMarker.Header:
                         return LexSection();
-                    case Tab when (_marker & SectionMarker.Subsection) != 0:
-                    case Space when (_marker & SectionMarker.Subsection) != 0:
-                        return LexSubsection();
+                    case Tab when _marker == SectionMarker.Subsection:
+                    case Space when _marker == SectionMarker.Subsection:
+                        SetSubsectionMarker();
+                        break;
                     case NewLine:
                         SetSectionMarker();
                         break;
@@ -61,29 +60,6 @@
                 }
 
                 _scanner.MoveNext();
-            }
-
-            void SetSectionMarker()
-            {
-                var offset = 1;
-                var nextChar = _scanner.PeekAhead(ref offset);
-
-                if (IsSpace(nextChar))
-                {
-                    _marker |= SectionMarker.Subsection;
-                }
-                else if (nextChar == '@' || nextChar == '[')
-                {
-                    _marker = SectionMarker.Header;
-                }
-                else if ((_marker & (SectionMarker.Header | SectionMarker.Section | SectionMarker.Item)) != 0)
-                {
-                    _marker = SectionMarker.Item;
-                }
-                else
-                {
-                    _marker = SectionMarker.None;
-                }
             }
         }
 
@@ -95,7 +71,9 @@
 
                 if (ch == '(' || IsNewLineOrEOF(ch))
                 {
-                    var token = CreateToken(TokenKind.Annotation, SkipFirstSliceRest());
+                    var value = SkipFirstSliceRest(out var handledCRLF);
+                    var end = handledCRLF ? _scanner.AbsoluteIndex - 1 : _scanner.AbsoluteIndex;
+                    var token = CreateToken(_scanner.CurrentIndex, end, TokenKind.Annotation, TokenKind.None, value);
 
                     _scanner.MoveAhead();
 
@@ -217,8 +195,6 @@
 
                     _scanner.MoveAhead();
 
-                    _marker = SectionMarker.Section;
-
                     return token;
                 }
                 else if (IsNewLineOrEOF(ch))
@@ -232,37 +208,51 @@
             }
         }
 
-        private Token LexSubsection()
+        private void SetSectionMarker()
         {
-            var ch = _scanner.ReadChar();
-            var start = _scanner.CurrentIndex;
-            var nextChar = _scanner.ReadAhead();
-            _scanner.MoveAhead();
+            var offset = 1;
+            var nextChar = _scanner.PeekAhead(ref offset);
+
+            if (nextChar == '@' || nextChar == '[')
+            {
+                _marker = SectionMarker.Header;
+            }
+            else if ((_marker == SectionMarker.Header || _marker == SectionMarker.Item) && IsSpace(nextChar))
+            {
+                _marker = SectionMarker.Subsection;
+            }
+            else
+            {
+                _marker = SectionMarker.Item;
+            }
+        }
+
+        private void SetSubsectionMarker()
+        {
+            var offset = 1;
+            var nextChar = _scanner.PeekAhead(ref offset);
 
             while (IsSpace(nextChar))
             {
-                nextChar = _scanner.ReadAhead();
-                _scanner.MoveAhead();
+                offset++;
+                nextChar = _scanner.PeekAhead(ref offset);
             }
 
             _marker = nextChar == '@' ? SectionMarker.Header : SectionMarker.Item;
 
-            return CreateToken(start, TokenKind.Indent, ch == Space ? TokenKind.Space : TokenKind.Tab, SliceFrom(start));
+            _scanner.StepAhead(--offset);
         }
 
         private Token CreateToken(TokenKind kind, ReadOnlyMemory<char> value) =>
             new Token(_scanner.CurrentIndex, _scanner.AbsoluteIndex, kind, TokenKind.None, value);
 
-        private Token CreateToken(int start, TokenKind kind, TokenKind context, ReadOnlyMemory<char> value) =>
-            new Token(start, _scanner.AbsoluteIndex, kind, context, value);
-
         private Token CreateToken(int start, int end, TokenKind kind, TokenKind context, ReadOnlyMemory<char> value) =>
             new Token(start, end, kind, context, value);
 
-        private ReadOnlyMemory<char> SliceFrom(Index start) =>
-            _scanner.GetSlice(start.._scanner.AbsoluteIndex);
-
         private ReadOnlyMemory<char> SkipFirstSliceRest() =>
             _scanner.GetSlice((_scanner.CurrentIndex + 1).._scanner.AbsoluteIndex);
+
+        private ReadOnlyMemory<char> SkipFirstSliceRest(out bool handledCRLF) =>
+            _scanner.GetSlice((_scanner.CurrentIndex + 1).._scanner.AbsoluteIndex, out handledCRLF);
     }
 }

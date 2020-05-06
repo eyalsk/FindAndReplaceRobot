@@ -130,12 +130,12 @@ namespace FindAndReplaceRobot.Language.Tests
         }
 
         [Test]
-        public void Should_succeed_lexing_newlines()
+        public void Should_succeed_lexing_text_with_newlines()
         {
-            var scanner = new Scanner("@Annotation\r\n@Annotation\n[Section]");
+            var scanner = new Scanner("@A\r\n@Bc\n[S]");
             var lexer = new Lexer(scanner);
 
-            var results = new List<Token>();
+            var results = new List<(string, TokenKind)>();
 
             while (true)
             {
@@ -143,21 +143,15 @@ namespace FindAndReplaceRobot.Language.Tests
 
                 if (token.Kind == TokenKind.EndOfFile) break;
 
-                results.Add(token);
+                results.Add((token.Value.ToString(), token.Kind));
             }
 
-            results.Count.ShouldBe(3);
-        }
-
-        [Test]
-        public void Should_succeed_lexing_indents()
-        {
-            var scanner = new Scanner("[Section]\nItem1\n  @Annotation\n@Annotation\n\tItem2\t -> Item3");
-            var lexer = new Lexer(scanner);
-
-            var tokens = lexer.ReadTokensByKind(TokenKind.Indent).ToList();
-
-            tokens.Count.ShouldBe(2);
+            results.ShouldBe(new[]
+            {
+                ("A", TokenKind.Annotation),
+                ("Bc", TokenKind.Annotation),
+                ("S", TokenKind.Section)
+            });
         }
     }
 }
