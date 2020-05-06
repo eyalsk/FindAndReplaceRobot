@@ -37,7 +37,9 @@
 
         public Position Position { get; private set; }
 
-        public ReadOnlyMemory<char> GetSlice(Range range) => _text[range];
+        public ReadOnlyMemory<char> GetSlice(Range range) => GetSlice(range, false, out _);
+
+        public ReadOnlyMemory<char> GetSlice(Range range, out bool handledCRLF) => GetSlice(range, true, out handledCRLF);
 
         public void MoveAhead()
         {
@@ -69,6 +71,15 @@
             if (offset <= 0) throw new ArgumentOutOfRangeException(nameof(offset));
 
             return GetChar(CurrentIndex + offset, ref offset, ReadMode.Peeking);
+        }
+
+        public void StepAhead(int offset)
+        {
+            if (offset <= 0) throw new ArgumentOutOfRangeException(nameof(offset));
+
+            _offset = offset;
+
+            MoveAhead();
         }
 
         public char ReadChar()
@@ -106,23 +117,52 @@
             Debug.WriteLine($"{ch.ToReadableString()}\t\t[{index}+{offset}]\t\t[{Position.LineNumber}:{Position.ColumnNumber}]\t\t{mode}");
 
             return ch;
+
+            bool TrySkipCarriageReturn(int index, ref char ch)
+            {
+                if (ch == Return)
+                {
+                    var nextChar = ++index < TextLength ? _text.Span[index] : ch;
+
+                    if (nextChar == NewLine)
+                    {
+                        ch = nextChar;
+
+                        return true;
+                    }
+                }
+
+                return false;
+            }
         }
 
-        private bool TrySkipCarriageReturn(int index, ref char ch)
+        private ReadOnlyMemory<char> GetSlice(Range range, bool handleCRLF, out bool handledCRLF)
         {
-            if (ch == Return)
+            handledCRLF = false;
+
+            if (handleCRLF)
             {
-                var nextChar = ++index < TextLength ? _text.Span[index] : ch;
+                var start = range.Start.Value;
+                var end = range.End.Value + 1;
 
-                if (nextChar == NewLine)
+                if (end < TextLength)
                 {
-                    ch = nextChar;
+                    var text = _text[start..end];
+                    var span = text.Span;
 
-                    return true;
+                    var cr = span[^2];
+                    var lf = span[^1];
+
+                    if (cr == '\r' && lf == '\n')
+                    {
+                        handledCRLF = true;
+
+                        return _text[start..(end - 2)];
+                    }
                 }
             }
 
-            return false;
+            return _text[range];
         }
     }
 }
