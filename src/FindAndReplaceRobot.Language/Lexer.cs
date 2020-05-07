@@ -9,6 +9,7 @@
     {
         private readonly Scanner _scanner;
         private readonly Queue<Token> _pendingTokens;
+        private (int column, int depth) _nesting = (-1, 1);
         private SectionMarker _marker = SectionMarker.Header;
 
         public Lexer(Scanner scanner)
@@ -19,7 +20,7 @@
 
         private enum SectionMarker
         {
-            None,
+            Blank,
             Header,
             Subsection,
             Item
@@ -217,6 +218,10 @@
             {
                 _marker = SectionMarker.Header;
             }
+            else if (nextChar == NewLine)
+            {
+                _marker = SectionMarker.Blank;
+            }
             else if (_marker == SectionMarker.Item && IsSpace(nextChar))
             {
                 _marker = SectionMarker.Subsection;
@@ -224,6 +229,11 @@
             else
             {
                 _marker = SectionMarker.Item;
+            }
+
+            if (_marker == SectionMarker.Header || _marker == SectionMarker.Item)
+            {
+                _nesting = (-1, 1);
             }
         }
 
@@ -238,16 +248,45 @@
                 nextChar = _scanner.PeekAhead(ref offset);
             }
 
-            _marker = nextChar == '@' ? SectionMarker.Header : SectionMarker.Item;
+            if (nextChar == '@')
+            {
+                _marker = SectionMarker.Header;
+            }
+            else if (IsNewLineOrEOF(nextChar))
+            {
+                _marker = SectionMarker.Blank;
+            }
+            else
+            {
+                _marker = SectionMarker.Item;
+            }
 
-            _scanner.StepAhead(--offset);
+            if (_marker != SectionMarker.Blank)
+            {
+                if (_nesting.column < _scanner.Position.ColumnNumber)
+                {
+                    _nesting.depth++;
+                }
+                else if (_nesting.column > _scanner.Position.ColumnNumber)
+                {
+                    _nesting.depth--;
+                }
+
+                _nesting.column = _scanner.Position.ColumnNumber;
+
+                _scanner.StepAhead(--offset);
+            }
+            else
+            {
+                _scanner.StepAhead(offset);
+            }
         }
 
         private Token CreateToken(TokenKind kind, ReadOnlyMemory<char> value) =>
-            new Token(_scanner.CurrentIndex, _scanner.AbsoluteIndex, kind, TokenKind.None, value);
+            new Token(_scanner.CurrentIndex, _scanner.AbsoluteIndex, _nesting.depth, kind, TokenKind.None, value);
 
         private Token CreateToken(int start, int end, TokenKind kind, TokenKind context, ReadOnlyMemory<char> value) =>
-            new Token(start, end, kind, context, value);
+            new Token(start, end, _nesting.depth, kind, context, value);
 
         private ReadOnlyMemory<char> SkipFirstSliceRest() =>
             _scanner.GetSlice((_scanner.CurrentIndex + 1).._scanner.AbsoluteIndex);

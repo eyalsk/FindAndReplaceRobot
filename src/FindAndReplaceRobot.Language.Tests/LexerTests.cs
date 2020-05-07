@@ -153,5 +153,32 @@ namespace FindAndReplaceRobot.Language.Tests
                 ("S", TokenKind.Section)
             });
         }
+
+        [Test]
+        public void Should_succeed_lexing_nested_constructs()
+        {
+            var scanner = new Scanner("@A\r\n[S]\r\nI1      -> I10\r\nI2      -> I20\r\n @Ab\r\n I21    -> I210\r\n I22    -> I220\r\n  @Abc\r\n  I221  -> I2210\r\n  I222  -> I2220\r\nI3      -> I30");
+            
+            var lexer = new Lexer(scanner);
+
+            var results = new List<(string, int)>();
+
+            while (true)
+            {
+                var token = lexer.ReadToken();
+
+                if (token.Kind == TokenKind.EndOfFile) break;
+
+                results.Add((token.Value.ToString(), token.Depth));
+            }
+
+            results.ShouldBe(new[]
+            {
+                ("A", 1),
+                ("S", 1),
+                ("Ab", 2),
+                ("Abc", 3)
+            });
+        }
     }
 }

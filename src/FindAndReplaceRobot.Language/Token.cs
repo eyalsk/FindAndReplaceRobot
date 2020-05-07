@@ -4,15 +4,17 @@
 
     public sealed class Token
     {
-        public Token(int start, int end, TokenKind kind, TokenKind context, ReadOnlyMemory<char> value)
+        public Token(int start, int end, int depth, TokenKind kind, TokenKind context, ReadOnlyMemory<char> value)
         {
             if (start < 0) throw new ArgumentOutOfRangeException(nameof(start));
             if (end < 0 || end < start) throw new ArgumentOutOfRangeException(nameof(end));
+            if (depth <= 0) throw new ArgumentOutOfRangeException(nameof(depth));
             if (!Enum.IsDefined(typeof(TokenKind), kind)) throw new ArgumentException(nameof(kind));
             if (!Enum.IsDefined(typeof(TokenKind), context)) throw new ArgumentException(nameof(context));
 
             Start = start;
             End = end;
+            Depth = depth;
             Kind = kind;
             Context = context;
             Value = value;
@@ -21,6 +23,8 @@
         public int Start { get; }
 
         public int End { get; }
+
+        public int Depth { get; }
 
         public TokenKind Kind { get; }
 
