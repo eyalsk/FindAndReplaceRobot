@@ -217,7 +217,7 @@
             {
                 _marker = SectionMarker.Header;
             }
-            else if ((_marker == SectionMarker.Header || _marker == SectionMarker.Item) && IsSpace(nextChar))
+            else if (_marker == SectionMarker.Item && IsSpace(nextChar))
             {
                 _marker = SectionMarker.Subsection;
             }
