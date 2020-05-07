@@ -74,7 +74,7 @@
                 {
                     var value = SkipFirstSliceRest(out var handledCRLF);
                     var end = handledCRLF ? _scanner.AbsoluteIndex - 1 : _scanner.AbsoluteIndex;
-                    var token = CreateToken(_scanner.CurrentIndex, end, TokenKind.Annotation, TokenKind.None, value);
+                    var token = CreateToken(_scanner.CurrentIndex..end, TokenKind.Annotation, TokenKind.None, value);
 
                     _scanner.MoveAhead();
 
@@ -138,8 +138,7 @@
                     {
                         _pendingTokens.Enqueue(
                             CreateToken(
-                                start,
-                                end,
+                                start..end,
                                 TokenKind.AnnotationArgument,
                                 context,
                                 _scanner.GetSlice((start + 1)..(end - 1))));
@@ -188,8 +187,7 @@
                 if (ch == ']')
                 {
                     var token = CreateToken(
-                        _scanner.CurrentIndex,
-                        _scanner.AbsoluteIndex + 1,
+                        _scanner.CurrentIndex..(_scanner.AbsoluteIndex + 1),
                         TokenKind.Section,
                         TokenKind.None,
                         SkipFirstSliceRest());
@@ -283,10 +281,10 @@
         }
 
         private Token CreateToken(TokenKind kind, ReadOnlyMemory<char> value) =>
-            new Token(_scanner.CurrentIndex, _scanner.AbsoluteIndex, _nesting.depth, kind, TokenKind.None, value);
+            new Token(_scanner.CurrentIndex.._scanner.AbsoluteIndex, _nesting.depth, kind, TokenKind.None, value);
 
-        private Token CreateToken(int start, int end, TokenKind kind, TokenKind context, ReadOnlyMemory<char> value) =>
-            new Token(start, end, _nesting.depth, kind, context, value);
+        private Token CreateToken(Range range, TokenKind kind, TokenKind context, ReadOnlyMemory<char> value) =>
+            new Token(range, _nesting.depth, kind, context, value);
 
         private ReadOnlyMemory<char> SkipFirstSliceRest() =>
             _scanner.GetSlice((_scanner.CurrentIndex + 1).._scanner.AbsoluteIndex);

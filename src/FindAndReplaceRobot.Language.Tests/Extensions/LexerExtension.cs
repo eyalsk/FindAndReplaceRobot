@@ -17,7 +17,7 @@
                 }
                 else if (token.Kind == TokenKind.EndOfFile)
                 {
-                    return new Token(token.Start, token.End, token.Depth, TokenKind.Error, TokenKind.None, token.Value);
+                    return new Token(token.Range, token.Depth, TokenKind.Error, TokenKind.None, token.Value);
                 }
             }
         }
