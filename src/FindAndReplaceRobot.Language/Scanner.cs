@@ -75,7 +75,7 @@
 
         public void StepAhead(int offset)
         {
-            if (offset <= 0) throw new ArgumentOutOfRangeException(nameof(offset));
+            if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
 
             _offset = offset;
 
