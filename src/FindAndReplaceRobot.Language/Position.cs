@@ -25,20 +25,19 @@
             (LineNumber == other.LineNumber) &&
             (ColumnNumber == other.ColumnNumber);
 
-        public override bool Equals(object? other) => other is Position position && Equals(position);
+        public override bool Equals(object? other) =>
+            other is Position position && Equals(position);
 
-        public override int GetHashCode() => HashCode.Combine(LineNumber, ColumnNumber);
+        public override int GetHashCode() =>
+            HashCode.Combine(LineNumber, ColumnNumber);
 
-        public static bool operator ==(Position left, Position right)
-        {
-            return Equals(left, right);
-        }
+        public static bool operator ==(Position left, Position right) =>
+            Equals(left, right);
 
-        public static bool operator !=(Position left, Position right)
-        {
-            return !Equals(left, right);
-        }
+        public static bool operator !=(Position left, Position right) =>
+            !Equals(left, right);
 
-        public override string ToString() => $"{LineNumber} {ColumnNumber}";
+        public override string ToString() =>
+            $"{LineNumber} {ColumnNumber}";
     }
 }
