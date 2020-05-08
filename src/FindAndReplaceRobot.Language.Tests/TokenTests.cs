@@ -1,6 +1,7 @@
 namespace FindAndReplaceRobot.Language.Tests
 {
     using System;
+
     using FindAndReplaceRobot.Language;
 
     using NUnit.Framework;
@@ -34,10 +35,25 @@ namespace FindAndReplaceRobot.Language.Tests
 
         [TestCase(-1)]
         [TestCase(0)]
-        public void Should_throw_when_end_below_zero_or_below_start(int end)
+        public void Should_throw_when_range_end_below_zero_or_below_start(int end)
         {
             Should.Throw<ArgumentOutOfRangeException>(() =>
                 new Token(range: 1..end, depth: 1, kind: TokenKind.None, TokenKind.None, value: ReadOnlyMemory<char>.Empty));
+        }
+
+        [Test]
+        public void Should_not_throw_when_depth_above_zero()
+        {
+            Should.NotThrow(() =>
+                new Token(range: .., depth: 1, kind: TokenKind.None, TokenKind.None, value: ReadOnlyMemory<char>.Empty));
+        }
+
+        [TestCase(-1)]
+        [TestCase(0)]
+        public void Should_throw_when_depth_below_or_equal_zero(int depth)
+        {
+            Should.Throw<ArgumentOutOfRangeException>(() =>
+                new Token(range: .., depth, kind: TokenKind.None, TokenKind.None, value: ReadOnlyMemory<char>.Empty));
         }
 
         [Test]
@@ -66,21 +82,6 @@ namespace FindAndReplaceRobot.Language.Tests
         {
             Should.Throw<ArgumentException>(() =>
                 new Token(range: .., depth: 1,kind: TokenKind.None, (TokenKind)int.MinValue, value: ReadOnlyMemory<char>.Empty));
-        }
-
-        [Test]
-        public void Should_not_throw_when_depth_above_zero()
-        {
-            Should.NotThrow(() =>
-                new Token(range: .., depth: 1, kind: TokenKind.None, TokenKind.None, value: ReadOnlyMemory<char>.Empty));
-        }
-
-        [TestCase(-1)]
-        [TestCase(0)]
-        public void Should_throw_when_depth_below_or_equal_zero(int depth)
-        {
-            Should.Throw<ArgumentOutOfRangeException>(() =>
-                new Token(range: .., depth, kind: TokenKind.None, TokenKind.None, value: ReadOnlyMemory<char>.Empty));
         }
     }
 }

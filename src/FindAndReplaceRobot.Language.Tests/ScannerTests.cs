@@ -1,7 +1,9 @@
-namespace FindAndReplaceRobot.Language.Tests
+﻿namespace FindAndReplaceRobot.Language.Tests
 {
     using System;
     using System.Collections.Generic;
+
+    using FindAndReplaceRobot.Language.Tests.Utils;
 
     using NUnit.Framework;
 
@@ -14,7 +16,8 @@ namespace FindAndReplaceRobot.Language.Tests
         [Test]
         public void Should_read_ahead_and_not_throw_when_start_above_zero()
         {
-            var scanner = new Scanner("XY");
+            var text = Randomizer.GenerateString("🎲");
+            var scanner = new Scanner(text);
 
             Should.NotThrow(() => scanner.ReadAhead(start: 1));
         }
@@ -23,7 +26,8 @@ namespace FindAndReplaceRobot.Language.Tests
         [TestCase(-1)]
         public void Should_read_ahead_and_throw_when_start_below_or_equal_to_zero(int start)
         {
-            var scanner = new Scanner("XY");
+            var text = Randomizer.GenerateString("🎲");
+            var scanner = new Scanner(text);
 
             Should.Throw<ArgumentOutOfRangeException>(() => scanner.ReadAhead(start));
         }
@@ -31,7 +35,8 @@ namespace FindAndReplaceRobot.Language.Tests
         [Test]
         public void Should_peek_ahead_and_not_throw_when_offset_above_zero()
         {
-            var scanner = new Scanner("XY");
+            var text = Randomizer.GenerateString("🎲");
+            var scanner = new Scanner(text);
             var offset = 1;
 
             Should.NotThrow(() => scanner.PeekAhead(ref offset));
@@ -41,7 +46,8 @@ namespace FindAndReplaceRobot.Language.Tests
         [TestCase(-1)]
         public void Should_peek_ahead_and_throw_when_offset_below_or_equal_to_zero(int offset)
         {
-            var scanner = new Scanner("XY");
+            var text = Randomizer.GenerateString("🎲");
+            var scanner = new Scanner(text);
 
             Should.Throw<ArgumentOutOfRangeException>(() => scanner.PeekAhead(ref offset));
         }
@@ -49,20 +55,22 @@ namespace FindAndReplaceRobot.Language.Tests
         [Test]
         public void Should_read_ahead_and_move_ahead_to_3rd_character()
         {
-            var scanner = new Scanner("XYZ");
+            var text = Randomizer.GenerateString("🎲X", 2);
+            var scanner = new Scanner(text);
 
             scanner.ReadAhead(2);
             scanner.MoveAhead();
-            scanner.ReadChar().ShouldBe('Z');
+            scanner.ReadChar().ShouldBe('X');
         }
 
         [Test]
         public void Should_peek_ahead_to_3rd_character()
         {
-            var scanner = new Scanner("XYZ");
+            var text = Randomizer.GenerateString("🎲X", 2);
+            var scanner = new Scanner(text);
             var offset = 2;
 
-            scanner.PeekAhead(ref offset).ShouldBe('Z');
+            scanner.PeekAhead(ref offset).ShouldBe('X');
         }
 
         [Test]
