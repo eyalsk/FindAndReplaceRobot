@@ -145,11 +145,8 @@
                 var start = range.Start.Value;
                 var end = range.End.Value + 1;
 
-                if (end < TextLength)
+                if (end < TextLength && _text[start..end].Span is var span && span.Length > 1)
                 {
-                    var text = _text[start..end];
-                    var span = text.Span;
-
                     var cr = span[^2];
                     var lf = span[^1];
 
