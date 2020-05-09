@@ -14,26 +14,7 @@
     internal class ScannerTests
     {
         [Test]
-        public void Should_read_ahead_and_not_throw_when_start_above_zero()
-        {
-            var text = Randomizer.GenerateString("🎲");
-            var scanner = new Scanner(text);
-
-            Should.NotThrow(() => scanner.ReadAhead(start: 1));
-        }
-
-        [TestCase(0)]
-        [TestCase(-1)]
-        public void Should_read_ahead_and_throw_when_start_below_or_equal_to_zero(int start)
-        {
-            var text = Randomizer.GenerateString("🎲");
-            var scanner = new Scanner(text);
-
-            Should.Throw<ArgumentOutOfRangeException>(() => scanner.ReadAhead(start));
-        }
-
-        [Test]
-        public void Should_peek_ahead_and_not_throw_when_offset_above_zero()
+        public void Should_peek_ahead_and_not_throw_when_start_above_zero()
         {
             var text = Randomizer.GenerateString("🎲");
             var scanner = new Scanner(text);
@@ -52,14 +33,34 @@
             Should.Throw<ArgumentOutOfRangeException>(() => scanner.PeekAhead(ref offset));
         }
 
-        [Test]
-        public void Should_read_ahead_and_move_ahead_to_3rd_character()
+        [TestCase(1)]
+        [TestCase(0)]
+        public void Should_step_to_and_not_throw_when_offset_above_or_equal_zero(int offset)
         {
-            var text = Randomizer.GenerateString("🎲X", 2);
+            var text = Randomizer.GenerateString("🎲");
             var scanner = new Scanner(text);
 
-            scanner.ReadAhead(2);
-            scanner.MoveAhead();
+            Should.NotThrow(() => scanner.StepTo(offset));
+        }
+
+        [Test]
+        public void Should_step_to_and_throw_when_offset_below_or_equal_to_zero()
+        {
+            var text = Randomizer.GenerateString("🎲");
+            var scanner = new Scanner(text);
+
+            Should.Throw<ArgumentOutOfRangeException>(() => scanner.StepTo(offset: -1));
+        }
+
+        [Test]
+        public void Should_peek_ahead_and_step_to_3rd_character()
+        {
+            var text = Randomizer.GenerateString("🎲XZ", 2);
+            var scanner = new Scanner(text);
+            var offset = 2;
+
+            scanner.PeekAhead(ref offset);
+            scanner.StepTo(offset);
             scanner.ReadChar().ShouldBe('X');
         }
 

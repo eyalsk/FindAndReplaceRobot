@@ -272,11 +272,11 @@
 
                 _nesting.column = _scanner.Position.ColumnNumber;
 
-                _scanner.StepAhead(--offset);
+                _scanner.StepTo(--offset);
             }
             else
             {
-                _scanner.StepAhead(offset);
+                _scanner.StepTo(offset);
             }
         }
 

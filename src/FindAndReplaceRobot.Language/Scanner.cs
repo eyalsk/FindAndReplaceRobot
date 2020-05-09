@@ -50,18 +50,9 @@
 
         public bool MoveNext() => CurrentIndex < TextLength && ++CurrentIndex < TextLength;
 
-        public char ReadAhead(int start = 1)
+        public char ReadAhead()
         {
-            if (start <= 0) throw new ArgumentOutOfRangeException(nameof(start));
-
-            if (_offset == 0)
-            {
-                _offset = start;
-            }
-            else
-            {
-                _offset++;
-            }
+            if (_offset >= 0) _offset++;
 
             return GetChar(AbsoluteIndex, ref _offset, ReadMode.Lookahead);
         }
@@ -73,7 +64,7 @@
             return GetChar(CurrentIndex + offset, ref offset, ReadMode.Peeking);
         }
 
-        public void StepAhead(int offset)
+        public void StepTo(int offset)
         {
             if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
 
