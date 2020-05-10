@@ -52,20 +52,14 @@
 
         public TextEndingFlags GetSliceEnding(Range range)
         {
-            var flags = TextEndingFlags.None;
             var span = _text[range].Span;
 
-            flags = span[^1] == '\n' ? TextEndingFlags.LF : flags;
-
-            flags = flags == TextEndingFlags.None && span[^1] == '\r'
-                        ? TextEndingFlags.CR
-                        : flags;
-
-            flags = flags == TextEndingFlags.LF && span.Length > 1 && span[^2] == '\r'
-                        ? TextEndingFlags.CR | flags
-                        : flags;
-
-            return flags;
+            return span[^1] switch
+            {
+                '\n' => span.Length >= 2 && span[^2] == '\r' ? TextEndingFlags.CRLF : TextEndingFlags.LF,
+                '\r' => TextEndingFlags.CR,
+                _ => TextEndingFlags.None,
+            };
         }
 
         public void MoveAhead()
