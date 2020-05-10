@@ -190,5 +190,28 @@
                 (EndOfFile, 0, 0, new Position(3, 1))
             });
         }
+
+        [TestCase("a", 0, 1)]
+        [TestCase("ab", 0, 2)]
+        [TestCase("b", 1, 2)]
+        public void Should_get_slice(string slice, int start, int end)
+        {
+            var scanner = new Scanner("ab");
+            var results = scanner.GetSlice(start..end).ToString();
+
+            results.ShouldBe(slice);
+        }
+
+        [TestCase("🎲", Scanner.TextEndingFlags.None)]
+        [TestCase("🎲\r", Scanner.TextEndingFlags.CR)]
+        [TestCase("🎲\r\n", Scanner.TextEndingFlags.CRLF)]
+        [TestCase("🎲\n", Scanner.TextEndingFlags.LF)]
+        public void Should_get_slice_ending(string text, Scanner.TextEndingFlags textEnding)
+        {
+            var scanner = new Scanner(text);
+            var results = scanner.GetSliceEnding(..);
+
+            results.ShouldBe(textEnding);
+        }
     }
 }

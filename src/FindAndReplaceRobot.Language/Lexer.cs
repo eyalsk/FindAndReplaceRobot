@@ -72,9 +72,15 @@
 
                 if (ch == '(' || IsNewLineOrEOF(ch))
                 {
-                    var value = SkipFirstSliceRest(out var handledCRLF);
-                    var end = handledCRLF ? _scanner.AbsoluteIndex - 1 : _scanner.AbsoluteIndex;
-                    var token = CreateToken(_scanner.CurrentIndex..end, TokenKind.Annotation, TokenKind.None, value);
+                    var end = _scanner.GetSliceEnding() == Scanner.TextEndingFlags.CR
+                                ? _scanner.AbsoluteIndex - 1
+                                : _scanner.AbsoluteIndex;
+
+                    var token = CreateToken(
+                                    _scanner.CurrentIndex..end,
+                                    TokenKind.Annotation,
+                                    TokenKind.None,
+                                    SkipFirstSliceTo(end));
 
                     _scanner.MoveAhead();
 
@@ -289,7 +295,7 @@
         private ReadOnlyMemory<char> SkipFirstSliceRest() =>
             _scanner.GetSlice((_scanner.CurrentIndex + 1).._scanner.AbsoluteIndex);
 
-        private ReadOnlyMemory<char> SkipFirstSliceRest(out bool handledCRLF) =>
-            _scanner.GetSlice((_scanner.CurrentIndex + 1).._scanner.AbsoluteIndex, out handledCRLF);
+        private ReadOnlyMemory<char> SkipFirstSliceTo(int end) =>
+            _scanner.GetSlice((_scanner.CurrentIndex + 1)..end);
     }
 }

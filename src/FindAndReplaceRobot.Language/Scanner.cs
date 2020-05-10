@@ -18,6 +18,15 @@
             Peeking
         }
 
+        [Flags]
+        public enum TextEndingFlags
+        {
+            None,
+            CR = 1 << 0,
+            LF = 1 << 1,
+            CRLF = CR | LF
+        }
+
         public Scanner(ReadOnlyMemory<char> text)
         {
             _text = text;
@@ -37,9 +46,27 @@
 
         public Position Position { get; private set; }
 
-        public ReadOnlyMemory<char> GetSlice(Range range) => GetSlice(range, false, out _);
+        public ReadOnlyMemory<char> GetSlice(Range range) => _text[range];
 
-        public ReadOnlyMemory<char> GetSlice(Range range, out bool handledCRLF) => GetSlice(range, true, out handledCRLF);
+        public TextEndingFlags GetSliceEnding() => GetSliceEnding(CurrentIndex..AbsoluteIndex);
+
+        public TextEndingFlags GetSliceEnding(Range range)
+        {
+            var flags = TextEndingFlags.None;
+            var span = _text[range].Span;
+
+            flags = span[^1] == '\n' ? TextEndingFlags.LF : flags;
+
+            flags = flags == TextEndingFlags.None && span[^1] == '\r'
+                        ? TextEndingFlags.CR
+                        : flags;
+
+            flags = flags == TextEndingFlags.LF && span.Length > 1 && span[^2] == '\r'
+                        ? TextEndingFlags.CR | flags
+                        : flags;
+
+            return flags;
+        }
 
         public void MoveAhead()
         {
@@ -125,32 +152,6 @@
 
                 return false;
             }
-        }
-
-        private ReadOnlyMemory<char> GetSlice(Range range, bool handleCRLF, out bool handledCRLF)
-        {
-            handledCRLF = false;
-
-            if (handleCRLF)
-            {
-                var start = range.Start.Value;
-                var end = range.End.Value + 1;
-
-                if (end < TextLength && _text[start..end].Span is var span && span.Length > 1)
-                {
-                    var cr = span[^2];
-                    var lf = span[^1];
-
-                    if (cr == '\r' && lf == '\n')
-                    {
-                        handledCRLF = true;
-
-                        return _text[start..(end - 2)];
-                    }
-                }
-            }
-
-            return _text[range];
         }
     }
 }
