@@ -11,11 +11,13 @@
         private int _offset;
         private int _prevIndex = -1;
 
-        private enum ReadMode
+        public Scanner(ReadOnlyMemory<char> text)
         {
-            Normal,
-            Lookahead,
-            Peeking
+            _text = text;
+
+            TextLength = text.Length;
+
+            Position = new Position(1, 0);
         }
 
         [Flags]
@@ -27,13 +29,11 @@
             CRLF = CR | LF
         }
 
-        public Scanner(ReadOnlyMemory<char> text)
+        private enum ReadMode
         {
-            _text = text;
-
-            TextLength = text.Length;
-
-            Position = new Position(1, 0);
+            Normal,
+            Lookahead,
+            Peeking
         }
 
         public Scanner(string text) : this(text.AsMemory()) { }
