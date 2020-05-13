@@ -35,7 +35,7 @@
         [TestCase("@🎲\n@🎲()")]
         public void Should_lex_well_formed_annotations(string pattern)
         {
-            var text = Randomizer.GenerateString(pattern);
+            var text = Randomizer.GenerateOnlyLettersString(pattern);
             var scanner = new Scanner(text);
             var lexer = new Lexer(scanner);
             var token = lexer.ReadTokenByKind(TokenKind.Annotation);
@@ -47,7 +47,7 @@
         [TestCase("[🎲]")]
         public void Should_not_lex_malformed_annotations(string pattern)
         {
-            var text = Randomizer.GenerateString(pattern);
+            var text = Randomizer.GenerateOnlyLettersString(pattern);
             var scanner = new Scanner(text);
             var lexer = new Lexer(scanner);
             var token = lexer.ReadTokenByKind(TokenKind.Annotation);
@@ -73,7 +73,7 @@
 
             foreach (var pattern in patterns)
             {
-                var text = Randomizer.GenerateString(pattern);
+                var text = Randomizer.GenerateOnlyLettersString(pattern);
                 var scanner = new Scanner(text);
                 var lexer = new Lexer(scanner);
 
@@ -97,7 +97,7 @@
         [TestCase("@🎲(\"🎲])")]
         public void Should_not_lex_annotations_with_malformed_arguments(string pattern)
         {
-            var text = Randomizer.GenerateString(pattern);
+            var text = Randomizer.GenerateOnlyLettersString(pattern);
             var scanner = new Scanner(text);
             var lexer = new Lexer(scanner);
             var token = lexer.ReadTokenByKind(TokenKind.AnnotationArgument);
@@ -128,6 +128,18 @@
             token.Kind.ShouldBe(TokenKind.Error);
         }
 
+        [TestCase("🎲")]
+        [TestCase("🎲 -> 🎲")]
+        public void Should_lex_items(string pattern)
+        {
+            var text = Randomizer.GenerateString(pattern);
+            var scanner = new Scanner(text);
+            var lexer = new Lexer(scanner);
+            var token = lexer.ReadTokenByKind(TokenKind.Value);
+
+            token.Kind.ShouldBe(TokenKind.Value);
+        }
+
         [Test]
         public void Should_lex_text_with_mixed_newlines()
         {
@@ -155,7 +167,7 @@
         [Test]
         public void Should_lex_text_with_nested_constructs()
         {
-            var scanner = new Scanner("@A\r\n[S]\r\nI1      -> I10\r\nI2      -> I20\r\n @Ab\r\n I21    -> I210\r\n I22    -> I220\r\n  @Abc\r\n  I221  -> I2210\r\n  I222  -> I2220\r\nI3      -> I30");
+            var scanner = new Scanner("I1\r\n I2\r\n  I3");
             var lexer = new Lexer(scanner);
             var results = new List<(string, int)>();
 
@@ -170,10 +182,9 @@
 
             results.ShouldBe(new[]
             {
-                ("A", 1),
-                ("S", 1),
-                ("Ab", 2),
-                ("Abc", 3)
+                ("I1", 1),
+                ("I2", 2),
+                ("I3", 3)
             });
         }
     }

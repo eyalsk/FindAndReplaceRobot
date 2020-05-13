@@ -5,10 +5,9 @@
 
     using static InvisibleCharacters;
 
-    public sealed class Scanner
+    public sealed partial class Scanner
     {
         private readonly ReadOnlyMemory<char> _text;
-        private int _offset;
         private int _prevIndex = -1;
 
         public Scanner(ReadOnlyMemory<char> text)
@@ -18,15 +17,6 @@
             TextLength = text.Length;
 
             Position = new Position(1, 0);
-        }
-
-        [Flags]
-        public enum TextEndingFlags
-        {
-            None,
-            CR = 1 << 0,
-            LF = 1 << 1,
-            CRLF = CR | LF
         }
 
         private enum ReadMode
@@ -42,16 +32,14 @@
 
         public int CurrentIndex { get; private set; }
 
-        public int AbsoluteIndex => CurrentIndex + _offset;
-
         public Position Position { get; private set; }
 
         public ReadOnlyMemory<char> GetSlice(Range range) => _text[range];
 
-        public TextEndingFlags GetSliceEnding() => GetSliceEnding(CurrentIndex..AbsoluteIndex);
-
         public TextEndingFlags GetSliceEnding(Range range)
         {
+            if (range.End.Value >= TextLength) return TextEndingFlags.EOF;
+
             var span = _text[range].Span;
 
             return span[^1] switch
@@ -62,22 +50,8 @@
             };
         }
 
-        public void MoveAhead()
-        {
-            CurrentIndex = AbsoluteIndex < TextLength ? AbsoluteIndex : TextLength;
-
-            _offset = 0;
-        }
-
         public bool MoveNext() => CurrentIndex < TextLength && ++CurrentIndex < TextLength;
-
-        public char ReadAhead()
-        {
-            if (_offset >= 0) _offset++;
-
-            return GetChar(AbsoluteIndex, ref _offset, ReadMode.Lookahead);
-        }
-
+            
         public char PeekAhead(ref int offset)
         {
             if (offset <= 0) throw new ArgumentOutOfRangeException(nameof(offset));
@@ -89,9 +63,7 @@
         {
             if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
 
-            _offset = offset;
-
-            MoveAhead();
+            CurrentIndex = CurrentIndex + offset < TextLength ? CurrentIndex + offset : TextLength;
         }
 
         public char ReadChar()

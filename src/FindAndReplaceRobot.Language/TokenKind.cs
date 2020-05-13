@@ -17,20 +17,24 @@
         Label = 302,
         Identifier = 303,
 
-        ValueLiteral = 400,
-        String = 401,
-        Integer = 402,
-        Regex = 403,
+        Operator = 400,
+        LHS = 401,
+        RHS = 402,
 
-        Whitespace = 500,
-        EndOfFile = 501,
-        NewLine = 502,
-        Indent = 503,
-        Tab = 504,
-        Space = 505,
+        ValueLiteral = 500,
+        String = 501,
+        Integer = 502,
+        Regex = 503,
 
-        Error = 600,
+        Whitespace = 600,
+        EndOfFile = 601,
+        NewLine = 602,
+        Indent = 603,
+        Tab = 604,
+        Space = 605,
 
-        Keyword = 700
+        Error = 700,
+
+        Keyword = 800
     }
 }

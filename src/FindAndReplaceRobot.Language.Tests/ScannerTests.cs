@@ -82,7 +82,6 @@
             var results = new List<(
                 char ch,
                 int currentIndex,
-                int absoluteIndex,
                 Position pos)>();
 
             while (true)
@@ -92,7 +91,6 @@
                 results.Add((
                     ch,
                     scanner.CurrentIndex,
-                    scanner.AbsoluteIndex,
                     scanner.Position));
 
                 scanner.MoveNext();
@@ -101,56 +99,15 @@
             }
 
             results.ShouldBe(new[] {
-                ('a', 0, 0, new Position(1, 1)),
-                ('\n', 2, 2, new Position(2, 0)),
-                ('b', 3, 3, new Position(2, 1)),
-                ('\n', 4, 4, new Position(3, 0)),
-                ('c', 5, 5, new Position(3, 1)),
-                ('\n', 6, 6, new Position(4, 0)),
-                ('\n', 7, 7, new Position(5, 0)),
-                ('d', 8, 8, new Position(5, 1)),
-                (EndOfFile, 9, 9, new Position(5, 2))
-            });
-        }
-
-        [Test]
-        public void Should_read_ahead_to_end_of_file()
-        {
-            var scanner = new Scanner("a\r\nb\nc!ab\n\nc");
-
-            var results = new List<(
-                char ch,
-                int currentIndex,
-                int absoluteIndex,
-                Position pos)>();
-
-            while (true)
-            {
-                var ch = scanner.ReadAhead();
-
-                results.Add((
-                    ch,
-                    scanner.CurrentIndex,
-                    scanner.AbsoluteIndex,
-                    scanner.Position));
-
-                if (ch == '!') scanner.MoveAhead();
-
-                if (ch == EndOfFile) break;
-            }
-
-            results.ShouldBe(new[] {
-                ('\n', 0, 2, new Position(2, 0)),
-                ('b', 0, 3, new Position(2, 1)),
-                ('\n', 0, 4, new Position(3, 0)),
-                ('c', 0, 5, new Position(3, 1)),
-                ('!', 0, 6, new Position(3, 2)),
-                ('a', 6, 7, new Position(3, 3)),
-                ('b', 6, 8, new Position(3, 4)),
-                ('\n', 6, 9, new Position(4, 0)),
-                ('\n', 6, 10, new Position(5, 0)),
-                ('c', 6, 11, new Position(5, 1)),
-                (EndOfFile, 6, 12, new Position(5, 2))
+                ('a', 0, new Position(1, 1)),
+                ('\n', 2, new Position(2, 0)),
+                ('b', 3, new Position(2, 1)),
+                ('\n', 4, new Position(3, 0)),
+                ('c', 5, new Position(3, 1)),
+                ('\n', 6, new Position(4, 0)),
+                ('\n', 7, new Position(5, 0)),
+                ('d', 8, new Position(5, 1)),
+                (EndOfFile, 9, new Position(5, 2))
             });
         }
 
@@ -161,8 +118,6 @@
 
             var results = new List<(
                 char ch,
-                int currentIndex,
-                int absoluteIndex,
                 Position pos)>();
 
             var offset = 1;
@@ -173,8 +128,6 @@
 
                 results.Add((
                     ch,
-                    scanner.CurrentIndex,
-                    scanner.AbsoluteIndex,
                     scanner.Position));
 
                 offset++;
@@ -183,11 +136,11 @@
             }
 
             results.ShouldBe(new[] {
-                ('\n', 0, 0, new Position(2, 0)),
-                ('b', 0, 0, new Position(2, 1)),
-                ('c', 0, 0, new Position(2, 2)),
-                ('\n', 0, 0, new Position(3, 0)),
-                (EndOfFile, 0, 0, new Position(3, 1))
+                ('\n', new Position(2, 0)),
+                ('b', new Position(2, 1)),
+                ('c', new Position(2, 2)),
+                ('\n', new Position(3, 0)),
+                (EndOfFile, new Position(3, 1))
             });
         }
 
@@ -202,11 +155,11 @@
             results.ShouldBe(slice);
         }
 
-        [TestCase("🎲", Scanner.TextEndingFlags.None)]
-        [TestCase("🎲\r", Scanner.TextEndingFlags.CR)]
-        [TestCase("🎲\r\n", Scanner.TextEndingFlags.CRLF)]
-        [TestCase("🎲\n", Scanner.TextEndingFlags.LF)]
-        public void Should_get_slice_ending(string text, Scanner.TextEndingFlags textEnding)
+        [TestCase("🎲", TextEndingFlags.None)]
+        [TestCase("🎲\r", TextEndingFlags.CR)]
+        [TestCase("🎲\r\n", TextEndingFlags.CRLF)]
+        [TestCase("🎲\n", TextEndingFlags.LF)]
+        public void Should_get_slice_ending(string text, TextEndingFlags textEnding)
         {
             var scanner = new Scanner(text);
             var results = scanner.GetSliceEnding(..);

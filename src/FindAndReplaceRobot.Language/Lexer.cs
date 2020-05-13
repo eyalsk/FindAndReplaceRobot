@@ -36,6 +36,8 @@
         {
             while (true)
             {
+            LoopStart:
+
                 if (_pendingTokens.Count > 0)
                 {
                     return _pendingTokens.Dequeue();
@@ -57,7 +59,24 @@
                         SetSectionMarker();
                         break;
                     case EndOfFile:
-                        return CreateToken(TokenKind.EndOfFile, ReadOnlyMemory<char>.Empty);
+                        return CreateToken(
+                                    _scanner.CurrentIndex.._scanner.CurrentIndex,
+                                    TokenKind.EndOfFile,
+                                    TokenKind.None,
+                                    ReadOnlyMemory<char>.Empty);
+                    default:
+                        if (_marker == SectionMarker.Header || _marker == SectionMarker.Item)
+                        {
+                            if (LexItem() == TextEndingFlags.LF)
+                            {
+                                goto case NewLine;
+                            }
+                            else
+                            {
+                                goto LoopStart;
+                            }
+                        }
+                        break;
                 }
 
                 _scanner.MoveNext();
@@ -66,43 +85,42 @@
 
         private Token LexAnnotation()
         {
+            var start = _scanner.CurrentIndex;
+
             while (true)
             {
-                var ch = _scanner.ReadAhead();
+                var ch = _scanner.ReadChar();
 
                 if (ch == '(' || IsNewLineOrEOF(ch))
                 {
-                    var end = _scanner.GetSliceEnding() == Scanner.TextEndingFlags.CR
-                                ? _scanner.AbsoluteIndex - 1
-                                : _scanner.AbsoluteIndex;
+                    var end = _scanner.GetSliceEnding(start.._scanner.CurrentIndex) == TextEndingFlags.CR
+                                ? _scanner.CurrentIndex - 1
+                                : _scanner.CurrentIndex;
 
                     var token = CreateToken(
-                                    _scanner.CurrentIndex..end,
+                                    start..end,
                                     TokenKind.Annotation,
                                     TokenKind.None,
-                                    SkipFirstSliceTo(end));
+                                    _scanner.GetSlice((start + 1)..end));
 
-                    _scanner.MoveAhead();
-
-                    LexAnnotationArguments();
+                    if (ch == '(') LexAnnotationArguments();
 
                     return token;
                 }
                 else if (!char.IsLetter(ch))
                 {
                     // todo: Add error "Invalid annotation identifier at {position}. Annotation identifier can only contain letters."
-
-                    _scanner.MoveAhead();
                 }
+
+                _scanner.MoveNext();
             }
         }
 
         private void LexAnnotationArguments()
         {
             var start = _scanner.CurrentIndex;
-            var end = _scanner.AbsoluteIndex;
+            var end = -1;
             var context = TokenKind.None;
-            int openingCharCount = 0;
             char? closingChar = null;
 
             while (true)
@@ -158,7 +176,7 @@
 
                     if (ch == ')') closingChar = ch;
                 }
-                else if (ch == '(' && ++openingCharCount > 1)
+                else if (ch == '(')
                 {
                     // todo: Add error "Annotation at '{position}' contains illegal opening parenthesis."
                 }
@@ -186,30 +204,124 @@
 
         private Token LexSection()
         {
+            var start = _scanner.CurrentIndex;
+
             while (true)
             {
-                var ch = _scanner.ReadAhead();
+                var ch = _scanner.ReadChar();
 
                 if (ch == ']')
                 {
                     var token = CreateToken(
-                        _scanner.CurrentIndex..(_scanner.AbsoluteIndex + 1),
-                        TokenKind.Section,
-                        TokenKind.None,
-                        SkipFirstSliceRest());
+                                    start..(_scanner.CurrentIndex + 1),
+                                    TokenKind.Section,
+                                    TokenKind.None,
+                                    _scanner.GetSlice((start + 1).._scanner.CurrentIndex));
 
-                    _scanner.MoveAhead();
+                    _scanner.MoveNext();
 
                     return token;
                 }
                 else if (IsNewLineOrEOF(ch))
                 {
-                    _scanner.MoveAhead();
-
                     // todo: Add error
 
-                    return CreateToken(TokenKind.Error, ReadOnlyMemory<char>.Empty);
+                    var token = CreateToken(
+                                    start..(_scanner.CurrentIndex + 1),
+                                    TokenKind.Section,
+                                    TokenKind.Error,
+                                    _scanner.GetSlice((start + 1).._scanner.CurrentIndex));
+
+                    _scanner.MoveNext();
+
+                    return token;
                 }
+
+                _scanner.MoveNext();
+            }
+        }
+
+        private TextEndingFlags LexItem()
+        {
+            var start = _scanner.CurrentIndex;
+            var end = -1;
+            var offset = 1;
+            var spaceOffset = 0;
+            var context = TokenKind.None;
+            var hasOperator = false;
+
+            while (true)
+            {
+                var ch = _scanner.ReadChar();
+
+                if (ch == '-' && _scanner.PeekAhead(ref offset) == '>')
+                {
+                    var range = _scanner.CurrentIndex..(_scanner.CurrentIndex + 2);
+
+                    _pendingTokens.Enqueue(
+                        CreateToken(
+                            range,
+                            TokenKind.Operator,
+                            TokenKind.None,
+                            _scanner.GetSlice(range)));
+
+                    _scanner.StepTo(offset);
+
+                    end = _scanner.CurrentIndex - 1;
+                    context = TokenKind.LHS;
+                    hasOperator = true;
+                }
+                else if (IsNewLineOrEOF(ch))
+                {
+                    end = _scanner.GetSliceEnding(start.._scanner.CurrentIndex) == TextEndingFlags.CR
+                                ? _scanner.CurrentIndex - 1
+                                : _scanner.CurrentIndex;
+
+                    context = _pendingTokens.Count > 0 ? TokenKind.RHS : TokenKind.LHS;
+                }
+                else if (!IsSpace(ch))
+                {
+                    spaceOffset = 0;
+                }
+                else if (IsSpace(ch))
+                {
+                    spaceOffset++;
+                }
+                else if (ch == '"')
+                {
+                    // todo: Lex string
+                }
+                else if (ch == '/')
+                {
+                    // todo: Lex regex
+                }
+
+                if (start > -1 && (context == TokenKind.LHS || context == TokenKind.RHS))
+                {
+                    end -= spaceOffset;
+
+                    _pendingTokens.Enqueue(
+                        CreateToken(
+                            start..end,
+                            TokenKind.Value,
+                            context,
+                            _scanner.GetSlice(start..end)));
+
+                    start = (hasOperator ? end + 3 : 0) + spaceOffset;
+                    spaceOffset = 0;
+                    context = TokenKind.None;
+                }
+
+                if (ch == NewLine)
+                {
+                    return TextEndingFlags.LF;
+                }
+                else if (ch == EndOfFile)
+                {
+                    return TextEndingFlags.EOF;
+                }
+
+                _scanner.MoveNext();
             }
         }
 
@@ -226,7 +338,7 @@
             {
                 _marker = SectionMarker.Blank;
             }
-            else if (_marker == SectionMarker.Item && IsSpace(nextChar))
+            else if ((_marker == SectionMarker.Header || _marker == SectionMarker.Item) && IsSpace(nextChar))
             {
                 _marker = SectionMarker.Subsection;
             }
@@ -286,16 +398,7 @@
             }
         }
 
-        private Token CreateToken(TokenKind kind, ReadOnlyMemory<char> value) =>
-            new Token(_scanner.CurrentIndex.._scanner.AbsoluteIndex, _nesting.depth, kind, TokenKind.None, value);
-
         private Token CreateToken(Range range, TokenKind kind, TokenKind context, ReadOnlyMemory<char> value) =>
             new Token(range, _nesting.depth, kind, context, value);
-
-        private ReadOnlyMemory<char> SkipFirstSliceRest() =>
-            _scanner.GetSlice((_scanner.CurrentIndex + 1).._scanner.AbsoluteIndex);
-
-        private ReadOnlyMemory<char> SkipFirstSliceTo(int end) =>
-            _scanner.GetSlice((_scanner.CurrentIndex + 1)..end);
     }
 }
