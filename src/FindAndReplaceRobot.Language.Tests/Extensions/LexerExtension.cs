@@ -12,7 +12,7 @@
             {
                 var token = lexer.ReadToken();
 
-                if (token.Kind == kind)
+                if (token.Kind == kind && token.Context != TokenKind.Error)
                 {
                     return token;
                 }
