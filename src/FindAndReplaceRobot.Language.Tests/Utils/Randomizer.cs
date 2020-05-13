@@ -10,6 +10,13 @@
             new Regex("🎲", RegexOptions.Compiled);
 
         public static string GenerateString(string pattern, int length = 8) =>
-            _itemParser.Replace(pattern, _ => TestContext.CurrentContext.Random.GetString(length));
+            _itemParser.Replace(pattern, _ =>
+                TestContext.CurrentContext.Random.GetString(length));
+
+        public static string GenerateOnlyLettersString(string pattern, int length = 8) =>
+            _itemParser.Replace(pattern, _ =>
+                TestContext.CurrentContext.Random.GetString(
+                    length, "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ"));
     }
+}
 }
