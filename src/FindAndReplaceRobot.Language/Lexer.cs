@@ -344,18 +344,18 @@
         private void SetSectionMarker()
         {
             var offset = 1;
-            var nextChar = _scanner.PeekAhead(ref offset);
+            var ch = _scanner.PeekAhead(ref offset);
             var isBlank = _marker == SectionMarker.Blank;
 
-            if (nextChar == '@' || nextChar == '[')
+            if (ch == '@' || ch == '[')
             {
                 _marker = SectionMarker.Header;
             }
-            else if (nextChar == NewLine)
+            else if (ch == NewLine)
             {
                 _marker = SectionMarker.Blank;
             }
-            else if (IsSpace(nextChar))
+            else if (IsSpace(ch))
             {
                 _marker = SectionMarker.Subsection;
             }
@@ -373,13 +373,13 @@
         private void SetSubsectionMarker()
         {
             var offset = 1;
-            var nextChar = SkipLeadingSpaces(ref offset);
+            var ch = SkipLeadingSpaces(ref offset);
 
-            if (nextChar == '@')
+            if (ch == '@')
             {
                 _marker = SectionMarker.Header;
             }
-            else if (IsNewLineOrEOF(nextChar))
+            else if (IsNewLineOrEOF(ch))
             {
                 _marker = SectionMarker.Blank;
             }
