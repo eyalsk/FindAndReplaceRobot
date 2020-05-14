@@ -373,13 +373,7 @@
         private void SetSubsectionMarker()
         {
             var offset = 1;
-            var nextChar = _scanner.PeekAhead(ref offset);
-
-            while (IsSpace(nextChar))
-            {
-                offset++;
-                nextChar = _scanner.PeekAhead(ref offset);
-            }
+            var nextChar = SkipLeadingSpaces(ref offset);
 
             if (nextChar == '@')
             {
@@ -415,16 +409,25 @@
             }
         }
 
-        private void SkipLeadingSpaces()
+        private char SkipLeadingSpaces(ref int offset)
         {
-            var offset = 1;
             var ch = _scanner.PeekAhead(ref offset);
 
             while (IsSpace(ch))
             {
                 offset++;
+
                 ch = _scanner.PeekAhead(ref offset);
             }
+
+            return ch;
+        }
+
+        private void SkipLeadingSpaces()
+        {
+            var offset = 1;
+
+            SkipLeadingSpaces(ref offset);
 
             _scanner.StepTo(offset);
         }
