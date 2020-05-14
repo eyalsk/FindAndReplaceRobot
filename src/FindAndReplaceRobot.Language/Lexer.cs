@@ -36,8 +36,6 @@
         {
             while (true)
             {
-            LoopStart:
-
                 if (_pendingTokens.Count > 0)
                 {
                     return _pendingTokens.Dequeue();
@@ -80,7 +78,7 @@
                             }
                             else
                             {
-                                goto LoopStart;
+                                continue;
                             }
                         }
                         break;
