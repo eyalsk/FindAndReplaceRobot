@@ -5,7 +5,7 @@
 
     using static InvisibleCharacters;
 
-    public sealed partial class Scanner
+    public sealed class Scanner
     {
         private readonly ReadOnlyMemory<char> _text;
         private int _prevIndex = -1;
