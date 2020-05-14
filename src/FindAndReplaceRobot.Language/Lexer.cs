@@ -51,9 +51,16 @@
                         return LexAnnotation();
                     case '[' when _marker == SectionMarker.Header:
                         return LexSection();
-                    case Tab when _marker == SectionMarker.Subsection:
-                    case Space when _marker == SectionMarker.Subsection:
-                        SetSubsectionMarker();
+                    case Tab:
+                    case Space:
+                        if (_marker == SectionMarker.Subsection)
+                        {
+                            SetSubsectionMarker();
+                        }
+                        else
+                        {
+                            SkipLeadingSpaces();
+                        }
                         break;
                     case NewLine:
                         SetSectionMarker();
@@ -86,6 +93,7 @@
         private Token LexAnnotation()
         {
             var start = _scanner.CurrentIndex;
+            var spaceOffset = 0;
 
             while (true)
             {
@@ -97,6 +105,8 @@
                                 ? _scanner.CurrentIndex - 1
                                 : _scanner.CurrentIndex;
 
+                    end -= spaceOffset;
+
                     var token = CreateToken(
                                     start..end,
                                     TokenKind.Annotation,
@@ -107,9 +117,15 @@
 
                     return token;
                 }
+                else if (IsSpace(ch))
+                {
+                    spaceOffset++;
+                }
                 else if (!char.IsLetter(ch))
                 {
                     // todo: Add error "Invalid annotation identifier at {position}. Annotation identifier can only contain letters."
+
+                    spaceOffset = 0;
                 }
 
                 _scanner.MoveNext();
@@ -397,6 +413,20 @@
             {
                 _scanner.StepTo(offset);
             }
+        }
+
+        private void SkipLeadingSpaces()
+        {
+            var offset = 1;
+            var ch = _scanner.PeekAhead(ref offset);
+
+            while (IsSpace(ch))
+            {
+                offset++;
+                ch = _scanner.PeekAhead(ref offset);
+            }
+
+            _scanner.StepTo(offset);
         }
 
         private Token CreateToken(Range range, TokenKind kind, TokenKind context, ReadOnlyMemory<char> value) =>

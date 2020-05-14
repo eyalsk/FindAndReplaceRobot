@@ -211,5 +211,31 @@
                 ("I3", 2),
             });
         }
+
+        [TestCase("@A    \n@B")]
+        [TestCase("@A    \r\n@B")]
+        [TestCase("@A()    \n@B")]
+        [TestCase("@A()    \r\n@B")]
+        [TestCase("[A]    \n[B]")]
+        [TestCase("[A]    \r\n[B]")]
+        [TestCase("A    \nB")]
+        [TestCase("A    \r\nB")]
+        public void Should_lex_text_with_leading_spaces(string text)
+        {
+            var scanner = new Scanner(text);
+            var lexer = new Lexer(scanner);
+            var results = new List<string>();
+
+            while (true)
+            {
+                var token = lexer.ReadToken();
+
+                if (token.Kind == TokenKind.EndOfFile) break;
+
+                results.Add(token.Value.ToString());
+            }
+
+            results.ShouldBe(new[] { "A", "B" });
+        }
     }
 }
