@@ -291,7 +291,7 @@
                                 ? _scanner.CurrentIndex - 1
                                 : _scanner.CurrentIndex;
 
-                    context = _pendingTokens.Count > 0 ? TokenKind.RHS : TokenKind.LHS;
+                    context = hasOperator ? TokenKind.RHS : TokenKind.LHS;
                 }
                 else if (!IsSpace(ch))
                 {
