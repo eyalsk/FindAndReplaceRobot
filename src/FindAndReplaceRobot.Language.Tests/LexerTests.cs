@@ -164,10 +164,11 @@
             });
         }
 
-        [Test]
-        public void Should_lex_text_with_nested_constructs()
+        [TestCase("I1\n I2\n  I3")]
+        [TestCase("I1\r\n I2\r\n  I3")]
+        public void Should_lex_text_with_nested_constructs(string text)
         {
-            var scanner = new Scanner("I1\r\n I2\r\n  I3");
+            var scanner = new Scanner(text);
             var lexer = new Lexer(scanner);
             var results = new List<(string, int)>();
 
@@ -188,10 +189,11 @@
             });
         }
 
-        [Test]
-        public void Should_lex_text_with_blank_lines()
+        [TestCase("I1\n I2\n\n I3")]
+        [TestCase("I1\r\n I2\r\n\r\n I3")]
+        public void Should_lex_text_with_blank_lines(string text)
         {
-            var scanner = new Scanner("I1\r\n I2\r\n\r\n I3");
+            var scanner = new Scanner(text);
             var lexer = new Lexer(scanner);
             var results = new List<(string, int)>();
 
