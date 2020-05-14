@@ -293,14 +293,6 @@
 
                     context = hasOperator ? TokenKind.RHS : TokenKind.LHS;
                 }
-                else if (!IsSpace(ch))
-                {
-                    spaceOffset = 0;
-                }
-                else if (IsSpace(ch))
-                {
-                    spaceOffset++;
-                }
                 else if (ch == '"')
                 {
                     // todo: Lex string
@@ -308,6 +300,14 @@
                 else if (ch == '/')
                 {
                     // todo: Lex regex
+                }
+                else if (!IsSpace(ch))
+                {
+                    spaceOffset = 0;
+                }
+                else
+                {
+                    spaceOffset++;
                 }
 
                 if (start > -1 && (context == TokenKind.LHS || context == TokenKind.RHS))
