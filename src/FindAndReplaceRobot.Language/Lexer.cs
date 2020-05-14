@@ -329,6 +329,7 @@
         {
             var offset = 1;
             var nextChar = _scanner.PeekAhead(ref offset);
+            var isBlank = _marker == SectionMarker.Blank;
 
             if (nextChar == '@' || nextChar == '[')
             {
@@ -338,7 +339,7 @@
             {
                 _marker = SectionMarker.Blank;
             }
-            else if ((_marker == SectionMarker.Header || _marker == SectionMarker.Item) && IsSpace(nextChar))
+            else if (IsSpace(nextChar))
             {
                 _marker = SectionMarker.Subsection;
             }
@@ -347,7 +348,7 @@
                 _marker = SectionMarker.Item;
             }
 
-            if (_marker == SectionMarker.Header || _marker == SectionMarker.Item)
+            if (!isBlank && (_marker == SectionMarker.Header || _marker == SectionMarker.Item))
             {
                 _nesting = (-1, 1);
             }

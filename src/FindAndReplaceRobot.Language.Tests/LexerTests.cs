@@ -187,5 +187,29 @@
                 ("I3", 3)
             });
         }
+
+        [Test]
+        public void Should_lex_text_with_blank_lines()
+        {
+            var scanner = new Scanner("I1\r\n I2\r\n\r\n I3");
+            var lexer = new Lexer(scanner);
+            var results = new List<(string, int)>();
+
+            while (true)
+            {
+                var token = lexer.ReadToken();
+
+                if (token.Kind == TokenKind.EndOfFile) break;
+
+                results.Add((token.Value.ToString(), token.Depth));
+            }
+
+            results.ShouldBe(new[]
+            {
+                ("I1", 1),
+                ("I2", 2),
+                ("I3", 2),
+            });
+        }
     }
 }
