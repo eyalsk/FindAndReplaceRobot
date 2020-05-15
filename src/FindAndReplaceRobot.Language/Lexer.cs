@@ -261,7 +261,7 @@
             var end = -1;
             var offset = 1;
             var spaceOffset = 0;
-            var context = TokenKind.None;
+            var context = TokenKind.Value;
             var hasOperator = false;
 
             while (true)
@@ -282,7 +282,6 @@
                     _scanner.StepTo(offset);
 
                     end = _scanner.CurrentIndex - 1;
-                    context = context != TokenKind.None ? context : TokenKind.Value;
                     hasOperator = true;
                 }
                 else if (IsNewLineOrEOF(ch))
@@ -290,8 +289,6 @@
                     end = _scanner.GetSliceEnding(start.._scanner.CurrentIndex) == TextEndingFlags.CR
                                 ? _scanner.CurrentIndex - 1
                                 : _scanner.CurrentIndex;
-
-                    context = context != TokenKind.None ? context : TokenKind.Value;
                 }
                 else if (ch == '"')
                 {
@@ -310,7 +307,7 @@
                     spaceOffset++;
                 }
 
-                if (start > -1 && end > -1)
+                if (end > -1)
                 {
                     end -= spaceOffset;
 
@@ -324,7 +321,7 @@
                     start = (hasOperator ? end + 3 : 0) + spaceOffset;
                     end = -1;
                     spaceOffset = 0;
-                    context = TokenKind.None;
+                    context = TokenKind.Value;
                     hasOperator = false;
                 }
 
