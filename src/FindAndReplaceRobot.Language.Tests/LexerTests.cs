@@ -128,16 +128,32 @@
             token.Kind.ShouldBe(TokenKind.Error);
         }
 
-        [TestCase("🎲")]
-        [TestCase("🎲 -> 🎲")]
-        public void Should_lex_items(string pattern)
+        [Test]
+        public void Should_lex_items()
         {
-            var text = Randomizer.GenerateString(pattern);
-            var scanner = new Scanner(text);
-            var lexer = new Lexer(scanner);
-            var token = lexer.ReadTokenByKind(TokenKind.Item);
+            var patterns = new List<string>
+            {
+                "🎲",
+                "🎲 -> 🎲"
+            };
 
-            token.Kind.ShouldBe(TokenKind.Item);
+            var results = new List<(TokenKind, TokenKind)>();
+
+            foreach (var pattern in patterns)
+            {
+                var text = Randomizer.GenerateOnlyLettersString(pattern);
+                var scanner = new Scanner(text);
+                var lexer = new Lexer(scanner);
+
+                results.AddRange(lexer.ReadTokensByKind(TokenKind.Item).Select(t => (t.Kind, t.Context)));
+            }
+
+            results.ShouldBe(new[] {
+                (TokenKind.Item, TokenKind.Value),
+                (TokenKind.Item, TokenKind.Operator),
+                (TokenKind.Item, TokenKind.Value),
+                (TokenKind.Item, TokenKind.Value)
+            });
         }
 
         [Test]
