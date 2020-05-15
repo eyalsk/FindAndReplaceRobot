@@ -135,9 +135,9 @@
             var text = Randomizer.GenerateString(pattern);
             var scanner = new Scanner(text);
             var lexer = new Lexer(scanner);
-            var token = lexer.ReadTokenByKind(TokenKind.Value);
+            var token = lexer.ReadTokenByKind(TokenKind.Item);
 
-            token.Kind.ShouldBe(TokenKind.Value);
+            token.Kind.ShouldBe(TokenKind.Item);
         }
 
         [Test]

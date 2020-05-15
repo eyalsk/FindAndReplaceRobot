@@ -16,10 +16,7 @@
         Value = 301,
         Label = 302,
         Identifier = 303,
-
-        Operator = 400,
-        LHS = 401,
-        RHS = 402,
+        Operator = 304,
 
         ValueLiteral = 500,
         String = 501,

@@ -275,14 +275,14 @@
                     _pendingTokens.Enqueue(
                         CreateToken(
                             range,
+                            TokenKind.Item,
                             TokenKind.Operator,
-                            TokenKind.None,
                             _scanner.GetSlice(range)));
 
                     _scanner.StepTo(offset);
 
                     end = _scanner.CurrentIndex - 1;
-                    context = TokenKind.LHS;
+                    context = context != TokenKind.None ? context : TokenKind.Value;
                     hasOperator = true;
                 }
                 else if (IsNewLineOrEOF(ch))
@@ -291,15 +291,15 @@
                                 ? _scanner.CurrentIndex - 1
                                 : _scanner.CurrentIndex;
 
-                    context = hasOperator ? TokenKind.RHS : TokenKind.LHS;
+                    context = context != TokenKind.None ? context : TokenKind.Value;
                 }
                 else if (ch == '"')
                 {
-                    // todo: Lex string
+                    context = TokenKind.String;
                 }
                 else if (ch == '/')
                 {
-                    // todo: Lex regex
+                    context = TokenKind.Regex;
                 }
                 else if (!IsSpace(ch))
                 {
@@ -310,20 +310,22 @@
                     spaceOffset++;
                 }
 
-                if (start > -1 && (context == TokenKind.LHS || context == TokenKind.RHS))
+                if (start > -1 && end > -1)
                 {
                     end -= spaceOffset;
 
                     _pendingTokens.Enqueue(
                         CreateToken(
                             start..end,
-                            TokenKind.Value,
+                            TokenKind.Item,
                             context,
                             _scanner.GetSlice(start..end)));
 
                     start = (hasOperator ? end + 3 : 0) + spaceOffset;
+                    end = -1;
                     spaceOffset = 0;
                     context = TokenKind.None;
+                    hasOperator = false;
                 }
 
                 if (ch == NewLine)
