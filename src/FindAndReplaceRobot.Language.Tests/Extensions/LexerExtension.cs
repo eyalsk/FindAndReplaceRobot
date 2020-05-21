@@ -12,13 +12,13 @@
             {
                 var token = lexer.ReadToken();
 
-                if (token.Kind == kind && token.Context != TokenKind.Error)
+                if (token.Kind == kind)
                 {
                     return token;
                 }
                 else if (token.Kind == TokenKind.EndOfFile)
                 {
-                    return new Token(token.Range, token.Depth, TokenKind.Error, TokenKind.None, token.Value);
+                    return new Token(token.Range, TokenKind.Error, token.Value);
                 }
             }
         }

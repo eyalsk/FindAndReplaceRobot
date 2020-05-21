@@ -2,36 +2,33 @@
 {
     public enum TokenKind
     {
-        None = 0,
+        None,
 
-        Section = 100,
-        Subsection = 101,
-        Item = 102,
+        AtSign,
+        Comma,
 
-        Annotation = 200,
-        AnnotationArgumentList = 201,
-        AnnotationArgument = 202,
+        OpenParens,
+        CloseParens,
 
-        Map = 300,
-        Value = 301,
-        Label = 302,
-        Identifier = 303,
-        Operator = 304,
+        OpenBracket,
+        CloseBracket,
 
-        ValueLiteral = 500,
-        String = 501,
-        Integer = 502,
-        Regex = 503,
+        Value,
 
-        Whitespace = 600,
-        EndOfFile = 601,
-        NewLine = 602,
-        Indent = 603,
-        Tab = 604,
-        Space = 605,
+        QuotedLiteral,
+        Label,
+        String,
+        Regex,
 
-        Error = 700,
+        Literal,
+        Identifier,
+        Integer,
 
-        Keyword = 800
+        EndOfFile,
+        NewLine,
+        Tab,
+        Space,
+
+        Error
     }
 }
