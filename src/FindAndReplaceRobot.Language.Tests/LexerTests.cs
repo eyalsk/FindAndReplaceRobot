@@ -52,5 +52,20 @@
                  .Select(t => t.Value.ToString())
                  .ShouldBe(identifiers);
         }
+
+        [TestCase("[A]", "A")]
+        [TestCase("[A1B]\n", "A1B")]
+        [TestCase("[A B]\r\n", "A B")]
+        [TestCase("[A]\r\n[B]", "A", "B")]
+        [TestCase("[A]\n[2]", "A", "2")]
+        public void Should_lex_labels(string text, params string[] labels)
+        {
+            var scanner = new Scanner(text);
+            var lexer = new Lexer(scanner);
+
+            lexer.ReadTokensByKind(TokenKind.Label)
+                 .Select(t => t.Value.ToString())
+                 .ShouldBe(labels);
+        }
     }
 }

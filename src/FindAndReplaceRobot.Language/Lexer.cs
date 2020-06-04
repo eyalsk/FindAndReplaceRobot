@@ -19,6 +19,8 @@
 
         private static bool IsCharIdentifier(char ch) => char.IsLetterOrDigit(ch);
 
+        private static bool IsCharLabel(char ch) => ch == Space || IsCharIdentifier(ch);
+
         public Token ReadToken()
         {
             Token? token = null;
@@ -42,8 +44,7 @@
                     case '[':
                     case '"':
                     case '/':
-                        // NYI: QuotedLiteral
-                        break;
+                        return LexQuotedLiteral();
                     case Tab:
                     case Space:
                         // NYI
@@ -111,6 +112,56 @@
                         start..end,
                         kind,
                         _scanner.GetSlice(start..end));
+                }
+
+                _scanner.MoveNext();
+            }
+        }
+
+        private Token LexQuotedLiteral()
+        {
+            var start = _scanner.CurrentIndex;
+            var kind = TokenKind.None;
+
+            while (true)
+            {
+                var ch = _scanner.ReadChar();
+
+                if (ch == '[')
+                {
+                    // note: Do nothing, character is legal.
+                }
+                else if (ch == ']')
+                {
+                    kind = TokenKind.Label;
+                }
+                else if (!IsCharLabel(ch))
+                {
+                    kind = TokenKind.Error;
+                }
+
+                if (kind != TokenKind.None)
+                {
+                    var end = _scanner.CurrentIndex;
+                    var slice = (start: start + 1, end);
+
+                    if (kind == TokenKind.Error)
+                    {
+                        end = _scanner.GetSliceEnding(start..end) == TextEndingFlags.CR ? --end : end;
+
+                        slice.end = end;
+                    }
+                    else
+                    {
+                        end++;
+                    }
+
+                    _scanner.MoveNext();
+
+                    return new Token(
+                        start..end,
+                        kind,
+                        _scanner.GetSlice(slice.start..slice.end));
                 }
 
                 _scanner.MoveNext();
