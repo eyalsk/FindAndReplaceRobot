@@ -1,0 +1,72 @@
+﻿@RegexProvider([Enitites Map])
+[Props]                                        
+Id                  -> ID                       
+Ip                  -> IP
+Idesign             -> IDesign
+PageId              -> PageID
+WebsiteId           -> WebsiteID
+RegistrationIp      -> RegistrationIP
+GroupId             -> GroupID
+LastVisitIp         -> LastVisitIP
+/(class\s+)/@source -> /$1/@target
+
+@Files
+@Use([Props])
+AllImages
+ContactForm
+Contact
+Newsletter
+NewsletterSent
+Redirect301
+
+@Files
+@Use([Props])
+[Enitites Map]
+AlternateDomains    -> AlternateDomain
+Backgrounds         -> Background
+BasketItems         -> BasketItem
+Baskets             -> Basket
+Categories          -> Category
+Comments            -> Comment
+Coupons             -> Coupon
+DeletedWebsites     -> DeletedWebsite
+DesignCategories    -> DesignCategory
+Designs             -> Design
+ErrorsLog           -> ErrorLog
+Folders             -> Folder
+FrontCategories     -> FrontCategory
+FrontPages          -> FrontPage
+Images              -> Image
+LoginSalts          -> LoginSalt
+Orders              -> Order
+OrdersGUID          -> OrderGUID
+OrdersTemp          -> OrderTemp
+Pages               -> Page
+Payments            -> Payment
+Premades            -> Premade
+Products            -> Products
+SitesToDelete       -> SiteToDelete
+Users               -> User
+UsersGroups         -> UsersGroup
+UsersLog            -> UserLog
+Websites            -> Website
+WebsitesInfo        -> WebsiteInfo
+WebsiteStats        -> WebsiteStat
+WhiteLabels         -> WhiteLabel
+DesignSets          -> DesignSet
+    @AddTo(EntityContext)
+    Mscreenshot     -> MScreenshot
+    Mscreenshot     -> MScreenshot
+        @AddTo(EntityContext)
+        Mscreenshot -> MScreenshot
+    Mscreenshot     -> MScreenshot
+Mscreenshot         -> MScreenshot
+
+@Files
+EntityContext
+    @Use([Enitites Map])
+    DbSet<@source>                   -> DbSet<@target>
+    modelBuilder.Entity<@source>     -> modelBuilder.Entity<@target>
+
+    @Use([Props])
+    entity.Property(e => e.@source)  -> entity.Property(e => e.@target)

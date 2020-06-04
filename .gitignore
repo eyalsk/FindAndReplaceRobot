@@ -1,0 +1,25 @@
+# Generated files
+[Oo]bj/
+[Bb]in/
+.nuget/
+packages/
+*.dll
+*.exe
+
+# Project files
+.vs/
+*.user
+*.publish.xml
+*.DotSettings
+*.config
+
+# OS files
+.DS_Store
+.DS_Store?
+.Spotlight-V100
+ehthumbs.db
+Thumbs.db
+
+# Temp files
+*.tmp
+*.lock.*
