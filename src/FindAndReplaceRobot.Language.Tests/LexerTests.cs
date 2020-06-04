@@ -38,33 +38,33 @@
             token.Kind.ShouldBe(results);
         }
 
-        [TestCase("@A", "A")]
-        [TestCase("@A1\n", "A1")]
-        [TestCase("@A\r\n", "A")]
-        [TestCase("@A\r\n@B2", "A", "B2")]
-        [TestCase("@A\n@B", "A", "B")]
+        [TestCase("@A",        "Range:1..2; Value:A")]
+        [TestCase("@A1\n",     "Range:1..3; Value:A1")]
+        [TestCase("@A\r\n",    "Range:1..2; Value:A")]
+        [TestCase("@A\r\n@B2", "Range:1..2; Value:A", "Range:5..7; Value:B2")]
+        [TestCase("@A\n@B",    "Range:1..2; Value:A", "Range:4..5; Value:B")]
         public void Should_lex_identifiers(string text, params string[] identifiers)
         {
             var scanner = new Scanner(text);
             var lexer = new Lexer(scanner);
 
             lexer.ReadTokensByKind(TokenKind.Identifier)
-                 .Select(t => t.Value.ToString())
+                 .Select(t => t.GetRangeAndValue())
                  .ShouldBe(identifiers);
         }
 
-        [TestCase("[A]", "A")]
-        [TestCase("[A1B]\n", "A1B")]
-        [TestCase("[A B]\r\n", "A B")]
-        [TestCase("[A]\r\n[B]", "A", "B")]
-        [TestCase("[A]\n[2]", "A", "2")]
+        [TestCase("[A]",        "Range:0..3; Value:A")]
+        [TestCase("[A1B]\n",    "Range:0..5; Value:A1B")]
+        [TestCase("[A B]\r\n",  "Range:0..5; Value:A B")]
+        [TestCase("[A]\r\n[B]", "Range:0..3; Value:A", "Range:5..8; Value:B")]
+        [TestCase("[A]\n[2]",   "Range:0..3; Value:A", "Range:4..7; Value:2")]
         public void Should_lex_labels(string text, params string[] labels)
         {
             var scanner = new Scanner(text);
             var lexer = new Lexer(scanner);
 
             lexer.ReadTokensByKind(TokenKind.Label)
-                 .Select(t => t.Value.ToString())
+                 .Select(t => t.GetRangeAndValue())
                  .ShouldBe(labels);
         }
     }
