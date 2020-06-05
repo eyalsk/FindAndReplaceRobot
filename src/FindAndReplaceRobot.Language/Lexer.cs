@@ -122,6 +122,8 @@
         {
             var start = _scanner.CurrentIndex;
             var kind = TokenKind.None;
+            var kindCandidate = TokenKind.None;
+            var isEmpty = true;
 
             while (true)
             {
@@ -129,31 +131,39 @@
 
                 if (ch == '[')
                 {
-                    // note: Do nothing, character is legal.
+                    kindCandidate = TokenKind.Label;
                 }
-                else if (ch == ']')
+                else if (kind != TokenKind.Error && ch == ']')
                 {
                     kind = TokenKind.Label;
                 }
-                else if (!IsCharLabel(ch))
+                else if (kindCandidate == TokenKind.Label && !IsCharLabel(ch))
                 {
                     kind = TokenKind.Error;
+                }
+                else if (IsCharNewLineOrEOF(ch))
+                {
+                    kind = TokenKind.Error;
+                }
+                else
+                {
+                    isEmpty = false;
                 }
 
                 if (kind != TokenKind.None)
                 {
                     var end = _scanner.CurrentIndex;
-                    var slice = (start: start + 1, end);
+                    var slice = (start, end);
 
-                    if (kind == TokenKind.Error)
+                    if (end < _scanner.TextLength) end++;
+
+                    if (kind != TokenKind.Error)
                     {
-                        end = _scanner.GetSliceEnding(start..end) == TextEndingFlags.CR ? --end : end;
-
-                        slice.end = end;
+                        slice.start = isEmpty ? slice.end : slice.start + 1;
                     }
                     else
                     {
-                        end++;
+                        slice.end = end;
                     }
 
                     _scanner.MoveNext();
