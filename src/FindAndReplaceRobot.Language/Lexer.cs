@@ -44,9 +44,11 @@
                         token = CreateToken(TokenKind.Comma);
                         break;
                     case '[':
+                        return LexQuotedLiteral(TokenKind.Label);
                     case '"':
+                        return LexQuotedLiteral(TokenKind.String);
                     case '/':
-                        return LexQuotedLiteral();
+                        return LexQuotedLiteral(TokenKind.Regex);
                     case Tab:
                     case Space:
                         // NYI
@@ -120,64 +122,58 @@
             }
         }
 
-        private Token LexQuotedLiteral()
+        private Token LexQuotedLiteral(TokenKind kind)
         {
             var start = _scanner.CurrentIndex;
-            var kind = TokenKind.None;
-            var kindCandidate = TokenKind.None;
-            var isEmpty = true;
+            var isError = false;
 
             while (true)
             {
                 var ch = _scanner.ReadChar();
 
-                if (ch == '[')
+                if (kind == TokenKind.Label && ch == '[')
                 {
-                    kindCandidate = TokenKind.Label;
+                    // Do nothing, legal character.
                 }
-                else if (kind != TokenKind.Error && ch == ']')
+                else if (kind == TokenKind.Label && ch == ']')
                 {
-                    kind = TokenKind.Label;
+                    break;
                 }
-                else if (kindCandidate == TokenKind.Label && !IsCharLabel(ch))
+                else if (kind == TokenKind.Label && !IsCharLabel(ch))
                 {
-                    kind = TokenKind.Error;
+                    isError = true;
+                    break;
                 }
                 else if (IsCharNewLineOrEOF(ch))
                 {
-                    kind = TokenKind.Error;
-                }
-                else
-                {
-                    isEmpty = false;
-                }
-
-                if (kind != TokenKind.None)
-                {
-                    var end = _scanner.CurrentIndex;
-                    var slice = (start, end);
-
-                    if (end < _scanner.TextLength) end++;
-
-                    if (kind != TokenKind.Error)
-                    {
-                        slice.start = isEmpty ? slice.end : slice.start + 1;
-                    }
-                    else
-                    {
-                        slice.end = end;
-                    }
-
-                    _scanner.MoveNext();
-
-                    return new Token(
-                        start..end,
-                        kind,
-                        _scanner.GetSlice(slice.start..slice.end));
+                    isError = true;
+                    break;
                 }
 
                 _scanner.MoveNext();
             }
+
+            var end = _scanner.CurrentIndex;
+            var slice = (start, end);
+            var isEmpty = start == end;
+
+            if (end < _scanner.TextLength) end++;
+
+            if (!isError)
+            {
+                slice.start = isEmpty ? slice.end : slice.start + 1;
+            }
+            else
+            {
+                slice.end = end;
+            }
+
+            _scanner.MoveNext();
+
+            return new Token(
+                start..end,
+                isError ? TokenKind.Error : kind,
+                _scanner.GetSlice(slice.start..slice.end));
         }
     }
 }
