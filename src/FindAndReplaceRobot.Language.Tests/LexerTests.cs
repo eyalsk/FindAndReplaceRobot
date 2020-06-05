@@ -38,11 +38,11 @@
             token.Kind.ShouldBe(results);
         }
 
-        [TestCase("@A",        "Range:1..2; Value:A")]
-        [TestCase("@A1\n",     "Range:1..3; Value:A1")]
-        [TestCase("@A\r\n",    "Range:1..2; Value:A")]
+        [TestCase("@A", "Range:1..2; Value:A")]
+        [TestCase("@A1\n", "Range:1..3; Value:A1")]
+        [TestCase("@A\r\n", "Range:1..2; Value:A")]
         [TestCase("@A\r\n@B2", "Range:1..2; Value:A", "Range:5..7; Value:B2")]
-        [TestCase("@A\n@B",    "Range:1..2; Value:A", "Range:4..5; Value:B")]
+        [TestCase("@A\n@B", "Range:1..2; Value:A", "Range:4..5; Value:B")]
         public void Should_lex_identifiers(string text, params string[] identifiers)
         {
             var scanner = new Scanner(text);

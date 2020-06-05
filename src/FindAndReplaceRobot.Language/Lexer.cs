@@ -17,9 +17,11 @@
         private static bool IsCharNewLineOrEOF(char ch) =>
             ch == NewLine || ch == EndOfFile;
 
-        private static bool IsCharIdentifier(char ch) => char.IsLetterOrDigit(ch);
+        private static bool IsCharIdentifier(char ch) =>
+            char.IsLetterOrDigit(ch);
 
-        private static bool IsCharLabel(char ch) => ch == Space || IsCharIdentifier(ch);
+        private static bool IsCharLabel(char ch) =>
+            ch == Space || IsCharIdentifier(ch);
 
         public Token ReadToken()
         {
