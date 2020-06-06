@@ -70,6 +70,10 @@
         }
 
         [TestCase("[", "Range:0..1; Value:[")]
+        [TestCase("[[", "Range:0..2; Value:[[")]
+        [TestCase("[[]", "Range:0..2; Value:[[")]
+        [TestCase("[]]", "Range:0..3; Value:[]]")]
+        [TestCase("[]A", "Range:0..3; Value:[]A")]
         [TestCase("[A", "Range:0..2; Value:[A")]
         [TestCase("[A\r\nB]", "Range:0..4; Value:[A\r\n")]
         [TestCase("[A\rB]", "Range:0..3; Value:[A\r")]

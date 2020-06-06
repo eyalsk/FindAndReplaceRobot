@@ -6,6 +6,12 @@
 
     public sealed class Lexer
     {
+        private readonly static Func<char, char, bool> _isNextCharSame =
+            (currentChar, nextChar) => currentChar == nextChar;
+
+        private readonly static Func<char, char, bool> _isNextCharNotNewLineOrEOF =
+            (_, nextChar) => !IsCharNewLineOrEOF(nextChar);
+
         private readonly Scanner _scanner;
         private Token _prevToken = new Token(0..0, TokenKind.None, ReadOnlyMemory<char>.Empty);
 
@@ -133,22 +139,24 @@
 
                 if (kind == TokenKind.Label && ch == '[')
                 {
-                    // Do nothing, legal character.
+                    CheckNextChar(ch, _isNextCharSame);
                 }
                 else if (kind == TokenKind.Label && ch == ']')
                 {
+                    CheckNextChar(ch, _isNextCharNotNewLineOrEOF);
+
                     break;
                 }
                 else if (kind == TokenKind.Label && !IsCharLabel(ch))
                 {
                     isError = true;
-                    break;
                 }
                 else if (IsCharNewLineOrEOF(ch))
                 {
                     isError = true;
-                    break;
                 }
+
+                if (isError) break;
 
                 _scanner.MoveNext();
             }
@@ -174,6 +182,19 @@
                 start..end,
                 isError ? TokenKind.Error : kind,
                 _scanner.GetSlice(slice.start..slice.end));
+
+            void CheckNextChar(char ch, Func<char, char, bool> condition)
+            {
+                var offset = 1;
+                var nextChar = _scanner.PeekAhead(ref offset);
+
+                if (condition(ch, nextChar))
+                {
+                    isError = true;
+
+                    _scanner.StepTo(offset);
+                }
+            }
         }
     }
 }
