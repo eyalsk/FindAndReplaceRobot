@@ -1,93 +1,128 @@
 ﻿namespace FindAndReplaceRobot.Language.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
 
     using FindAndReplaceRobot.Language;
     using FindAndReplaceRobot.Language.Tests.Extensions;
 
-    using NUnit.Framework;
-
     using Shouldly;
 
-    internal class LexerTests
+    using Xunit;
+
+    public sealed class LexerTests
     {
-        [Test]
+        [Fact]
         public void Should_not_throw_when_scanner_is_created()
         {
             Should.NotThrow(() => new Lexer(scanner: new Scanner("")));
         }
 
-        [Test]
+        [Fact]
         public void Should_throw_when_scanner_is_null()
         {
             Should.Throw<ArgumentNullException>(() => new Lexer(scanner: null!));
         }
 
-        [TestCase('@', TokenKind.AtSign)]
-        [TestCase('(', TokenKind.OpenParens)]
-        [TestCase(')', TokenKind.CloseParens)]
-        [TestCase(',', TokenKind.Comma)]
-        [TestCase('\0', TokenKind.EndOfFile)]
-        public void Should_lex_symbols(char symbols, TokenKind results)
+        public sealed class Identifiers
         {
-            var scanner = new Scanner(symbols.ToString());
-            var lexer = new Lexer(scanner);
-            var token = lexer.ReadToken();
+            public static IEnumerable<object[]> IdentifierCases => new[]
+            {
+                new object[] { "@A", (1..2, "A") },
+                new object[] { "@A1\n", (1..3, "A1") },
+                new object[] { "@A\r\n", (1..2, "A") },
+                new object[] { "@A\r\n@B2", (1..2, "A"), (5..7, "B2") },
+                new object[] { "@A\n@B", (1..2, "A"), (4..5, "B") },
+            };
 
-            token.Kind.ShouldBe(results);
+            [Theory]
+            [MemberData(nameof(IdentifierCases))]
+            public void Should_lex_identifiers(string text, params (Range, string)[] expectedTokensInfo)
+            {
+                var scanner = new Scanner(text);
+                var lexer = new Lexer(scanner);
+
+                lexer.ReadTokensByKind(TokenKind.Identifier)
+                     .Select(t => (t.Range, t.Value.ToString()))
+                     .ShouldBe(expectedTokensInfo);
+            }
         }
 
-        [TestCase("@A", "Range:1..2; Value:A")]
-        [TestCase("@A1\n", "Range:1..3; Value:A1")]
-        [TestCase("@A\r\n", "Range:1..2; Value:A")]
-        [TestCase("@A\r\n@B2", "Range:1..2; Value:A", "Range:5..7; Value:B2")]
-        [TestCase("@A\n@B", "Range:1..2; Value:A", "Range:4..5; Value:B")]
-        public void Should_lex_identifiers(string text, params string[] identifiers)
+        public sealed class Labels
         {
-            var scanner = new Scanner(text);
-            var lexer = new Lexer(scanner);
+            public static IEnumerable<object[]> LabelCases => new[]
+            {
+                new object[] { "[]", (0..2, "") },
+                new object[] { "[A]", (0..3, "A") },
+                new object[] { "[A1B]\n", (0..5, "A1B") },
+                new object[] { "[A B]\r\n", (0..5, "A B") },
+                new object[] { "[A]\r\n[B]", (0..3, "A"), (5..8, "B") },
+                new object[] { "[A]\n[2]", (0..3, "A"), (4..7, "2") }
+            };
 
-            lexer.ReadTokensByKind(TokenKind.Identifier)
-                 .Select(t => t.GetRangeAndValue())
-                 .ShouldBe(identifiers);
+            public static IEnumerable<object[]> MalformedLabelCases => new[]
+            {
+                new object[] { "[", 0..1, "[" },
+                new object[] { "[[", 0..2, "[[" },
+                new object[] { "[[]", 0..2, "[[" },
+                new object[] { "[]]", 0..3, "[]]" },
+                new object[] { "[]A", 0..3, "[]A" },
+                new object[] { "[A", 0..2, "[A" },
+                new object[] { "[A\r\nB]", 0..4, "[A\r\n" },
+                new object[] { "[A\rB]", 0..3, "[A\r" },
+                new object[] { "[A\n2]", 0..3, "[A\n" },
+                new object[] { "[A&2]", 0..3, "[A&" }
+            };
+
+            [Theory]
+            [MemberData(nameof(LabelCases))]
+            public void Should_lex_labels(string text, params (Range, string)[] expectedTokensInfo)
+            {
+                var scanner = new Scanner(text);
+                var lexer = new Lexer(scanner);
+
+                lexer.ReadTokensByKind(TokenKind.Label)
+                     .Select(t => (t.Range, t.Value.ToString()))
+                     .ShouldBe(expectedTokensInfo);
+            }
+
+            [Theory]
+            [MemberData(nameof(MalformedLabelCases))]
+            public void Should_not_lex_malformed_labels(string text, Range expectedRange, string expectedValue)
+            {
+                var scanner = new Scanner(text);
+                var lexer = new Lexer(scanner);
+                var token = lexer.ReadToken();
+
+                token.ShouldSatisfyAllConditions(
+                    () => token.Range.ShouldBe(expectedRange),
+                    () => token.Kind.ShouldBe(TokenKind.Error),
+                    () => token.Value.ToString().ShouldBe(expectedValue));
+            }
         }
 
-        [TestCase("[]", "Range:0..2")]
-        [TestCase("[A]", "Range:0..3; Value:A")]
-        [TestCase("[A1B]\n", "Range:0..5; Value:A1B")]
-        [TestCase("[A B]\r\n", "Range:0..5; Value:A B")]
-        [TestCase("[A]\r\n[B]", "Range:0..3; Value:A", "Range:5..8; Value:B")]
-        [TestCase("[A]\n[2]", "Range:0..3; Value:A", "Range:4..7; Value:2")]
-        public void Should_lex_labels(string text, params string[] tokenInfo)
+        public sealed class Symbols
         {
-            var scanner = new Scanner(text);
-            var lexer = new Lexer(scanner);
+            public static IEnumerable<object[]> SymbolCases => new[]
+            {
+                new object[] { '@', TokenKind.AtSign },
+                new object[] { '(', TokenKind.OpenParens },
+                new object[] { ')', TokenKind.CloseParens },
+                new object[] { ',', TokenKind.Comma },
+                new object[] { '\0', TokenKind.EndOfFile }
+            };
 
-            lexer.ReadTokensByKind(TokenKind.Label)
-                 .Select(t => t.GetRangeAndValue())
-                 .ShouldBe(tokenInfo);
-        }
+            [Theory]
+            [MemberData(nameof(SymbolCases))]
+            public void Should_lex_symbols(char symbols, TokenKind results)
+            {
+                var scanner = new Scanner(symbols.ToString());
+                var lexer = new Lexer(scanner);
+                var token = lexer.ReadToken();
 
-        [TestCase("[", "Range:0..1; Value:[")]
-        [TestCase("[[", "Range:0..2; Value:[[")]
-        [TestCase("[[]", "Range:0..2; Value:[[")]
-        [TestCase("[]]", "Range:0..3; Value:[]]")]
-        [TestCase("[]A", "Range:0..3; Value:[]A")]
-        [TestCase("[A", "Range:0..2; Value:[A")]
-        [TestCase("[A\r\nB]", "Range:0..4; Value:[A\r\n")]
-        [TestCase("[A\rB]", "Range:0..3; Value:[A\r")]
-        [TestCase("[A\n2]", "Range:0..3; Value:[A\n")]
-        [TestCase("[A&2]", "Range:0..3; Value:[A&")]
-        public void Should_not_lex_malformed_labels(string text, string tokenInfo)
-        {
-            var scanner = new Scanner(text);
-            var lexer = new Lexer(scanner);
-            var token = lexer.ReadToken();
-
-            token.ShouldSatisfyAllConditions(
-                () => token.GetRangeAndValue().ShouldBe(tokenInfo),
-                () => token.Kind.ShouldBe(TokenKind.Error));
+                token.Kind.ShouldBe(results);
+            }
         }
     }
 }

@@ -5,15 +5,15 @@
 
     using FindAndReplaceRobot.Language.Tests.Utils;
 
-    using NUnit.Framework;
-
     using Shouldly;
+
+    using Xunit;
 
     using static InvisibleCharacters;
 
-    internal class ScannerTests
+    public sealed class ScannerTests
     {
-        [Test]
+        [Fact]
         public void Should_peek_ahead_and_not_throw_when_start_above_zero()
         {
             var text = Randomizer.GenerateString("🎲");
@@ -23,8 +23,9 @@
             Should.NotThrow(() => scanner.PeekAhead(ref offset));
         }
 
-        [TestCase(0)]
-        [TestCase(-1)]
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
         public void Should_peek_ahead_and_throw_when_offset_below_or_equal_to_zero(int offset)
         {
             var text = Randomizer.GenerateString("🎲");
@@ -33,8 +34,9 @@
             Should.Throw<ArgumentOutOfRangeException>(() => scanner.PeekAhead(ref offset));
         }
 
-        [TestCase(1)]
-        [TestCase(0)]
+        [Theory]
+        [InlineData(1)]
+        [InlineData(0)]
         public void Should_step_to_and_not_throw_when_offset_above_or_equal_zero(int offset)
         {
             var text = Randomizer.GenerateString("🎲");
@@ -43,7 +45,7 @@
             Should.NotThrow(() => scanner.StepTo(offset));
         }
 
-        [Test]
+        [Fact]
         public void Should_step_to_and_throw_when_offset_below_or_equal_to_zero()
         {
             var text = Randomizer.GenerateString("🎲");
@@ -52,7 +54,7 @@
             Should.Throw<ArgumentOutOfRangeException>(() => scanner.StepTo(offset: -1));
         }
 
-        [Test]
+        [Fact]
         public void Should_peek_ahead_and_step_to_3rd_character()
         {
             var text = Randomizer.GenerateString("🎲XZ", 2);
@@ -64,7 +66,7 @@
             scanner.ReadChar().ShouldBe('X');
         }
 
-        [Test]
+        [Fact]
         public void Should_peek_ahead_to_3rd_character()
         {
             var text = Randomizer.GenerateString("🎲X", 2);
@@ -74,7 +76,7 @@
             scanner.PeekAhead(ref offset).ShouldBe('X');
         }
 
-        [Test]
+        [Fact]
         public void Should_read_characters_to_end_of_file()
         {
             var scanner = new Scanner("a\r\nb\nc\n\nd");
@@ -111,7 +113,7 @@
             });
         }
 
-        [Test]
+        [Fact]
         public void Should_peek_ahead_to_end_of_file()
         {
             var scanner = new Scanner("a\r\nbc\n");
@@ -144,9 +146,10 @@
             });
         }
 
-        [TestCase("a", 0, 1)]
-        [TestCase("ab", 0, 2)]
-        [TestCase("b", 1, 2)]
+        [Theory]
+        [InlineData("a", 0, 1)]
+        [InlineData("ab", 0, 2)]
+        [InlineData("b", 1, 2)]
         public void Should_get_slice(string slice, int start, int end)
         {
             var scanner = new Scanner("ab");
@@ -155,12 +158,14 @@
             results.ShouldBe(slice);
         }
 
-        [TestCase("🎲", TextEndingFlags.None)]
-        [TestCase("🎲\r", TextEndingFlags.CR)]
-        [TestCase("🎲\r\n", TextEndingFlags.CRLF)]
-        [TestCase("🎲\n", TextEndingFlags.LF)]
-        public void Should_get_slice_ending(string text, TextEndingFlags textEnding)
+        [Theory]
+        [InlineData("🎲", TextEndingFlags.None)]
+        [InlineData("🎲\r", TextEndingFlags.CR)]
+        [InlineData("🎲\r\n", TextEndingFlags.CRLF)]
+        [InlineData("🎲\n", TextEndingFlags.LF)]
+        public void Should_get_slice_ending(string pattern, TextEndingFlags textEnding)
         {
+            var text = Randomizer.GenerateString(pattern);
             var scanner = new Scanner(text);
             var results = scanner.GetSliceEnding(..);
 
