@@ -91,6 +91,7 @@
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0059:Unnecessary assignment of a value", Justification = "Prefer `var isError = false` over `bool isError`; is this a bug?")]
         private Token LexIdentifier()
         {
             var start = _scanner.CurrentIndex;
