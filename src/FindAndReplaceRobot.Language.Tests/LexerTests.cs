@@ -36,6 +36,13 @@
                 new object[] { "@A\n@B", (1..2, "A"), (4..5, "B") },
             };
 
+            public static IEnumerable<object[]> MalformedIdentifierCases => new[]
+            {
+                new object[] { "@@", 1..2, "@" },
+                new object[] { "@A B", 1..3, "A " },
+                // todo: new object[] { "@A\nB", 1..3, "A\n" }
+            };
+
             [Theory]
             [MemberData(nameof(IdentifierCases))]
             public void Should_lex_identifiers(string text, params (Range, string)[] expectedTokensInfo)
@@ -46,6 +53,19 @@
                 lexer.ReadTokensByKind(TokenKind.Identifier)
                      .Select(t => (t.Range, t.Value.ToString()))
                      .ShouldBe(expectedTokensInfo);
+            }
+
+            [Theory]
+            [MemberData(nameof(MalformedIdentifierCases))]
+            public void Should_not_lex_malformed_identifiers(string text, Range expectedRange, string expectedValue)
+            {
+                var scanner = new Scanner(text);
+                var lexer = new Lexer(scanner);
+
+                lexer.ReadTokensByKind(TokenKind.Error)
+                     .Select(t => (t.Range, t.Value.ToString()))
+                     .FirstOrDefault()
+                     .ShouldBe((expectedRange, expectedValue));
             }
         }
 

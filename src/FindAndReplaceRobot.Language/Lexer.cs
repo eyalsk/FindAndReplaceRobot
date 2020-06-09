@@ -13,7 +13,7 @@
             (_, nextChar) => !IsCharNewLineOrEOF(nextChar);
 
         private readonly Scanner _scanner;
-        private Token _prevToken = new Token(0..0, TokenKind.None, ReadOnlyMemory<char>.Empty);
+        private TokenKind _prevKind;
 
         public Lexer(Scanner scanner)
         {
@@ -31,24 +31,18 @@
 
         public Token ReadToken()
         {
-            Token? token = null;
-
             while (true)
             {
                 switch (_scanner.ReadChar())
                 {
-                    case '@':
-                        token = CreateToken(TokenKind.AtSign);
-                        break;
-                    case '(':
-                        token = CreateToken(TokenKind.OpenParens);
-                        break;
-                    case ')':
-                        token = CreateToken(TokenKind.CloseParens);
-                        break;
-                    case ',':
-                        token = CreateToken(TokenKind.Comma);
-                        break;
+                    case '@' when _prevKind != TokenKind.AtSign:
+                        return CreateToken(TokenKind.AtSign);
+                    case '(' when _prevKind != TokenKind.OpenParens:
+                        return CreateToken(TokenKind.OpenParens);
+                    case ')' when _prevKind != TokenKind.CloseParens:
+                        return CreateToken(TokenKind.CloseParens);
+                    case ',' when _prevKind != TokenKind.Comma:
+                        return CreateToken(TokenKind.Comma);
                     case '[':
                         return LexQuotedLiteral(TokenKind.Label);
                     case '"':
@@ -68,22 +62,15 @@
                             TokenKind.EndOfFile,
                             ReadOnlyMemory<char>.Empty);
                     default:
-                        if (_prevToken.Kind == TokenKind.AtSign)
+                        if (_prevKind == TokenKind.AtSign)
                         {
-                            token = LexIdentifier();
+                            return LexIdentifier();
                         }
                         else
                         {
-                            // NYI: LexLiteral();
+                            // NYI: return LexLiteral();
                         }
                         break;
-                }
-
-                if (token is object)
-                {
-                    _prevToken = token;
-
-                    return token;
                 }
 
                 _scanner.MoveNext();
@@ -92,6 +79,8 @@
             Token CreateToken(TokenKind kind)
             {
                 var range = _scanner.CurrentIndex..(_scanner.CurrentIndex + 1);
+
+                _prevKind = kind;
 
                 _scanner.MoveNext();
 
@@ -105,27 +94,42 @@
         private Token LexIdentifier()
         {
             var start = _scanner.CurrentIndex;
+            var isError = false;
 
             while (true)
             {
                 var ch = _scanner.ReadChar();
+                var isNewLineOrEOF = IsCharNewLineOrEOF(ch);
 
-                if (IsCharNewLineOrEOF(ch) || !IsCharIdentifier(ch))
+                if (isNewLineOrEOF || !IsCharIdentifier(ch))
                 {
-                    var kind = IsCharNewLineOrEOF(ch) ? TokenKind.Identifier : TokenKind.Error;
+                    isError = !isNewLineOrEOF;
 
-                    var end = _scanner.GetSliceEnding(start.._scanner.CurrentIndex) == TextEndingFlags.CR
-                                ? _scanner.CurrentIndex - 1
-                                : _scanner.CurrentIndex;
-
-                    return new Token(
-                        start..end,
-                        kind,
-                        _scanner.GetSlice(start..end));
+                    break;
                 }
 
                 _scanner.MoveNext();
             }
+
+            var end = _scanner.CurrentIndex;
+
+            if (isError)
+            {
+                end++;
+            }
+            else
+            {
+                end = _scanner.GetSliceEnding(start..end) == TextEndingFlags.CR
+                        ? end - 1
+                        : end;
+            }
+
+            _scanner.MoveNext();
+
+            return new Token(
+                        start..end,
+                        isError ? TokenKind.Error : TokenKind.Identifier,
+                        _scanner.GetSlice(start..end));
         }
 
         private Token LexQuotedLiteral(TokenKind kind)
