@@ -40,7 +40,7 @@
             {
                 new object[] { "@@", 1..2, "@" },
                 new object[] { "@A B", 1..3, "A " },
-                // todo: new object[] { "@A\nB", 1..3, "A\n" }
+                new object[] { "@A\\n", 1..3, "A\\" }
             };
 
             [Theory]
