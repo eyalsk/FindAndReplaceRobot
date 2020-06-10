@@ -25,7 +25,30 @@
             Should.Throw<ArgumentNullException>(() => new Lexer(scanner: null!));
         }
 
-        public sealed class Identifiers
+        public sealed class LexSymbols
+        {
+            public static IEnumerable<object[]> SymbolCases => new[]
+            {
+                new object[] { '@', TokenKind.AtSign },
+                new object[] { '(', TokenKind.OpenParens },
+                new object[] { ')', TokenKind.CloseParens },
+                new object[] { ',', TokenKind.Comma },
+                new object[] { '\0', TokenKind.EndOfFile }
+            };
+
+            [Theory]
+            [MemberData(nameof(SymbolCases))]
+            public void Should_lex_symbols(char symbols, TokenKind results)
+            {
+                var scanner = new Scanner(symbols.ToString());
+                var lexer = new Lexer(scanner);
+                var token = lexer.ReadToken();
+
+                token.Kind.ShouldBe(results);
+            }
+        }
+
+        public sealed class LexIdentifiers
         {
             public static IEnumerable<object[]> IdentifierCases => new[]
             {
@@ -69,7 +92,7 @@
             }
         }
 
-        public sealed class Labels
+        public sealed class LexLabels
         {
             public static IEnumerable<object[]> LabelCases => new[]
             {
@@ -119,29 +142,6 @@
                     () => token.Range.ShouldBe(expectedRange),
                     () => token.Kind.ShouldBe(TokenKind.Error),
                     () => token.Value.ToString().ShouldBe(expectedValue));
-            }
-        }
-
-        public sealed class Symbols
-        {
-            public static IEnumerable<object[]> SymbolCases => new[]
-            {
-                new object[] { '@', TokenKind.AtSign },
-                new object[] { '(', TokenKind.OpenParens },
-                new object[] { ')', TokenKind.CloseParens },
-                new object[] { ',', TokenKind.Comma },
-                new object[] { '\0', TokenKind.EndOfFile }
-            };
-
-            [Theory]
-            [MemberData(nameof(SymbolCases))]
-            public void Should_lex_symbols(char symbols, TokenKind results)
-            {
-                var scanner = new Scanner(symbols.ToString());
-                var lexer = new Lexer(scanner);
-                var token = lexer.ReadToken();
-
-                token.Kind.ShouldBe(results);
             }
         }
     }
