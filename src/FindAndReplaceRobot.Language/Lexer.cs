@@ -172,13 +172,13 @@
 
             if (end < _scanner.TextLength) end++;
 
-            if (!isError)
+            if (isError)
             {
-                slice.start = isEmpty ? slice.end : slice.start + 1;
+                slice.end = end;
             }
             else
             {
-                slice.end = end;
+                slice.start = isEmpty ? slice.end : slice.start + 1;
             }
 
             _scanner.MoveNext();
