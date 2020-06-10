@@ -91,7 +91,6 @@
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0059:Unnecessary assignment of a value", Justification = "Prefer `var isError = false` over `bool isError`; is this a bug?")]
         private Token LexIdentifier()
         {
             var start = _scanner.CurrentIndex;
@@ -137,24 +136,46 @@
         {
             var start = _scanner.CurrentIndex;
             var isError = false;
+            char? closingChar = null;
 
             while (true)
             {
                 var ch = _scanner.ReadChar();
 
-                if (kind == TokenKind.Label && ch == '[')
+                if (kind == TokenKind.Label)
                 {
-                    CheckNextChar(ch, _isNextCharSame);
-                }
-                else if (kind == TokenKind.Label && ch == ']')
-                {
-                    CheckNextChar(ch, _isNextCharNotNewLineOrEOF);
+                    if (ch == '[')
+                    {
+                        CheckNextChar(ch, _isNextCharSame);
+                    }
+                    else if (ch == ']')
+                    {
+                        CheckNextChar(ch, _isNextCharNotNewLineOrEOF);
 
-                    break;
+                        break;
+                    }
+                    else if (!IsCharLabel(ch))
+                    {
+                        isError = true;
+                    }
                 }
-                else if (kind == TokenKind.Label && !IsCharLabel(ch))
+                else if (kind == TokenKind.String)
                 {
-                    isError = true;
+                    if (closingChar is null && ch == '"')
+                    {
+                        closingChar = ch;
+                    }
+                    else if (closingChar is object && ch == '"')
+                    {
+                        var offset = 1;
+                        var nextChar = _scanner.PeekAhead(ref offset);
+
+                        if (nextChar == ch || nextChar == Space || IsCharNewLineOrEOF(nextChar)) break;
+                    }
+                    else if (ch == EndOfFile)
+                    {
+                        isError = true;
+                    }
                 }
                 else if (IsCharNewLineOrEOF(ch))
                 {

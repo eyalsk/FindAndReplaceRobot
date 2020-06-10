@@ -144,5 +144,54 @@
                     () => token.Value.ToString().ShouldBe(expectedValue));
             }
         }
+
+        public sealed class LexStrings
+        {
+            public static IEnumerable<object[]> StringsCases => new[]
+            {
+                new object[] { "\"\"", (0..2, "") },
+                new object[] { "\"A\"", (0..3, "A") },
+                new object[] { "\"A1B\"\n", (0..5, "A1B") },
+                new object[] { "\"A B\"\r\n", (0..5, "A B") },
+                new object[] { "\"[A]\r\n\"B\"", (0..9, "[A]\r\n\"B") },
+                new object[] { "\"A]\n\"2\"", (0..7, "A]\n\"2") },
+                new object[] { "\"[A]\"\n\"[2]\"", (0..5, "[A]"), (6..11, "[2]") },
+                new object[] { "\" \"\"@\"", (0..3, " "), (3..6, "@") },
+                new object[] { "\"C\" \"D\"", (0..3, "C"), (4..7, "D") }
+            };
+
+            public static IEnumerable<object[]> MalformedStringsCases => new[]
+            {
+                new object[] { "\"", 0..1, "\"" },
+                new object[] { "A\"", 1..2, "\"" },
+                new object[] { "\"A", 0..2, "\"A" }
+            };
+
+            [Theory]
+            [MemberData(nameof(StringsCases))]
+            public void Should_lex_strings(string text, params (Range, string)[] expectedTokensInfo)
+            {
+                var scanner = new Scanner(text);
+                var lexer = new Lexer(scanner);
+
+                lexer.ReadTokensByKind(TokenKind.String)
+                     .Select(t => (t.Range, t.Value.ToString()))
+                     .ShouldBe(expectedTokensInfo);
+            }
+
+            [Theory]
+            [MemberData(nameof(MalformedStringsCases))]
+            public void Should_not_lex_malformed_strings(string text, Range expectedRange, string expectedValue)
+            {
+                var scanner = new Scanner(text);
+                var lexer = new Lexer(scanner);
+                var token = lexer.ReadToken();
+
+                token.ShouldSatisfyAllConditions(
+                    () => token.Range.ShouldBe(expectedRange),
+                    () => token.Kind.ShouldBe(TokenKind.Error),
+                    () => token.Value.ToString().ShouldBe(expectedValue));
+            }
+        }
     }
 }
