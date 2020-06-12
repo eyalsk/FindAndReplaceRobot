@@ -161,21 +161,11 @@
                 }
                 else if (kind == TokenKind.String)
                 {
-                    if (closingChar is null && ch == '"')
-                    {
-                        closingChar = ch;
-                    }
-                    else if (closingChar is object && ch == '"')
-                    {
-                        var offset = 1;
-                        var nextChar = _scanner.PeekAhead(ref offset);
-
-                        if (nextChar == ch || nextChar == Space || IsCharNewLineOrEOF(nextChar)) break;
-                    }
-                    else if (ch == EndOfFile)
-                    {
-                        isError = true;
-                    }
+                    if (!HandleNextChar(ch, '"')) break;
+                }
+                else if (kind == TokenKind.Regex)
+                {
+                    if (!HandleNextChar(ch, '/')) break;
                 }
                 else if (IsCharNewLineOrEOF(ch))
                 {
@@ -220,6 +210,27 @@
 
                     _scanner.StepTo(offset);
                 }
+            }
+
+            bool HandleNextChar(char ch, char quotedChar)
+            {
+                if (closingChar is null && ch == quotedChar)
+                {
+                    closingChar = ch;
+                }
+                else if (closingChar is object && ch == quotedChar)
+                {
+                    var offset = 1;
+                    var nextChar = _scanner.PeekAhead(ref offset);
+
+                    if(nextChar == ch || nextChar == '\\' || nextChar == Space || IsCharNewLineOrEOF(nextChar)) return false;
+                }
+                else if (ch == EndOfFile)
+                {
+                    isError = true;
+                }
+
+                return true;
             }
         }
     }

@@ -193,5 +193,51 @@
                     () => token.Value.ToString().ShouldBe(expectedValue));
             }
         }
+
+        public sealed class LexRegex
+        {
+            public static IEnumerable<object[]> RegexCases => new[]
+            {
+                new object[] { "//", (0..2, "") },
+                new object[] { "/A/", (0..3, "A") },
+                new object[] { "/\\w+/\n", (0..5, "\\w+") },
+                new object[] { "/\\w+/\\n", (0..5, "\\w+") },
+                new object[] { @"/\w+/\n", (0..5, @"\w+") },
+                new object[] { "/C/\\/D/", (0..3, "C"), (4..7, "D") }
+            };
+
+            public static IEnumerable<object[]> MalformedRegexCases => new[]
+            {
+                new object[] { "/", 0..1, "/" },
+                new object[] { "A/", 1..2, "/" },
+                new object[] { "/A", 0..2, "/A" }
+            };
+
+            [Theory]
+            [MemberData(nameof(RegexCases))]
+            public void Should_lex_regex(string text, params (Range, string)[] expectedTokensInfo)
+            {
+                var scanner = new Scanner(text);
+                var lexer = new Lexer(scanner);
+
+                lexer.ReadTokensByKind(TokenKind.Regex)
+                     .Select(t => (t.Range, t.Value.ToString()))
+                     .ShouldBe(expectedTokensInfo);
+            }
+
+            [Theory]
+            [MemberData(nameof(MalformedRegexCases))]
+            public void Should_not_lex_malformed_regex(string text, Range expectedRange, string expectedValue)
+            {
+                var scanner = new Scanner(text);
+                var lexer = new Lexer(scanner);
+                var token = lexer.ReadToken();
+
+                token.ShouldSatisfyAllConditions(
+                    () => token.Range.ShouldBe(expectedRange),
+                    () => token.Kind.ShouldBe(TokenKind.Error),
+                    () => token.Value.ToString().ShouldBe(expectedValue));
+            }
+        }
     }
 }
