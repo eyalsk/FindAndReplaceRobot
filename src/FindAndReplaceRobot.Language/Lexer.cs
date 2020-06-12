@@ -94,7 +94,7 @@
         private Token LexIdentifier()
         {
             var start = _scanner.CurrentIndex;
-            var isError = false;
+            bool isError;
 
             while (true)
             {
