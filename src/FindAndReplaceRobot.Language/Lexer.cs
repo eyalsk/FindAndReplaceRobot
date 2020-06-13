@@ -136,7 +136,7 @@
         {
             var start = _scanner.CurrentIndex;
             var isError = false;
-            char? closingChar = null;
+            var isProcessingFirstChar = true;
 
             while (true)
             {
@@ -214,11 +214,11 @@
 
             bool HandleNextChar(char ch, char quotedChar)
             {
-                if (closingChar is null && ch == quotedChar)
+                if (isProcessingFirstChar && ch == quotedChar)
                 {
-                    closingChar = ch;
+                    isProcessingFirstChar = false;
                 }
-                else if (closingChar is object && ch == quotedChar)
+                else if (!isProcessingFirstChar && ch == quotedChar)
                 {
                     var offset = 1;
                     var nextChar = _scanner.PeekAhead(ref offset);
