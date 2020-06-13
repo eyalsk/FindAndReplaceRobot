@@ -173,10 +173,6 @@
                 {
                     if (!HandleNextChar(ch)) break;
                 }
-                else if (IsCharNewLineOrEOF(ch))
-                {
-                    isError = true;
-                }
 
                 if (isError) break;
 
