@@ -148,7 +148,7 @@
                 {
                     if (ch == closingChar)
                     {
-                        CheckNextChar(ch);
+                        CheckNextChar();
 
                         break;
                     }
@@ -189,7 +189,7 @@
                 isError ? TokenKind.Error : kind,
                 _scanner.GetSlice(slice.start..slice.end));
 
-            void CheckNextChar(char ch)
+            void CheckNextChar()
             {
                 var offset = 1;
                 var nextChar = _scanner.PeekAhead(ref offset);
