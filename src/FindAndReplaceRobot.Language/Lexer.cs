@@ -136,7 +136,6 @@
         {
             var start = _scanner.CurrentIndex - 1;
             var isError = false;
-            var isProcessingFirstChar = false;
             var closingChar = kind switch
             {
                 TokenKind.Label => ']',
@@ -208,11 +207,7 @@
 
             bool HandleNextChar(char ch)
             {
-                if (isProcessingFirstChar)
-                {
-                    isProcessingFirstChar = false;
-                }
-                else if (!isProcessingFirstChar && ch == closingChar)
+                if (ch == closingChar)
                 {
                     var offset = 1;
                     var nextChar = _scanner.PeekAhead(ref offset);
