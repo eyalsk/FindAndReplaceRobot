@@ -176,13 +176,9 @@
                     isError = true;
                 }
 
-                if (isError)
-                {
-                    _scanner.MoveNext();
-                    break;
-                }
-
                 _scanner.MoveNext();
+
+                if (isError) break;
             }
 
             var end = _scanner.CurrentIndex - 1;
