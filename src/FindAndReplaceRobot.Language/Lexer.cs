@@ -147,25 +147,12 @@
                 if (ch == closingChar)
                 {
                     var offset = 1;
-                    var nextChar = _scanner.PeekAhead(ref offset);
+                    var isEscaped = _scanner.PeekAhead(ref offset) == closingChar;
+                    _scanner.StepTo(offset: 1);
 
-                    if (kind == TokenKind.Label)
-                    {
-                        if (!IsCharNewLineOrEOF(nextChar))
-                        {
-                            isError = true;
+                    if (!isEscaped) break;
 
-                            _scanner.StepTo(offset);
-                        }
-
-                        _scanner.MoveNext();
-                        break;
-                    }
-                    else if (nextChar == ch || nextChar == '\\' || nextChar == Space || IsCharNewLineOrEOF(nextChar))
-                    {
-                        _scanner.MoveNext();
-                        break;
-                    }
+                    // TODO: Begin building a token value that has the unescaped text.
                 }
                 else if (ch == EndOfFile)
                 {
