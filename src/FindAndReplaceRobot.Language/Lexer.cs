@@ -157,11 +157,14 @@
 
                             _scanner.StepTo(offset);
                         }
+
+                        _scanner.MoveNext();
                         break;
                     }
-                    else
+                    else if (nextChar == ch || nextChar == '\\' || nextChar == Space || IsCharNewLineOrEOF(nextChar))
                     {
-                        if (nextChar == ch || nextChar == '\\' || nextChar == Space || IsCharNewLineOrEOF(nextChar)) break;
+                        _scanner.MoveNext();
+                        break;
                     }
                 }
                 else if (ch == EndOfFile)
@@ -173,12 +176,14 @@
                     isError = true;
                 }
 
-                if (isError) break;
+                if (isError)
+                {
+                    _scanner.MoveNext();
+                    break;
+                }
 
                 _scanner.MoveNext();
             }
-
-            _scanner.MoveNext();
 
             var end = _scanner.CurrentIndex - 1;
             var slice = (start, end);
