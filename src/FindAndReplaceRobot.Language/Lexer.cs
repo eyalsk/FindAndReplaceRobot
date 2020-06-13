@@ -6,9 +6,6 @@
 
     public sealed class Lexer
     {
-        private readonly static Func<char, char, bool> _isNextCharNotNewLineOrEOF =
-            (_, nextChar) => !IsCharNewLineOrEOF(nextChar);
-
         private readonly Scanner _scanner;
         private TokenKind _prevKind;
 
@@ -151,7 +148,7 @@
                 {
                     if (ch == closingChar)
                     {
-                        CheckNextChar(ch, _isNextCharNotNewLineOrEOF);
+                        CheckNextChar(ch);
 
                         break;
                     }
@@ -192,12 +189,12 @@
                 isError ? TokenKind.Error : kind,
                 _scanner.GetSlice(slice.start..slice.end));
 
-            void CheckNextChar(char ch, Func<char, char, bool> condition)
+            void CheckNextChar(char ch)
             {
                 var offset = 1;
                 var nextChar = _scanner.PeekAhead(ref offset);
 
-                if (condition(ch, nextChar))
+                if (!IsCharNewLineOrEOF(nextChar))
                 {
                     isError = true;
 
