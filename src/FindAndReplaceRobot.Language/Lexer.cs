@@ -146,11 +146,11 @@
 
                 if (ch == closingChar)
                 {
+                    var offset = 1;
+                    var nextChar = _scanner.PeekAhead(ref offset);
+
                     if (kind == TokenKind.Label)
                     {
-                        var offset = 1;
-                        var nextChar = _scanner.PeekAhead(ref offset);
-
                         if (!IsCharNewLineOrEOF(nextChar))
                         {
                             isError = true;
@@ -161,9 +161,6 @@
                     }
                     else
                     {
-                        var offset = 1;
-                        var nextChar = _scanner.PeekAhead(ref offset);
-
                         if (nextChar == ch || nextChar == '\\' || nextChar == Space || IsCharNewLineOrEOF(nextChar)) break;
                     }
                 }
