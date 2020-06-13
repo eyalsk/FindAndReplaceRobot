@@ -137,6 +137,12 @@
             var start = _scanner.CurrentIndex;
             var isError = false;
             var isProcessingFirstChar = true;
+            var closingChar = kind switch
+            {
+                TokenKind.Label => ']',
+                TokenKind.String => '"',
+                TokenKind.Regex => '/',
+            };
 
             while (true)
             {
@@ -148,7 +154,7 @@
                     {
                         CheckNextChar(ch, _isNextCharSame);
                     }
-                    else if (ch == ']')
+                    else if (ch == closingChar)
                     {
                         CheckNextChar(ch, _isNextCharNotNewLineOrEOF);
 
@@ -161,11 +167,11 @@
                 }
                 else if (kind == TokenKind.String)
                 {
-                    if (!HandleNextChar(ch, '"')) break;
+                    if (!HandleNextChar(ch)) break;
                 }
                 else if (kind == TokenKind.Regex)
                 {
-                    if (!HandleNextChar(ch, '/')) break;
+                    if (!HandleNextChar(ch)) break;
                 }
                 else if (IsCharNewLineOrEOF(ch))
                 {
@@ -212,13 +218,13 @@
                 }
             }
 
-            bool HandleNextChar(char ch, char quotedChar)
+            bool HandleNextChar(char ch)
             {
-                if (isProcessingFirstChar && ch == quotedChar)
+                if (isProcessingFirstChar)
                 {
                     isProcessingFirstChar = false;
                 }
-                else if (!isProcessingFirstChar && ch == quotedChar)
+                else if (!isProcessingFirstChar && ch == closingChar)
                 {
                     var offset = 1;
                     var nextChar = _scanner.PeekAhead(ref offset);
