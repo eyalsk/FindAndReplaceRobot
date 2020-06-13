@@ -164,9 +164,19 @@
                         isError = true;
                     }
                 }
-                else if (!HandleNextChar(ch))
+                else
                 {
-                    break;
+                    if (ch == closingChar)
+                    {
+                        var offset = 1;
+                        var nextChar = _scanner.PeekAhead(ref offset);
+
+                        if (nextChar == ch || nextChar == '\\' || nextChar == Space || IsCharNewLineOrEOF(nextChar)) break;
+                    }
+                    else if (ch == EndOfFile)
+                    {
+                        isError = true;
+                    }
                 }
 
                 if (isError) break;
@@ -195,23 +205,6 @@
                 start..end,
                 isError ? TokenKind.Error : kind,
                 _scanner.GetSlice(slice.start..slice.end));
-
-            bool HandleNextChar(char ch)
-            {
-                if (ch == closingChar)
-                {
-                    var offset = 1;
-                    var nextChar = _scanner.PeekAhead(ref offset);
-
-                    if(nextChar == ch || nextChar == '\\' || nextChar == Space || IsCharNewLineOrEOF(nextChar)) return false;
-                }
-                else if (ch == EndOfFile)
-                {
-                    isError = true;
-                }
-
-                return true;
-            }
         }
     }
 }
