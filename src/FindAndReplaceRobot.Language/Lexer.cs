@@ -165,13 +165,9 @@
                         isError = true;
                     }
                 }
-                else if (kind == TokenKind.String)
+                else if (!HandleNextChar(ch))
                 {
-                    if (!HandleNextChar(ch)) break;
-                }
-                else if (kind == TokenKind.Regex)
-                {
-                    if (!HandleNextChar(ch)) break;
+                    break;
                 }
 
                 if (isError) break;
