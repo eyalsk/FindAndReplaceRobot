@@ -144,9 +144,9 @@
             {
                 var ch = _scanner.ReadChar();
 
-                if (kind == TokenKind.Label)
+                if (ch == closingChar)
                 {
-                    if (ch == closingChar)
+                    if (kind == TokenKind.Label)
                     {
                         var offset = 1;
                         var nextChar = _scanner.PeekAhead(ref offset);
@@ -159,23 +159,29 @@
                         }
                         break;
                     }
-                    else if (!IsCharLabel(ch))
-                    {
-                        isError = true;
-                    }
-                }
-                else
-                {
-                    if (ch == closingChar)
+                    else
                     {
                         var offset = 1;
                         var nextChar = _scanner.PeekAhead(ref offset);
 
                         if (nextChar == ch || nextChar == '\\' || nextChar == Space || IsCharNewLineOrEOF(nextChar)) break;
                     }
-                    else if (ch == EndOfFile)
+                }
+                else
+                {
+                    if (kind == TokenKind.Label)
                     {
-                        isError = true;
+                        if (!IsCharLabel(ch))
+                        {
+                            isError = true;
+                        }
+                    }
+                    else
+                    {
+                        if (ch == EndOfFile)
+                        {
+                            isError = true;
+                        }
                     }
                 }
 
