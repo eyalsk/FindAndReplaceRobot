@@ -148,8 +148,15 @@
                 {
                     if (ch == closingChar)
                     {
-                        CheckNextChar();
+                        var offset = 1;
+                        var nextChar = _scanner.PeekAhead(ref offset);
 
+                        if (!IsCharNewLineOrEOF(nextChar))
+                        {
+                            isError = true;
+
+                            _scanner.StepTo(offset);
+                        }
                         break;
                     }
                     else if (!IsCharLabel(ch))
@@ -188,19 +195,6 @@
                 start..end,
                 isError ? TokenKind.Error : kind,
                 _scanner.GetSlice(slice.start..slice.end));
-
-            void CheckNextChar()
-            {
-                var offset = 1;
-                var nextChar = _scanner.PeekAhead(ref offset);
-
-                if (!IsCharNewLineOrEOF(nextChar))
-                {
-                    isError = true;
-
-                    _scanner.StepTo(offset);
-                }
-            }
 
             bool HandleNextChar(char ch)
             {
