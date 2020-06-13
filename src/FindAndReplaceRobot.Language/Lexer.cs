@@ -6,9 +6,6 @@
 
     public sealed class Lexer
     {
-        private readonly static Func<char, char, bool> _isNextCharSame =
-            (currentChar, nextChar) => currentChar == nextChar;
-
         private readonly static Func<char, char, bool> _isNextCharNotNewLineOrEOF =
             (_, nextChar) => !IsCharNewLineOrEOF(nextChar);
 
@@ -44,10 +41,13 @@
                     case ',' when _prevKind != TokenKind.Comma:
                         return CreateToken(TokenKind.Comma);
                     case '[':
+                        _scanner.MoveNext();
                         return LexQuotedLiteral(TokenKind.Label);
                     case '"':
+                        _scanner.MoveNext();
                         return LexQuotedLiteral(TokenKind.String);
                     case '/':
+                        _scanner.MoveNext();
                         return LexQuotedLiteral(TokenKind.Regex);
                     case Tab:
                     case Space:
@@ -134,9 +134,9 @@
 
         private Token LexQuotedLiteral(TokenKind kind)
         {
-            var start = _scanner.CurrentIndex;
+            var start = _scanner.CurrentIndex - 1;
             var isError = false;
-            var isProcessingFirstChar = true;
+            var isProcessingFirstChar = false;
             var closingChar = kind switch
             {
                 TokenKind.Label => ']',
@@ -150,11 +150,7 @@
 
                 if (kind == TokenKind.Label)
                 {
-                    if (ch == '[')
-                    {
-                        CheckNextChar(ch, _isNextCharSame);
-                    }
-                    else if (ch == closingChar)
+                    if (ch == closingChar)
                     {
                         CheckNextChar(ch, _isNextCharNotNewLineOrEOF);
 
