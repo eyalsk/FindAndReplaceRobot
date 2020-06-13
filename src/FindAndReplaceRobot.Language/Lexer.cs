@@ -167,22 +167,13 @@
                         if (nextChar == ch || nextChar == '\\' || nextChar == Space || IsCharNewLineOrEOF(nextChar)) break;
                     }
                 }
-                else
+                else if (ch == EndOfFile)
                 {
-                    if (kind == TokenKind.Label)
-                    {
-                        if (!IsCharLabel(ch))
-                        {
-                            isError = true;
-                        }
-                    }
-                    else
-                    {
-                        if (ch == EndOfFile)
-                        {
-                            isError = true;
-                        }
-                    }
+                    isError = true;
+                }
+                else if (kind == TokenKind.Label && !IsCharLabel(ch)) // For the sake of the resulting squiggle span, consider checking this after the loop.
+                {
+                    isError = true;
                 }
 
                 if (isError) break;
