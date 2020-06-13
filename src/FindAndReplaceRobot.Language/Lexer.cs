@@ -178,7 +178,9 @@
                 _scanner.MoveNext();
             }
 
-            var end = _scanner.CurrentIndex;
+            _scanner.MoveNext();
+
+            var end = _scanner.CurrentIndex - 1;
             var slice = (start, end);
             var isEmpty = start == end;
 
@@ -192,8 +194,6 @@
             {
                 slice.start = isEmpty ? slice.end : slice.start + 1;
             }
-
-            _scanner.MoveNext();
 
             return new Token(
                 start..end,
