@@ -133,11 +133,13 @@
         {
             var start = _scanner.CurrentIndex - 1;
             var isError = false;
+
             var closingChar = kind switch
             {
                 TokenKind.Label => ']',
                 TokenKind.String => '"',
                 TokenKind.Regex => '/',
+                _ => throw new InvalidOperationException()
             };
 
             while (true)
