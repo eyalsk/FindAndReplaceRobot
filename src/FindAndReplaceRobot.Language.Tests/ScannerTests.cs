@@ -20,7 +20,7 @@
             var scanner = new Scanner(text);
             var offset = 1;
 
-            Should.NotThrow(() => scanner.PeekAhead(ref offset));
+            Should.NotThrow(() => scanner.ReadAhead(ref offset));
         }
 
         [Theory]
@@ -31,7 +31,7 @@
             var text = Randomizer.GenerateString("🎲");
             var scanner = new Scanner(text);
 
-            Should.Throw<ArgumentOutOfRangeException>(() => scanner.PeekAhead(ref offset));
+            Should.Throw<ArgumentOutOfRangeException>(() => scanner.ReadAhead(ref offset));
         }
 
         [Theory]
@@ -61,9 +61,9 @@
             var scanner = new Scanner(text);
             var offset = 2;
 
-            scanner.PeekAhead(ref offset);
+            scanner.ReadAhead(ref offset);
             scanner.StepTo(offset);
-            scanner.ReadChar().ShouldBe('X');
+            scanner.PeekChar().ShouldBe('X');
         }
 
         [Fact]
@@ -73,7 +73,7 @@
             var scanner = new Scanner(text);
             var offset = 2;
 
-            scanner.PeekAhead(ref offset).ShouldBe('X');
+            scanner.ReadAhead(ref offset).ShouldBe('X');
         }
 
         [Fact]
@@ -88,7 +88,7 @@
 
             while (true)
             {
-                var ch = scanner.ReadChar();
+                var ch = scanner.PeekChar();
 
                 results.Add((
                     ch,
@@ -126,7 +126,7 @@
 
             while (true)
             {
-                var ch = scanner.PeekAhead(ref offset);
+                var ch = scanner.ReadAhead(ref offset);
 
                 results.Add((
                     ch,

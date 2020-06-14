@@ -51,12 +51,12 @@
         }
 
         public bool MoveNext() => CurrentIndex < TextLength && ++CurrentIndex < TextLength;
-            
-        public char PeekAhead(ref int offset)
+
+        public char ReadAhead(ref int offset)
         {
             if (offset <= 0) throw new ArgumentOutOfRangeException(nameof(offset));
 
-            return GetChar(CurrentIndex + offset, ref offset, ReadMode.Peeking);
+            return GetChar(CurrentIndex + offset, ref offset, ReadMode.Lookahead);
         }
 
         public void StepTo(int offset)
@@ -66,11 +66,11 @@
             CurrentIndex = CurrentIndex + offset < TextLength ? CurrentIndex + offset : TextLength;
         }
 
-        public char ReadChar()
+        public char PeekChar()
         {
             var offset = 0;
 
-            return GetChar(CurrentIndex, ref offset, ReadMode.Normal);
+            return GetChar(CurrentIndex, ref offset, ReadMode.Peeking);
         }
 
         private char GetChar(int index, ref int offset, ReadMode mode)
@@ -81,11 +81,11 @@
             {
                 index++;
 
-                if (mode == ReadMode.Normal)
+                if (mode == ReadMode.Peeking)
                 {
                     CurrentIndex++;
                 }
-                else if (mode == ReadMode.Lookahead || mode == ReadMode.Peeking)
+                else if (mode == ReadMode.Lookahead)
                 {
                     offset++;
                 }

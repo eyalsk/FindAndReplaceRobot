@@ -27,7 +27,7 @@
         {
             while (true)
             {
-                switch (_scanner.ReadChar())
+                switch (_scanner.PeekChar())
                 {
                     case '@' when _prevKind != TokenKind.AtSign:
                         return CreateToken(TokenKind.AtSign);
@@ -95,7 +95,7 @@
 
             while (true)
             {
-                var ch = _scanner.ReadChar();
+                var ch = _scanner.PeekChar();
                 var isNewLineOrEOF = IsCharNewLineOrEOF(ch);
 
                 if (isNewLineOrEOF || !IsCharIdentifier(ch))
@@ -144,12 +144,12 @@
 
             while (true)
             {
-                var ch = _scanner.ReadChar();
+                var ch = _scanner.PeekChar();
 
                 if (ch == closingChar)
                 {
                     var offset = 1;
-                    var isEscaped = _scanner.PeekAhead(ref offset) == closingChar;
+                    var isEscaped = _scanner.ReadAhead(ref offset) == closingChar;
                     _scanner.StepTo(offset: 1);
 
                     if (!isEscaped) break;
