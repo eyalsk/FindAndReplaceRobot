@@ -27,7 +27,7 @@
         {
             while (true)
             {
-                switch (_scanner.PeekChar())
+                switch (_scanner.Read())
                 {
                     case '@' when _prevKind != TokenKind.AtSign:
                         return CreateToken(TokenKind.AtSign);
@@ -38,13 +38,10 @@
                     case ',' when _prevKind != TokenKind.Comma:
                         return CreateToken(TokenKind.Comma);
                     case '[':
-                        _scanner.MoveNext();
                         return LexQuotedLiteral(TokenKind.Label);
                     case '"':
-                        _scanner.MoveNext();
                         return LexQuotedLiteral(TokenKind.String);
                     case '/':
-                        _scanner.MoveNext();
                         return LexQuotedLiteral(TokenKind.Regex);
                     case Tab:
                     case Space:
@@ -69,17 +66,13 @@
                         }
                         break;
                 }
-
-                _scanner.MoveNext();
             }
 
             Token CreateToken(TokenKind kind)
             {
-                var range = _scanner.CurrentIndex..(_scanner.CurrentIndex + 1);
+                var range = (_scanner.CurrentIndex - 1).._scanner.CurrentIndex;
 
                 _prevKind = kind;
-
-                _scanner.MoveNext();
 
                 return new Token(
                         range,
@@ -95,7 +88,7 @@
 
             while (true)
             {
-                var ch = _scanner.PeekChar();
+                var ch = _scanner.Read();
                 var isNewLineOrEOF = IsCharNewLineOrEOF(ch);
 
                 if (isNewLineOrEOF || !IsCharIdentifier(ch))
@@ -104,8 +97,6 @@
 
                     break;
                 }
-
-                _scanner.MoveNext();
             }
 
             var end = _scanner.CurrentIndex;
@@ -116,12 +107,10 @@
             }
             else
             {
-                end = _scanner.GetSliceEnding(start..end) == TextEndingFlags.CR
+                end = GetSliceEnding(start..end) == TextEndingFlags.CR
                         ? end - 1
                         : end;
             }
-
-            _scanner.MoveNext();
 
             return new Token(
                         start..end,
@@ -144,13 +133,11 @@
 
             while (true)
             {
-                var ch = _scanner.PeekChar();
+                var ch = _scanner.Read();
 
                 if (ch == closingChar)
                 {
-                    var offset = 1;
-                    var isEscaped = _scanner.ReadAhead(ref offset) == closingChar;
-                    _scanner.StepTo(offset: 1);
+                    var isEscaped = _scanner.Peek(1) == closingChar;
 
                     if (!isEscaped) break;
 
@@ -164,8 +151,6 @@
                 {
                     isError = true;
                 }
-
-                _scanner.MoveNext();
 
                 if (isError) break;
             }
@@ -189,6 +174,20 @@
                 start..end,
                 isError ? TokenKind.Error : kind,
                 _scanner.GetSlice(slice.start..slice.end));
+        }
+
+        private TextEndingFlags GetSliceEnding(Range range)
+        {
+            if (range.End.Value >= _scanner.TextLength) return TextEndingFlags.EOF;
+
+            var span = _scanner.GetSlice(range).Span;
+
+            return span[^1] switch
+            {
+                '\n' => span.Length >= 2 && span[^2] == '\r' ? TextEndingFlags.CRLF : TextEndingFlags.LF,
+                '\r' => TextEndingFlags.CR,
+                _ => TextEndingFlags.None,
+            };
         }
     }
 }
