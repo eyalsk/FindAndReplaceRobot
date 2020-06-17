@@ -70,7 +70,7 @@
 
             Token CreateToken(TokenKind kind)
             {
-                var range = (_scanner.CurrentIndex - 1).._scanner.CurrentIndex;
+                var range = _scanner.CurrentIndex..(_scanner.CurrentIndex + 1);
 
                 _prevKind = kind;
 
@@ -83,12 +83,12 @@
 
         private Token LexIdentifier()
         {
+            var ch = _scanner.Peek();
             var start = _scanner.CurrentIndex;
             bool isError;
 
             while (true)
             {
-                var ch = _scanner.Read();
                 var isNewLineOrEOF = IsCharNewLineOrEOF(ch);
 
                 if (isNewLineOrEOF || !IsCharIdentifier(ch))
@@ -97,6 +97,8 @@
 
                     break;
                 }
+
+                ch = _scanner.Read();
             }
 
             var end = _scanner.CurrentIndex;
@@ -120,7 +122,7 @@
 
         private Token LexQuotedLiteral(TokenKind kind)
         {
-            var start = _scanner.CurrentIndex - 1;
+            var start = _scanner.CurrentIndex;
             var isError = false;
 
             var closingChar = kind switch
@@ -155,10 +157,9 @@
                 if (isError) break;
             }
 
-            var end = _scanner.CurrentIndex - 1;
+            var end = _scanner.CurrentIndex;
             var slice = (start, end);
-            var isEmpty = start == end;
-
+            
             if (end < _scanner.TextLength) end++;
 
             if (isError)
@@ -167,7 +168,7 @@
             }
             else
             {
-                slice.start = isEmpty ? slice.end : slice.start + 1;
+                slice.start++;
             }
 
             return new Token(
