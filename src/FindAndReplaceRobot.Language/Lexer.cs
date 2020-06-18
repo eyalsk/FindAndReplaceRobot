@@ -103,16 +103,7 @@
 
             var end = _scanner.CurrentIndex;
 
-            if (isError)
-            {
-                end++;
-            }
-            else
-            {
-                end = GetSliceEnding(start..end) == TextEndingFlags.CR
-                        ? end - 1
-                        : end;
-            }
+            if (isError) end++;
 
             return new Token(
                         start..end,
@@ -175,20 +166,6 @@
                 start..end,
                 isError ? TokenKind.Error : kind,
                 _scanner.GetSlice(slice.start..slice.end));
-        }
-
-        private TextEndingFlags GetSliceEnding(Range range)
-        {
-            if (range.End.Value >= _scanner.TextLength) return TextEndingFlags.EOF;
-
-            var span = _scanner.GetSlice(range).Span;
-
-            return span[^1] switch
-            {
-                '\n' => span.Length >= 2 && span[^2] == '\r' ? TextEndingFlags.CRLF : TextEndingFlags.LF,
-                '\r' => TextEndingFlags.CR,
-                _ => TextEndingFlags.None,
-            };
         }
     }
 }
