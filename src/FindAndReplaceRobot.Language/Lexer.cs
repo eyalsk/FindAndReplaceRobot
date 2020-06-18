@@ -75,9 +75,9 @@
                 _prevKind = kind;
 
                 return new Token(
-                        range,
-                        kind,
-                        _scanner.GetSlice(range));
+                    range,
+                    kind,
+                    _scanner.GetSlice(range));
             }
         }
 
@@ -106,9 +106,9 @@
             if (isError) end++;
 
             return new Token(
-                        start..end,
-                        isError ? TokenKind.Error : TokenKind.Identifier,
-                        _scanner.GetSlice(start..end));
+                start..end,
+                isError ? TokenKind.Error : TokenKind.Identifier,
+                _scanner.GetSlice(start..end));
         }
 
         private Token LexQuotedLiteral(TokenKind kind)
