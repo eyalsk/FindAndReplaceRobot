@@ -27,9 +27,10 @@
         {
             if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
 
-            var index = (CurrentIndex < 0 ? 0 : CurrentIndex) + offset;
+            var peekIndex = CurrentIndex + offset;
+            if (peekIndex < 0) throw new InvalidOperationException("Peek(0) returns the value of the previous read, but there was no previous read.");
 
-            return index < TextLength ? _text.Span[index] : EndOfFile;
+            return peekIndex < TextLength ? _text.Span[peekIndex] : EndOfFile;
         }
 
         public char Read()

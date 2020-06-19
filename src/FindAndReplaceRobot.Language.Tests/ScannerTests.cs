@@ -47,6 +47,49 @@
             });
         }
 
+        [Fact]
+        public void Peek_0_should_throw_InvalidOperationException_when_there_is_no_previous_Read()
+        {
+            var scanner = new Scanner("a\r\nb\nc\n\nd");
+
+            var ex = Should.Throw<InvalidOperationException>(() => scanner.Peek(0));
+            ex.Message.ShouldBe("Peek(0) returns the value of the previous read, but there was no previous read.");
+        }
+
+        [Fact]
+        public void Peek_0_should_return_the_same_char_as_the_previous_Read_but_without_changing_state()
+        {
+            var scanner = new Scanner("a\r\nb\nc\n\nd");
+
+            while (true)
+            {
+                var read = scanner.Read();
+
+                var indexBeforePeek = scanner.CurrentIndex;
+                scanner.Peek(0).ShouldBe(read);
+                scanner.CurrentIndex.ShouldBe(indexBeforePeek);
+
+                if (read == EndOfFile) break;
+            }
+        }
+
+        [Fact]
+        public void Peek_1_should_return_the_same_char_as_the_next_Read_but_without_changing_state()
+        {
+            var scanner = new Scanner("a\r\nb\nc\n\nd");
+
+            while (true)
+            {
+                var indexBeforePeek = scanner.CurrentIndex;
+                var peeked = scanner.Peek(1);
+                scanner.CurrentIndex.ShouldBe(indexBeforePeek);
+
+                peeked.ShouldBe(scanner.Read());
+
+                if (peeked == EndOfFile) break;
+            }
+        }
+
         [Theory]
         [InlineData(0)]
         [InlineData(1)]
@@ -54,6 +97,7 @@
         {
             var text = Randomizer.GenerateString("🎲");
             var scanner = new Scanner(text);
+            scanner.Read();
 
             Should.NotThrow(() => scanner.Peek(offset));
         }
@@ -75,6 +119,7 @@
         public void Should_peek_to_offset(int offset, char result)
         {
             var scanner = new Scanner(text: "abc");
+            scanner.Read();
 
             scanner.Peek(offset).ShouldBe(result);
         }
