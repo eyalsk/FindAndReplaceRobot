@@ -148,24 +148,26 @@
                 if (isError) break;
             }
 
-            var end = _scanner.CurrentIndex;
-            var slice = (start, end);
-            
-            if (end < _scanner.TextLength) end++;
+            var tokenStart = start;
+            var tokenEnd = _scanner.CurrentIndex < _scanner.TextLength 
+                            ? _scanner.CurrentIndex + 1 
+                            : _scanner.CurrentIndex;
 
             if (isError)
             {
-                slice.end = end;
-            }
-            else
-            {
-                slice.start++;
+                return new Token(
+                    tokenStart..tokenEnd,
+                    TokenKind.Error,
+                    _scanner.GetSlice(tokenStart..tokenEnd));
             }
 
+            var tokenValueStart = start + 1;
+            var tokenValueEnd = _scanner.CurrentIndex;
+
             return new Token(
-                start..end,
-                isError ? TokenKind.Error : kind,
-                _scanner.GetSlice(slice.start..slice.end));
+                tokenStart..tokenEnd,
+                kind,
+                _scanner.GetSlice(tokenValueStart..tokenValueEnd));
         }
     }
 }
