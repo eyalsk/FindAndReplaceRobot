@@ -113,16 +113,16 @@
 
         private Token LexQuotedLiteral(TokenKind kind)
         {
-            var start = _scanner.CurrentIndex;
-            var isError = false;
-
             var closingChar = kind switch
             {
                 TokenKind.Label => ']',
                 TokenKind.String => '"',
                 TokenKind.Regex => '/',
-                _ => throw new InvalidOperationException()
+                _ => throw new ArgumentException("Invalid token kind for a quoted literal.", nameof(kind))
             };
+
+            var start = _scanner.CurrentIndex;
+            var isError = false;
 
             while (true)
             {
