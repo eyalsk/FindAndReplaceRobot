@@ -93,16 +93,20 @@
             while (true)
             {
                 var ch = _scanner.Peek();
-                var isNewLineOrEOF = IsCharNewLineOrEOF(ch);
 
-                if (isNewLineOrEOF || !IsCharIdentifier(ch))
+                if (IsCharNewLineOrEOF(ch))
                 {
-                    isError = !isNewLineOrEOF;
-                    if (isError) _scanner.Consume();
+                    isError = false;
                     break;
                 }
 
                 _scanner.Consume();
+
+                if (!IsCharIdentifier(ch))
+                {
+                    isError = true;
+                    break;
+                }
             }
 
             var tokenEnd = _scanner.CurrentIndex;
