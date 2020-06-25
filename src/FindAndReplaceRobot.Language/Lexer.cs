@@ -1,7 +1,7 @@
 ﻿namespace FindAndReplaceRobot.Language
 {
     using System;
-
+    using System.Text;
     using static InvisibleCharacters;
 
     public sealed class Lexer
@@ -129,7 +129,9 @@
 
             var tokenStart = _scanner.CurrentIndex;
             _scanner.Consume();
+            var currentTokenValueStart = _scanner.CurrentIndex;
 
+            var escapedValue = (StringBuilder?)null;
             var isError = false;
 
             while (true)
@@ -142,9 +144,11 @@
                     var isEscaped = _scanner.Peek() == closingChar;
                     if (!isEscaped) break;
 
-                    _scanner.Consume();
+                    escapedValue ??= new StringBuilder();
+                    escapedValue.Append(_scanner.GetSlice(currentTokenValueStart.._scanner.CurrentIndex));
 
-                    // TODO: Begin building a token value that has the unescaped text.
+                    _scanner.Consume();
+                    currentTokenValueStart = _scanner.CurrentIndex;
                 }
                 else if (ch == EndOfFile)
                 {
@@ -168,10 +172,14 @@
                     _scanner.GetSlice(tokenStart..tokenEnd));
             }
 
-            return new Token(
-                tokenStart..tokenEnd,
-                kind,
-                _scanner.GetSlice((tokenStart + 1)..(tokenEnd - 1)));
+            var tokenValueEnd = tokenEnd - 1;
+            var lastTokenValueSlice = _scanner.GetSlice(currentTokenValueStart..tokenValueEnd);
+
+            var tokenValue = escapedValue is object
+                ? escapedValue.Append(lastTokenValueSlice).ToString().AsMemory()
+                : lastTokenValueSlice;
+
+            return new Token(tokenStart..tokenEnd, kind, tokenValue);
         }
     }
 }
