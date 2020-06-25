@@ -19,25 +19,18 @@
 
         public int TextLength { get; }
 
-        public int CurrentIndex { get; private set; } = -1;
+        public int CurrentIndex { get; private set; }
 
         public ReadOnlyMemory<char> GetSlice(Range range) => _text[range];
 
-        public char Peek(int offset = 0)
+        public char Peek()
         {
-            if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
-
-            var peekIndex = CurrentIndex + offset;
-            if (peekIndex < 0) throw new InvalidOperationException("Peek(0) returns the value of the previous read, but there was no previous read.");
-
-            return peekIndex < TextLength ? _text.Span[peekIndex] : EndOfFile;
+            return CurrentIndex < TextLength ? _text.Span[CurrentIndex] : EndOfFile;
         }
 
-        public char Read()
+        public void Consume()
         {
             if (CurrentIndex < TextLength) CurrentIndex++;
-
-            return CurrentIndex < TextLength ? _text.Span[CurrentIndex] : EndOfFile;
         }
     }
 }

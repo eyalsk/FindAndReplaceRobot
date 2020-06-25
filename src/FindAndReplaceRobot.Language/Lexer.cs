@@ -27,7 +27,7 @@
         {
             while (true)
             {
-                switch (_scanner.Read())
+                switch (_scanner.Peek())
                 {
                     case '@' when _prevKind != TokenKind.AtSign:
                         return CreateToken(TokenKind.AtSign);
@@ -45,9 +45,11 @@
                         return LexQuotedLiteral(TokenKind.Regex);
                     case Tab:
                     case Space:
+                        _scanner.Consume();
                         // NYI
                         break;
                     case NewLine:
+                        _scanner.Consume();
                         // NYI
                         break;
                     case EndOfFile:
@@ -62,6 +64,7 @@
                         }
                         else
                         {
+                            _scanner.Consume();
                             // NYI: return LexLiteral();
                         }
                         break;
@@ -71,6 +74,7 @@
             Token CreateToken(TokenKind kind)
             {
                 var range = _scanner.CurrentIndex..(_scanner.CurrentIndex + 1);
+                _scanner.Consume();
 
                 _prevKind = kind;
 
@@ -83,27 +87,25 @@
 
         private Token LexIdentifier()
         {
-            var ch = _scanner.Peek();
             var start = _scanner.CurrentIndex;
             bool isError;
 
             while (true)
             {
+                var ch = _scanner.Peek();
                 var isNewLineOrEOF = IsCharNewLineOrEOF(ch);
 
                 if (isNewLineOrEOF || !IsCharIdentifier(ch))
                 {
                     isError = !isNewLineOrEOF;
-
+                    if (isError) _scanner.Consume();
                     break;
                 }
 
-                ch = _scanner.Read();
+                _scanner.Consume();
             }
 
             var end = _scanner.CurrentIndex;
-
-            if (isError) end++;
 
             return new Token(
                 start..end,
@@ -122,15 +124,18 @@
             };
 
             var start = _scanner.CurrentIndex;
+            _scanner.Consume();
+
             var isError = false;
 
             while (true)
             {
-                var ch = _scanner.Read();
+                var ch = _scanner.Peek();
+                _scanner.Consume();
 
                 if (ch == closingChar)
                 {
-                    var isEscaped = _scanner.Peek(1) == closingChar;
+                    var isEscaped = _scanner.Peek() == closingChar;
 
                     if (!isEscaped) break;
 
@@ -149,9 +154,7 @@
             }
 
             var tokenStart = start;
-            var tokenEnd = _scanner.CurrentIndex < _scanner.TextLength 
-                            ? _scanner.CurrentIndex + 1 
-                            : _scanner.CurrentIndex;
+            var tokenEnd = _scanner.CurrentIndex;
 
             if (isError)
             {
@@ -162,7 +165,7 @@
             }
 
             var tokenValueStart = start + 1;
-            var tokenValueEnd = _scanner.CurrentIndex;
+            var tokenValueEnd = _scanner.CurrentIndex - 1;
 
             return new Token(
                 tokenStart..tokenEnd,
