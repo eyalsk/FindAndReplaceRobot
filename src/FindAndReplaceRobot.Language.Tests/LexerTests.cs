@@ -143,6 +143,19 @@
                     () => token.Kind.ShouldBe(TokenKind.Error),
                     () => token.Value.ToString().ShouldBe(expectedValue));
             }
+
+            [Fact]
+            public void Label_end_char_can_be_escaped_at_the_end_of_the_value()
+            {
+                var scanner = new Scanner("[A]]]");
+                var lexer = new Lexer(scanner);
+                var token = lexer.ReadToken();
+
+                token.ShouldSatisfyAllConditions(
+                    () => token.Range.ShouldBe(0..5),
+                    () => token.Kind.ShouldBe(TokenKind.Label),
+                    () => token.Value.ToString().ShouldBe("A]"));
+            }
         }
 
         public sealed class LexStrings
@@ -192,6 +205,19 @@
                     () => token.Kind.ShouldBe(TokenKind.Error),
                     () => token.Value.ToString().ShouldBe(expectedValue));
             }
+
+            [Fact]
+            public void String_end_char_can_be_escaped_at_the_end_of_the_value()
+            {
+                var scanner = new Scanner("\"A\"\"\"");
+                var lexer = new Lexer(scanner);
+                var token = lexer.ReadToken();
+
+                token.ShouldSatisfyAllConditions(
+                    () => token.Range.ShouldBe(0..5),
+                    () => token.Kind.ShouldBe(TokenKind.String),
+                    () => token.Value.ToString().ShouldBe("A\""));
+            }
         }
 
         public sealed class LexRegex
@@ -237,6 +263,19 @@
                     () => token.Range.ShouldBe(expectedRange),
                     () => token.Kind.ShouldBe(TokenKind.Error),
                     () => token.Value.ToString().ShouldBe(expectedValue));
+            }
+
+            [Fact]
+            public void Regex_end_char_can_be_escaped_at_the_end_of_the_value()
+            {
+                var scanner = new Scanner("/A///");
+                var lexer = new Lexer(scanner);
+                var token = lexer.ReadToken();
+
+                token.ShouldSatisfyAllConditions(
+                    () => token.Range.ShouldBe(0..5),
+                    () => token.Kind.ShouldBe(TokenKind.Regex),
+                    () => token.Value.ToString().ShouldBe("A/"));
             }
         }
     }

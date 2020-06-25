@@ -140,8 +140,9 @@
                 if (ch == closingChar)
                 {
                     var isEscaped = _scanner.Peek() == closingChar;
-
                     if (!isEscaped) break;
+
+                    _scanner.Consume();
 
                     // TODO: Begin building a token value that has the unescaped text.
                 }
