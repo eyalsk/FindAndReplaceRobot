@@ -87,7 +87,7 @@
 
         private Token LexIdentifier()
         {
-            var start = _scanner.CurrentIndex;
+            var tokenStart = _scanner.CurrentIndex;
             bool isError;
 
             while (true)
@@ -105,12 +105,12 @@
                 _scanner.Consume();
             }
 
-            var end = _scanner.CurrentIndex;
+            var tokenEnd = _scanner.CurrentIndex;
 
             return new Token(
-                start..end,
+                tokenStart..tokenEnd,
                 isError ? TokenKind.Error : TokenKind.Identifier,
-                _scanner.GetSlice(start..end));
+                _scanner.GetSlice(tokenStart..tokenEnd));
         }
 
         private Token LexQuotedLiteral(TokenKind kind)
@@ -123,7 +123,7 @@
                 _ => throw new ArgumentException("Invalid token kind for a quoted literal.", nameof(kind))
             };
 
-            var start = _scanner.CurrentIndex;
+            var tokenStart = _scanner.CurrentIndex;
             _scanner.Consume();
 
             var isError = false;
@@ -153,7 +153,6 @@
                 if (isError) break;
             }
 
-            var tokenStart = start;
             var tokenEnd = _scanner.CurrentIndex;
 
             if (isError)
@@ -164,13 +163,10 @@
                     _scanner.GetSlice(tokenStart..tokenEnd));
             }
 
-            var tokenValueStart = start + 1;
-            var tokenValueEnd = _scanner.CurrentIndex - 1;
-
             return new Token(
                 tokenStart..tokenEnd,
                 kind,
-                _scanner.GetSlice(tokenValueStart..tokenValueEnd));
+                _scanner.GetSlice((tokenStart + 1)..(tokenEnd - 1)));
         }
     }
 }
