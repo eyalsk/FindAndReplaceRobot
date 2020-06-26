@@ -132,10 +132,7 @@
             _currentTokenValue.Clear();
 
             var tokenStart = _scanner.CurrentIndex;
-
-            _scanner.Consume();
-
-            var tokenValueStart = _scanner.CurrentIndex;
+            var tokenValueStart = _scanner.Consume();
             var isError = false;
 
             while (true)
@@ -149,9 +146,8 @@
                     if (!isEscaped) break;
 
                     _currentTokenValue.Append(_scanner.GetSlice(tokenValueStart.._scanner.CurrentIndex));
-                    _scanner.Consume();
 
-                    tokenValueStart = _scanner.CurrentIndex;
+                    tokenValueStart = _scanner.Consume();
                 }
                 else if (ch == EndOfFile)
                 {

@@ -28,9 +28,11 @@
             return CurrentIndex < TextLength ? _text.Span[CurrentIndex] : EndOfFile;
         }
 
-        public void Consume()
+        public int Consume()
         {
             if (CurrentIndex < TextLength) CurrentIndex++;
+
+            return CurrentIndex;
         }
     }
 }
