@@ -8,10 +8,12 @@
     {
         private readonly Scanner _scanner;
         private TokenKind _prevKind;
+        private StringBuilder _value;
 
         public Lexer(Scanner scanner)
         {
             _scanner = scanner ?? throw new ArgumentNullException(nameof(scanner));
+            _value = new StringBuilder();
         }
 
         private static bool IsCharNewLineOrEOF(char ch) =>
@@ -127,11 +129,13 @@
                 _ => throw new ArgumentException("Invalid token kind for a quoted literal.", nameof(kind))
             };
 
-            var tokenStart = _scanner.CurrentIndex;
-            _scanner.Consume();
-            var currentTokenValueStart = _scanner.CurrentIndex;
+            _value.Clear();
 
-            var escapedValue = (StringBuilder?)null;
+            var tokenStart = _scanner.CurrentIndex;
+
+            _scanner.Consume();
+
+            var currentTokenValueStart = _scanner.CurrentIndex;
             var isError = false;
 
             while (true)
@@ -144,10 +148,9 @@
                     var isEscaped = _scanner.Peek() == closingChar;
                     if (!isEscaped) break;
 
-                    escapedValue ??= new StringBuilder();
-                    escapedValue.Append(_scanner.GetSlice(currentTokenValueStart.._scanner.CurrentIndex));
-
+                    _value.Append(_scanner.GetSlice(currentTokenValueStart.._scanner.CurrentIndex));
                     _scanner.Consume();
+
                     currentTokenValueStart = _scanner.CurrentIndex;
                 }
                 else if (ch == EndOfFile)
@@ -174,10 +177,7 @@
 
             var tokenValueEnd = tokenEnd - 1;
             var lastTokenValueSlice = _scanner.GetSlice(currentTokenValueStart..tokenValueEnd);
-
-            var tokenValue = escapedValue is object
-                ? escapedValue.Append(lastTokenValueSlice).ToString().AsMemory()
-                : lastTokenValueSlice;
+            var tokenValue = _value.Append(lastTokenValueSlice).ToString().AsMemory();
 
             return new Token(tokenStart..tokenEnd, kind, tokenValue);
         }
