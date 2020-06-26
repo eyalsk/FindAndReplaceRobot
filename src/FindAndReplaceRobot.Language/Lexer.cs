@@ -7,13 +7,13 @@
     public sealed class Lexer
     {
         private readonly Scanner _scanner;
-        private TokenKind _prevKind;
-        private StringBuilder _value;
+        private TokenKind _prevTokenKind;
+        private StringBuilder _currentTokenValue;
 
         public Lexer(Scanner scanner)
         {
             _scanner = scanner ?? throw new ArgumentNullException(nameof(scanner));
-            _value = new StringBuilder();
+            _currentTokenValue = new StringBuilder();
         }
 
         private static bool IsCharNewLineOrEOF(char ch) =>
@@ -31,13 +31,13 @@
             {
                 switch (_scanner.Peek())
                 {
-                    case '@' when _prevKind != TokenKind.AtSign:
+                    case '@' when _prevTokenKind != TokenKind.AtSign:
                         return CreateToken(TokenKind.AtSign);
-                    case '(' when _prevKind != TokenKind.OpenParens:
+                    case '(' when _prevTokenKind != TokenKind.OpenParens:
                         return CreateToken(TokenKind.OpenParens);
-                    case ')' when _prevKind != TokenKind.CloseParens:
+                    case ')' when _prevTokenKind != TokenKind.CloseParens:
                         return CreateToken(TokenKind.CloseParens);
-                    case ',' when _prevKind != TokenKind.Comma:
+                    case ',' when _prevTokenKind != TokenKind.Comma:
                         return CreateToken(TokenKind.Comma);
                     case '[':
                         return LexQuotedLiteral(TokenKind.Label);
@@ -60,7 +60,7 @@
                             TokenKind.EndOfFile,
                             ReadOnlyMemory<char>.Empty);
                     default:
-                        if (_prevKind == TokenKind.AtSign)
+                        if (_prevTokenKind == TokenKind.AtSign)
                         {
                             return LexIdentifier();
                         }
@@ -78,7 +78,7 @@
                 var range = _scanner.CurrentIndex..(_scanner.CurrentIndex + 1);
                 _scanner.Consume();
 
-                _prevKind = kind;
+                _prevTokenKind = kind;
 
                 return new Token(
                     range,
@@ -129,13 +129,13 @@
                 _ => throw new ArgumentException("Invalid token kind for a quoted literal.", nameof(kind))
             };
 
-            _value.Clear();
+            _currentTokenValue.Clear();
 
             var tokenStart = _scanner.CurrentIndex;
 
             _scanner.Consume();
 
-            var currentTokenValueStart = _scanner.CurrentIndex;
+            var tokenValueStart = _scanner.CurrentIndex;
             var isError = false;
 
             while (true)
@@ -148,10 +148,10 @@
                     var isEscaped = _scanner.Peek() == closingChar;
                     if (!isEscaped) break;
 
-                    _value.Append(_scanner.GetSlice(currentTokenValueStart.._scanner.CurrentIndex));
+                    _currentTokenValue.Append(_scanner.GetSlice(tokenValueStart.._scanner.CurrentIndex));
                     _scanner.Consume();
 
-                    currentTokenValueStart = _scanner.CurrentIndex;
+                    tokenValueStart = _scanner.CurrentIndex;
                 }
                 else if (ch == EndOfFile)
                 {
@@ -176,8 +176,8 @@
             }
 
             var tokenValueEnd = tokenEnd - 1;
-            var lastTokenValueSlice = _scanner.GetSlice(currentTokenValueStart..tokenValueEnd);
-            var tokenValue = _value.Append(lastTokenValueSlice).ToString().AsMemory();
+            var lastTokenValueSlice = _scanner.GetSlice(tokenValueStart..tokenValueEnd);
+            var tokenValue = _currentTokenValue.Append(lastTokenValueSlice).ToString().AsMemory();
 
             return new Token(tokenStart..tokenEnd, kind, tokenValue);
         }
