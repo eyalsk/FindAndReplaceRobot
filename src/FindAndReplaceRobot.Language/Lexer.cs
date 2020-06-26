@@ -7,8 +7,8 @@
     public sealed class Lexer
     {
         private readonly Scanner _scanner;
+        private readonly StringBuilder _currentTokenValue;
         private TokenKind _prevTokenKind;
-        private StringBuilder _currentTokenValue;
 
         public Lexer(Scanner scanner)
         {
