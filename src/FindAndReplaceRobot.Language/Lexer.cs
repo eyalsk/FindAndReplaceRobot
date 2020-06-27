@@ -2,6 +2,7 @@
 {
     using System;
     using System.Text;
+
     using static InvisibleCharacters;
 
     public sealed class Lexer

@@ -1,9 +1,6 @@
 ﻿namespace FindAndReplaceRobot.Language.Tests
 {
-    using System;
     using System.Collections.Generic;
-
-    using FindAndReplaceRobot.Language.Tests.Utils;
 
     using Shouldly;
 
