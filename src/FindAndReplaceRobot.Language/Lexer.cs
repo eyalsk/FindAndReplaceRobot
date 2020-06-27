@@ -174,7 +174,9 @@
 
             var tokenValueEnd = tokenEnd - 1;
             var lastTokenValueSlice = _scanner.GetSlice(tokenValueStart..tokenValueEnd);
-            var tokenValue = _currentTokenValue.Append(lastTokenValueSlice).ToString().AsMemory();
+            var tokenValue = _currentTokenValue.Length > 0 
+                                ? _currentTokenValue.Append(lastTokenValueSlice).ToString().AsMemory()
+                                : lastTokenValueSlice;
 
             return new Token(tokenStart..tokenEnd, kind, tokenValue);
         }
