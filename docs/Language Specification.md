@@ -1,11 +1,12 @@
 Language Specification
 ----------------------
 
-FARR stands for Find and Replace Robot  
-and is designed to do a mass structural find and replace.
+FARR stands for Find And Replace Robot  
+and is a tool that is designed to do a mass structural find and replace;  
+however, the language and the engine is designed to be more general than that,  
+meaning, it's possible to use the language independently from the tool to fit different use cases.
 
-FARR treats the source and target as objects as opposed to a plain text  
-where each object has a well defined type such as `string`, `regex`, `text`, etc...  
+## FARR File
 
 A FARR file ends with the extension `.farr` and contains the input  
 to the FARR engine.
@@ -13,19 +14,99 @@ to the FARR engine.
 A simple FARR file looks like the following:
 ```
 [SectionName]
-Item -> item
+ItemA > ItemB
 ```
 
-The main goal of FARR is to be used as a Find and Replace tool;  
-however, the language and the engine is designed to be more general than that,  
-meaning, it's possible to use the language independently from the tool to fit different use cases.  
+FARR treats the source and the target as objects as opposed to a plain text  
+where each object has a well defined type such as `String`, `Regex`, `Text`  
+in the example above `ItemA` and `ItemB` are plain text hence their type is `Text`.
 
 ## Section
 
-A section has the following syntax `[SectionName]`  
-and is a fixed set of objects that is mapped or processed as single unit by the engine.  
+A section has a fixed set of items that are processed as a unit by the engine.  
 
-* It has a name.  
-* It can be decorated with annotations that dictate how to treat and process the items in the set.  
-* It is a fixed set therefore during processing items cannot be added or removed.  
-* It can be referenced by its name anywhere in the file.
+* It can be labeled. A label accepts only letters and spaces as defined by Unicode `Lu`, `Ll`, `Lt`, `Lm`, `Lo`, `U+0020`.
+* It can be decorated with `Annotation`s that apply to all of the items in the set.
+* It is a fixed set therefore during processing items cannot be modified, added or removed.
+
+## Item
+
+An item holds the content which is expressed by a series of Unicode characters  
+and has a well defined type in the language depending on the shape of the item.
+
+* It can be listed as a single item.
+* It can be listed as a key-value pair using the colon symbol `:`.
+* It can be listed as a transformation using the greater than symbol `>`  
+  which is a syntactic sugar to the key-value pair with the `@Transform` annotation that applies to the item.
+* It can be decorated with `Annotation`s.
+
+## Type
+
+A type can be specified to the left of an `Item` or a `Section` using the double colon syntax `::`  
+and start with a Unicode character in the following categories `Lu`, `Ll`, `Lt`, `Lm`, `Lo`
+that can be followed by `Nd` and `Nl`.
+
+The language provides a dedicated syntax for most types  
+and can infer the type from the context in most cases so there is no need to specify the type explicitly;  
+however, sometimes we may want to pass valuable information to the FARR engine,  
+in this case, we can specify the type explicitly and pass the information to it, e.g., `Regex(Foo > FooBar)`.
+
+* It can be applied to a `Section` or an `Item` to pass information to the engine or to enhance the IDE experience.
+* It can either take no arguments at all or have multiple arguments.
+* It can be extended via plugins.
+
+### Example:
+
+```
+"(class\s+)"@source > "$1"@target :: Regex(Foo > FooBar)
+```
+
+### Built-in Types
+
+* `String`
+* `Regex`
+* `Number`
+* `File`
+* `Text`
+
+## Annotation
+
+An annotation has to start with the at symbol `@`  
+followed by Unicode characters in the following categories `Lu`, `Ll`, `Lt`, `Lm`, `Lo` that can be followed by `Nd` and `Nl`.
+
+* It can be applied to a `Section` or an `Item` to pass information to the engine.
+* It can either take no arguments at all or have multiple arguments.
+* It can be extended via plugins.
+
+The difference between a `Type` and an `Annotation` is that  
+the former defines the way the FARR engine interprets the content  
+and the latter provides the behaviour or action that applies to the content.
+
+### Example:
+
+```
+"(class\s+)"@source : "$1"@target :: Regex(Foo > FooBar), @Transform
+```
+
+### Built-in Annotations
+
+* `@Use`
+* `@AddTo`
+* `@Transform`
+
+## Comments
+
+A single-line comment starts with the hash symbol `#`.
+
+A multi-line comment starts with `<#` and ends with `#>`.
+
+Comments are ignored by the syntax.
+
+## FARR Engine - Core Types
+
+Users can create custom `Type`s and `Annotation`s by deriving from the following .NET classes.
+
+* `FarrType`
+* `FarrAnnotation`
+
+
