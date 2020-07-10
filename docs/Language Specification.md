@@ -1,14 +1,14 @@
 Language Specification
 ----------------------
 
-FARR stands for Find And Replace Robot  
-and is a tool that is designed to do a mass structural find and replace;  
-however, the language and the engine is designed to be more general than that,  
+FARR stands for Find And Replace Robot
+and is a tool that is designed to do a mass structural find and replace;
+however, the language and the engine is designed to be more general than that,
 meaning, it's possible to use the language independently from the tool to fit different use cases.
 
 ## FARR File
 
-A FARR file ends with the extension `.farr` and contains the input  
+A FARR file ends with the extension `.farr` and contains the input
 to the FARR engine.
 
 A simple FARR file looks like the following:
@@ -17,13 +17,13 @@ A simple FARR file looks like the following:
 ItemA > ItemB
 ```
 
-FARR treats the source and the target as objects as opposed to a plain text  
-where each object has a well defined type such as `String`, `Regex`, `Text`  
+FARR treats the source and the target as objects as opposed to a plain text
+where each object has a well defined type such as `String`, `Regex`, `Text`
 in the example above `ItemA` and `ItemB` are plain text hence their type is `Text`.
 
 ## Section
 
-A section has a fixed set of items that are processed as a unit by the engine.  
+A section has a fixed set of items that are processed as a unit by the engine.
 
 * It can be labeled. A label accepts only letters and spaces as defined by Unicode `Lu`, `Ll`, `Lt`, `Lm`, `Lo`, `U+0020`.
 * It can be decorated with `Annotation`s that apply to all of the items in the set.
@@ -31,24 +31,24 @@ A section has a fixed set of items that are processed as a unit by the engine.
 
 ## Item
 
-An item holds the content which is expressed by a series of Unicode characters  
+An item holds the content which is expressed by a series of Unicode characters
 and has a well defined type in the language depending on the shape of the item.
 
 * It can be listed as a single item.
 * It can be listed as a key-value pair using the colon symbol `:`.
-* It can be listed as a transformation using the greater than symbol `>`  
+* It can be listed as a transformation using the greater than symbol `>`
   which is a syntactic sugar to the key-value pair with the `@Transform` annotation that applies to the item.
 * It can be decorated with `Annotation`s.
 
 ## Type
 
-A type can be specified to the left of an `Item` or a `Section` using the double colon syntax `::`  
+A type can be specified to the left of an `Item` or a `Section` using the double colon syntax `::`
 and start with a Unicode character in the following categories `Lu`, `Ll`, `Lt`, `Lm`, `Lo`
 that can be followed by `Nd` and `Nl`.
 
-The language provides a dedicated syntax for most types  
-and can infer the type from the context in most cases so there is no need to specify the type explicitly;  
-however, sometimes we may want to pass valuable information to the FARR engine,  
+The language provides a dedicated syntax for most types
+and can infer the type from the context in most cases so there is no need to specify the type explicitly;
+however, sometimes we may want to pass valuable information to the FARR engine,
 in this case, we can specify the type explicitly and pass the information to it, e.g., `Regex(Foo > FooBar)`.
 
 * It can be applied to a `Section` or an `Item` to pass information to the engine or to enhance the IDE experience.
@@ -71,15 +71,15 @@ in this case, we can specify the type explicitly and pass the information to it,
 
 ## Annotation
 
-An annotation has to start with the at symbol `@`  
+An annotation has to start with the at symbol `@`
 followed by Unicode characters in the following categories `Lu`, `Ll`, `Lt`, `Lm`, `Lo` that can be followed by `Nd` and `Nl`.
 
 * It can be applied to a `Section` or an `Item` to pass information to the engine.
 * It can either take no arguments at all or have multiple arguments.
 * It can be extended via plugins.
 
-The difference between a `Type` and an `Annotation` is that  
-the former defines the way the FARR engine interprets the content  
+The difference between a `Type` and an `Annotation` is that
+the former defines the way the FARR engine interprets the content
 and the latter provides the behaviour or action that applies to the content.
 
 ### Example:
