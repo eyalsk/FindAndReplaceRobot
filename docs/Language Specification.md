@@ -25,8 +25,9 @@ in the example above `ItemA` and `ItemB` are plain text hence their type is `Tex
 
 A section has a fixed set of items that are processed as a unit by the engine.
 
-* It can be labeled. A label accepts only letters and spaces as defined by Unicode `Lu`, `Ll`, `Lt`, `Lm`, `Lo`, `U+0020`.
-* It can be decorated with `Annotation`s that apply to all of the items in the set.
+* It can be labeled. A label accepts only letters and intermediate spaces as defined by Unicode `Lu`, `Ll`, `Lt`, `Lm`, `Lo`, `U+0020`.
+* It can be decorated with a `Type` or an `Annotation`s which will apply to all of the items in the set.
+  When a `Type` and an `Annotation` are specified then the `Type` must precede the `Annotation`'s declaration.
 * It is a fixed set therefore during processing items cannot be modified, added or removed.
 
 ## Item
@@ -36,9 +37,9 @@ and has a well defined type in the language depending on the shape of the item.
 
 * It can be listed as a single item.
 * It can be listed as a key-value pair using the colon symbol `:`.
-* It can be listed as a transformation using the greater than symbol `>`
-  which is a syntactic sugar to the key-value pair with the `@Transform` annotation that applies to the item.
-* It can be decorated with `Annotation`s.
+* It can be listed as a transformation using the greater than symbol `>` which is a syntactic sugar to the key-value pair with the `@Transform` annotation that applies to the item.
+* It can be decorated with a `Type` or an `Annotation`s.
+  When a `Type` and an `Annotation` are specified then the `Type` must precede the `Annotation`'s declaration.
 
 ## Type
 
@@ -49,7 +50,8 @@ that can be followed by `Nd` and `Nl`.
 The language provides a dedicated syntax for most types
 and can infer the type from the context in most cases so there is no need to specify the type explicitly;
 however, sometimes we may want to pass valuable information to the FARR engine,
-in this case, we can specify the type explicitly and pass the information to it, e.g., `Regex(Foo > FooBar)`.
+in this case, we can specify the type explicitly and pass the information to it 
+using the pseudo constructor of the type, e.g., `Regex(Foo > FooBar)`.
 
 * It can be applied to a `Section` or an `Item` to pass information to the engine or to enhance the IDE experience.
 * It can either take no arguments at all or have multiple arguments.
