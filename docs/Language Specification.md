@@ -65,7 +65,11 @@ using the pseudo constructor of the type, e.g., `Regex(Foo > FooBar)`.
 
 ### Built-in Types
 
-* `String`
+* `String` 
+  * Is a series of Unicode characters quoted by the ASCII quotation mark symbol `"` as defined by Unicode U+0022.
+  * Is verbatim by default, meaning, anything within the enclosed quotes is escaped except quotation marks. 
+    To escaped a quotation mark within a `String` add a preceding quotation mark.
+  * Is concatenated with any other `String` or `Text` on the same side of the line.
 * `Regex`
 * `Number`
 * `File`
