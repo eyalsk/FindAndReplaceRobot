@@ -21,25 +21,28 @@ FARR treats the source and the target as objects as opposed to a plain text
 where each object has a well defined type such as `String`, `Regex`, `Text`
 in the example above `ItemA` and `ItemB` are plain text hence their type is `Text`.
 
+* When an empty file is passed to the FARR engine it should prints a friendly message that tells the user the file is empty.
+* When an error occurs during a transformation the transaction is cancelled and rolled back.
+
 ## Section
 
 A section has a fixed set of items that are processed as a unit by the engine.
 
-* It can be labeled. A label accepts only letters and intermediate spaces as defined by Unicode `Lu`, `Ll`, `Lt`, `Lm`, `Lo`, `U+0020`.
-* It can be decorated with a `Type` or an `Annotation`s which will apply to all of the items in the set.
-  When a `Type` and an `Annotation` are specified then the `Type` must precede the `Annotation`'s declaration.
-* It is a fixed set therefore during processing items cannot be modified, added or removed.
+* Can be labeled. A label accepts only letters and intermediate spaces as defined by Unicode `Lu`, `Ll`, `Lt`, `Lm`, `Lo`, `U+0020`.
+* Can be decorated with a `Type` or `Annotation`s which will apply to all of the items in the set.
+  * When a `Type` and an `Annotation` are specified then the `Type` must precede the `Annotation`'s declaration.
+* Is a fixed set therefore during processing items cannot be modified, added or removed.
 
 ## Item
 
 An item holds the content which is expressed by a series of Unicode characters
 and has a well defined type in the language depending on the shape of the item.
 
-* It can be listed as a single item.
-* It can be listed as a key-value pair using the colon symbol `:`.
-* It can be listed as a transformation using the greater than symbol `>` which is a syntactic sugar to the key-value pair with the `@Transform` annotation that applies to the item.
-* It can be decorated with a `Type` or an `Annotation`s.
-  When a `Type` and an `Annotation` are specified then the `Type` must precede the `Annotation`'s declaration.
+* Can be listed as a single item.
+* Can be listed as a key-value pair using the colon symbol `:`.
+* Can be listed as a transformation using the greater than symbol `>` which is a syntactic sugar to the key-value pair with the `@Transform` annotation that applies to the item.
+* Can be decorated with a `Type` or an `Annotation`s.
+  * When a `Type` and an `Annotation` are specified then the `Type` must precede the `Annotation`'s declaration.
 
 ## Type
 
@@ -53,9 +56,9 @@ however, sometimes we may want to pass valuable information to the FARR engine,
 in this case, we can specify the type explicitly and pass the information to it 
 using the pseudo constructor of the type, e.g., `Regex(Foo > FooBar)`.
 
-* It can be applied to a `Section` or an `Item` to pass information to the engine or to enhance the IDE experience.
-* It can either take no arguments at all or have multiple arguments.
-* It can be extended via plugins.
+* Can be applied to a `Section` or an `Item` to pass information to the engine or to enhance the IDE experience.
+* Can either take no arguments at all or have multiple arguments.
+* Can be extended via plugins.
 
 ### Example:
 
@@ -65,15 +68,16 @@ using the pseudo constructor of the type, e.g., `Regex(Foo > FooBar)`.
 
 ### Built-in Types
 
-* `String` 
-  * Is a series of Unicode characters quoted by the ASCII quotation mark symbol `"` as defined by Unicode U+0022.
-  * Is verbatim by default, meaning, anything within the enclosed quotes is escaped except quotation marks. 
-    To escaped a quotation mark within a `String` add a preceding quotation mark.
-  * Is concatenated with any other `String` or `Text` on the same side of the line.
+* `String`
+  * Is a series of Unicode characters quoted by the ASCII quotation mark symbol `"` as defined by Unicode `U+0022`.
+    * The exact syntax is specified by the [Syntax Definition](Syntax%20Definition.cd#String) file. 
+  * Is verbatim by default, meaning, anything within the enclosed quotes is escaped except quotation marks.
+    * To escaped a quotation mark within a `String` add a preceding quotation mark.
+  * Can be concatenated with any other `String` or `Text` on the same side of the line that produces a single .NET `String` instance.
 * `Regex`
-  * It uses the .NET Regular Expression (Regex) engine.
-  * It defines a pseudo constructor that takes multiple `Section`s or `Item`s as arguments that forms a union which is then passed as the input to the Regex engine.
-  * It defines two contextual keywords `@source` and `@target` that relate to the input that was passed through the pseudo constructor.
+  * Supports the same syntax and semantics as defined by .NET Regular Expressions.
+  * Defines a pseudo constructor that takes multiple `Section`s or `Item`s as arguments that forms a union.
+  * Defines two contextual keywords `@source` and `@target` that relate to the input that was passed through the pseudo constructor.
     * When an `Item` does not have a target and `@target` is specified it is an error.
 * `Number`
 * `File`
@@ -84,9 +88,9 @@ using the pseudo constructor of the type, e.g., `Regex(Foo > FooBar)`.
 An annotation has to start with the at symbol `@`
 followed by Unicode characters in the following categories `Lu`, `Ll`, `Lt`, `Lm`, `Lo` that can be followed by `Nd` and `Nl`.
 
-* It can be applied to a `Section` or an `Item` to pass information to the engine.
-* It can either take no arguments at all or have multiple arguments.
-* It can be extended via plugins.
+* Can be applied to a `Section` or an `Item` to pass information to the engine.
+* Can either take no arguments at all or have multiple arguments.
+* Can be extended via plugins.
 
 The difference between a `Type` and an `Annotation` is that
 the former defines the way the FARR engine interprets the content
@@ -118,5 +122,3 @@ Users can create custom `Type`s and `Annotation`s by deriving from the following
 
 * `FarrType`
 * `FarrAnnotation`
-
-
