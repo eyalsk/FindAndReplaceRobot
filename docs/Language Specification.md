@@ -71,6 +71,10 @@ using the pseudo constructor of the type, e.g., `Regex(Foo > FooBar)`.
     To escaped a quotation mark within a `String` add a preceding quotation mark.
   * Is concatenated with any other `String` or `Text` on the same side of the line.
 * `Regex`
+  * It uses the .NET Regular Expression (Regex) engine.
+  * It defines a pseudo constructor that takes multiple `Section`s or `Item`s as arguments that forms a union which is then passed as the input to the Regex engine.
+  * It defines two contextual keywords `@source` and `@target` that relate to the input that was passed through the pseudo constructor.
+    * When an `Item` does not have a target and `@target` is specified it is an error.
 * `Number`
 * `File`
 * `Text`
