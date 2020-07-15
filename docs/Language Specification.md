@@ -116,7 +116,8 @@ followed by Unicode characters in the following categories `Lu`, `Ll`, `Lt`, `Lm
 
 The difference between a `Type` and an `Annotation` is that
 the former defines the way the FARR engine interprets the content
-and the latter provides the behaviour or action that applies to the content.
+and the latter provides the behaviour or action that applies to the content, 
+in fact, conceptually you can think about `Annotation`s as a special case of `Type`s with the benefit of executing an action.
 
 ### Example:
 
