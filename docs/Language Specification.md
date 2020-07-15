@@ -99,6 +99,10 @@ using the pseudo constructor of the type, e.g., `Regex(Foo > FooBar)`.
     * When an `Item` does not have a target and `@target` is specified it is an error.
 
 * `Text`
+  * Is a series of Unicode characters as defined by Unicode.
+  * Can contain only intermediate spaces.
+  * Cannot have leading spaces as they are treated as indentations and as such are considered as `Subitem`s.
+  * Cannot have trailing spaces as they might get added for alignment and as such are considered insignificant whitespaces.
 
 ## Annotation
 
