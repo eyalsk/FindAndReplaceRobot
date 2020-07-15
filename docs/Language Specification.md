@@ -74,11 +74,11 @@ using the pseudo constructor of the type, e.g., `Regex(Foo > FooBar)`.
   * Is verbatim by default, meaning, anything within the enclosed quotes is escaped except quotation marks.
     * To escaped a quotation mark within a `String` add a preceding quotation mark.
   * Can be concatenated with any other `String` or `Text` on the same side of the line that produces a single .NET `String` instance.
+
 * `Number`
   * Is a series of the following Unicode characters `U+0030` - `U+0039`, `U+0020`, `U+0027`, `U+002C`, `U+002E`, `U+00B7`, `U+2009`, `U+202F`, `U+02D9`, `U+066B`, `U+066C`, `U+2396`.
     * The exact syntax is specified by the [Syntax Definition](Syntax%20Definition.cd#Number) file. 
   * Can be sized by passing the following pseudo values to the pseudo constructor:
-
     | Value | .NET Type |
     | ----- | :-------: |
     | i8    |   SByte   |
@@ -98,7 +98,6 @@ using the pseudo constructor of the type, e.g., `Regex(Foo > FooBar)`.
   * Defines two contextual keywords `@source` and `@target` that relate to the input that was passed through the pseudo constructor.
     * When an `Item` does not have a target and `@target` is specified it is an error.
 
-* `File`
 * `Text`
 
 ## Annotation
