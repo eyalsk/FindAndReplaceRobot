@@ -116,7 +116,7 @@ using the pseudo constructor of the type, e.g., `Regex(Foo > FooBar)`.
 
 * `Text`
 
-  * Is a series of Unicode characters as defined by Unicode.
+  * Is a series of arbitrary Unicode characters.
 
   * Can contain only intermediate spaces.
 
