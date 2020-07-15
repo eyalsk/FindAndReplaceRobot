@@ -56,11 +56,9 @@ A type can be specified to the left of an `Item` or a `Section` using the double
 and start with a Unicode character in the following categories `Lu`, `Ll`, `Lt`, `Lm`, `Lo`
 that can be followed by `Nd` and `Nl`.
 
-The language provides a dedicated syntax for most types
-and can infer the type from the context in most cases so there is no need to specify the type explicitly;
+All of the built-in types can be inferred from the context so there is no need to specify the type explicitly;
 however, sometimes we may want to pass valuable information to the FARR engine,
-in this case, we can specify the type explicitly and pass the information to it 
-using the pseudo constructor of the type, e.g., `Regex(Foo > FooBar)`.
+in this case, we can be explicit and pass the information using the pseudo constructor of the type, e.g., `Regex(Foo > FooBar)`.
 
 * Can be applied to a `Section` or an `Item` to pass information to the engine or to enhance the IDE experience.
 
@@ -123,8 +121,6 @@ using the pseudo constructor of the type, e.g., `Regex(Foo > FooBar)`.
   * Cannot have leading spaces as they are treated as indentations and as such are considered as `Subitem`s.
 
   * Cannot have trailing spaces as they might get added for alignment and as such are considered insignificant whitespaces.
-
-* All of the built-in types can be inferred from the context so you shouldn't need to specify the type unless you really need to.
 
 ## Annotation
 
