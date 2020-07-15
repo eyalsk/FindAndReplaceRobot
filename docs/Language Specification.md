@@ -91,7 +91,6 @@ using the pseudo constructor of the type, e.g., `Regex(Foo > FooBar)`.
     | u64   |  UInt64   |
     | f32   |  Single   |
     | f64   |  Double   |
-
 * `Regex`
   * Supports the same syntax and semantics as defined by .NET Regular Expressions.
   * Defines a pseudo constructor that takes multiple `Section`s or `Item`s as arguments that forms a union.
@@ -103,6 +102,8 @@ using the pseudo constructor of the type, e.g., `Regex(Foo > FooBar)`.
   * Can contain only intermediate spaces.
   * Cannot have leading spaces as they are treated as indentations and as such are considered as `Subitem`s.
   * Cannot have trailing spaces as they might get added for alignment and as such are considered insignificant whitespaces.
+
+* All of the built-in types can be inferred from the context so you shouldn't need to specify the type unless you really need to.
 
 ## Annotation
 
