@@ -31,28 +31,28 @@ A section has a fixed set of items that are processed as a unit by the engine.
 
 * Can be labeled. A label accepts only letters and intermediate spaces as defined by Unicode `Lu`, `Ll`, `Lt`, `Lm`, `Lo`, `U+0020`.
 
-* Can be decorated with a `Type` or `Annotation`s which will apply to all of the items in the set.
+* Can be decorated with a `Type` or `Annotation`s that applies to all of the items in the set.
   * When a `Type` and an `Annotation` are specified then the `Type` must precede the `Annotation`'s declaration.
 
 * Is a fixed set therefore during processing items cannot be modified, added or removed.
 
 ## Item
 
-An item holds the content which is expressed by a series of Unicode characters
+An item holds the content that is expressed by a series of Unicode characters
 and has a well defined type in the language depending on the shape of the item.
 
 * Can be listed as a single item.
 
-* Can be listed as a key-value pair using the colon symbol `:`.
+* Can be listed as a key-value pair using `:`.
 
-* Can be listed as a transformation using the greater than symbol `>` which is a syntactic sugar to the key-value pair with the `@Transform` annotation that applies to the item.
+* Can be listed as a transformation using `>` that is a syntactic sugar to the key-value pair with the `@Transform` annotation that applies to the item.
 
 * Can be decorated with a `Type` or an `Annotation`s.
   * When a `Type` and an `Annotation` are specified then the `Type` must precede the `Annotation`'s declaration.
 
 ## Type
 
-A type can be specified to the left of an `Item` or a `Section` using the double colon syntax `::`
+A type can be specified to the left of an `Item` or a `Section` using `::`
 and start with a Unicode character in the following categories `Lu`, `Ll`, `Lt`, `Lm`, `Lo`
 that can be followed by `Nd` and `Nl`.
 
@@ -76,11 +76,11 @@ in this case, we can be explicit and pass the information using the pseudo const
 
 * `String`
 
-  * Is a series of Unicode characters quoted by the ASCII quotation mark symbol `"` as defined by Unicode `U+0022`.
-    * The exact syntax is specified by the [Syntax Definition](Syntax%20Definition.cd#String) file. 
+  * Is a series of Unicode characters quoted by `"`.
+    * The exact syntax is specified by the [Syntax Definition](Syntax%20Definition.cd#String) file.
 
-  * Is verbatim by default, meaning, anything within the enclosed quotes is escaped except quotation marks.
-    * To escaped a quotation mark within a `String` add a preceding quotation mark.
+  * Is verbatim by default, meaning, anything within the enclosed quotes is escaped except `"`. 
+    To escaped `"` within a `String` add a preceding `"`.
 
   * Can be concatenated with any other `String` or `Text` on the same side of the line that produces a single .NET `String` instance.
 
@@ -88,10 +88,18 @@ in this case, we can be explicit and pass the information using the pseudo const
 
   * Has to start with `@` immediately followed by `'`
     and an optional delimiter that is a series of Unicode characters in the following categories `Lu`, `Ll`, `Lt`, `Lm`, `Lo`
-    continuing with `"` and then the content interpreted exactly as they appear in the original file.
+    continuing with `"` and then the content interpreted exactly as they appear in the source.
     The terminator of the string literal is a `"` immediately followed by the optional delimiter and `'`.
 
   * Can be concatenated with any other `RawString`, `String` or `Text` on the same side of the line that produces a single .NET `String` instance.
+
+  ### Example:
+
+  ```
+  @'foo"<foo bar=" > "></foo>"foo'
+  ```
+
+  The difference between a `String` and a `RawString` is that the former should be used for 
 
 * `Number`
 
@@ -112,7 +120,7 @@ in this case, we can be explicit and pass the information using the pseudo const
     | U+066C          |    ٬    |
     | U+2396          |    ⎖    |
 
-    * The exact syntax is specified by the [Syntax Definition](Syntax%20Definition.cd#Number) file. 
+    * The exact syntax is specified by the [Syntax Definition](Syntax%20Definition.cd#Number) file.
 
   * Can be sized by passing the following pseudo values to the pseudo constructor:
     | Value | .NET Type |
@@ -149,7 +157,7 @@ in this case, we can be explicit and pass the information using the pseudo const
 
 ## Annotation
 
-An annotation has to start with the at symbol `@`
+An annotation has to start with `@`
 followed by Unicode characters in the following categories `Lu`, `Ll`, `Lt`, `Lm`, `Lo` that can be followed by `Nd` and `Nl`.
 
 * Can be applied to a `Section` or an `Item` to pass information to the engine.
@@ -160,7 +168,7 @@ followed by Unicode characters in the following categories `Lu`, `Ll`, `Lt`, `Lm
 
 The difference between a `Type` and an `Annotation` is that
 the former defines the way the FARR engine interprets the content
-and the latter provides the behaviour or action that applies to the content, 
+and the latter provides the behaviour or action that applies to the content,
 in fact, conceptually you can think about `Annotation`s as a special case of `Type`s with the benefit of executing an action.
 
 ### Example:
@@ -181,7 +189,7 @@ in fact, conceptually you can think about `Annotation`s as a special case of `Ty
 
 ## Comments
 
-A single-line comment starts with the hash symbol `#`.
+A single-line comment starts with `#`.
 
 A multi-line comment starts with `<#` and ends with `#>`.
 
