@@ -84,6 +84,15 @@ in this case, we can be explicit and pass the information using the pseudo const
 
   * Can be concatenated with any other `String` or `Text` on the same side of the line that produces a single .NET `String` instance.
 
+* `RawString`
+
+  * Has to start with `@` immediately followed by `'`
+    and an optional delimiter that is a series of Unicode characters in the following categories `Lu`, `Ll`, `Lt`, `Lm`, `Lo`
+    continuing with `"` and then the content interpreted exactly as they appear in the original file.
+    The terminator of the string literal is a `"` immediately followed by the optional delimiter and `'`.
+
+  * Can be concatenated with any other `RawString`, `String` or `Text` on the same side of the line that produces a single .NET `String` instance.
+
 * `Number`
 
   * Is a series of the following Unicode characters:
