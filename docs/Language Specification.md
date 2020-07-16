@@ -86,7 +86,23 @@ in this case, we can be explicit and pass the information using the pseudo const
 
 * `Number`
 
-  * Is a series of the following Unicode characters `U+0030` - `U+0039`, `U+0020`, `U+0027`, `U+002C`, `U+002E`, `U+00B7`, `U+2009`, `U+202F`, `U+02D9`, `U+066B`, `U+066C`, `U+2396`.
+  * Is a series of the following Unicode characters:
+
+    | Unicode         | Literal |
+    | --------------- | :-----: |
+    | U+0030 - U+0039 |  0 - 9  |
+    | U+0020          |  Space  |
+    | U+2009          |  Space  |
+    | U+202F          |  Space  |
+    | U+002E          |    .    |
+    | U+00B7          |    ·    |
+    | U+02D9          |    ˙    |
+    | U+0027          |    '    |
+    | U+002C          |    ,    |
+    | U+066B          |    ٫    |
+    | U+066C          |    ٬    |
+    | U+2396          |    ⎖    |
+
     * The exact syntax is specified by the [Syntax Definition](Syntax%20Definition.cd#Number) file. 
 
   * Can be sized by passing the following pseudo values to the pseudo constructor:
