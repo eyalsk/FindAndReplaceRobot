@@ -85,7 +85,7 @@ A pseudo constructor is a construct that allow pseudo values to be passed to the
 * `String`
 
   * Is a series of Unicode characters quoted by `"`.
-    * The exact syntax is specified by the [Syntax Definition](Syntax%20Definition.cd#String) file.
+    * The exact syntax is specified by the [Syntax Definition](Syntax%20Definition.md#String) file.
 
   * Is verbatim by default, meaning, anything within the enclosed quotes is escaped except `"`. 
     To escaped `"` within a `String` add a preceding `"`.
@@ -128,7 +128,7 @@ A pseudo constructor is a construct that allow pseudo values to be passed to the
     | U+066C          |    ٬    |
     | U+2396          |    ⎖    |
 
-    * The exact syntax is specified by the [Syntax Definition](Syntax%20Definition.cd#Number) file.
+    * The exact syntax is specified by the [Syntax Definition](Syntax%20Definition.md#Number) file.
 
   * Can be sized by passing the following pseudo values to the pseudo constructor:
     | Value | .NET Type |
