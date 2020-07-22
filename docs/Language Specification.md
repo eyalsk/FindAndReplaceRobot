@@ -31,8 +31,7 @@ A section has a fixed set of items that are processed as a unit by the engine.
 
 * Can be labeled. A label accepts only letters and intermediate spaces as defined by Unicode `Lu`, `Ll`, `Lt`, `Lm`, `Lo`, `U+0020`.
 
-* Can be decorated with a `Type` or `Annotation`s that applies to all of the items in the set.
-  * When a `Type` and an `Annotation` are specified then the `Type` must precede the `Annotation`'s declaration.
+* Can be decorated with `Type`s or `Annotation`s that are applied to all of the items in the set.
 
 * Is a fixed set therefore during processing items cannot be modified, added or removed.
 
@@ -48,7 +47,6 @@ and has a well defined type in the language depending on the shape of the item.
 * Can be listed as a transformation using `>` that is a syntactic sugar to the key-value pair with the `@Transform` annotation that applies to the item.
 
 * Can be decorated with a `Type` or an `Annotation`s.
-  * When a `Type` and an `Annotation` are specified then the `Type` must precede the `Annotation`'s declaration.
 
 ## Type
 
@@ -82,15 +80,26 @@ A pseudo constructor is a construct that allows values to be passed to the FARR 
 
 ### Built-in Types
 
+* `Text`
+
+  * Is a series of arbitrary Unicode characters.
+
+  * Can contain only intermediate spaces.
+
+  * Can be concatenated with any other `RawString`, `String` or `Text` on the same side of the line that produces a single .NET `String` instance.
+
+  * Cannot have leading spaces as they are treated as indentations and as such are considered as `Subitem`s.
+
+  * Cannot have trailing spaces as they might get added for alignment and as such are considered insignificant whitespaces.
+
+  * Cannot be passed as an argument.
+
 * `String`
 
   * Is a series of Unicode characters quoted by `"`.
     * The exact syntax is specified by the [Syntax Definition](Syntax%20Definition.md#String) file.
 
-  * Is verbatim by default, meaning, anything within the enclosed quotes is escaped except `"`. 
-    To escaped `"` within a `String` add a preceding `"`.
-
-  * Can be concatenated with any other `String` or `Text` on the same side of the line that produces a single .NET `String` instance.
+  * Can be concatenated with any other `RawString`, `String` or `Text` on the same side of the line that produces a single .NET `String` instance.
 
 * `RawString`
 
@@ -107,7 +116,10 @@ A pseudo constructor is a construct that allows values to be passed to the FARR 
   @'foo"<foo bar=" > "></foo>"foo'
   ```
 
-  The difference between a `String` and a `RawString` is that the former should be used for 
+  The difference between a `String` and a `RawString` is that the former should be used for simple cases where content of the string doesn't need to be escaped
+  whereas with the latter it's possible to have an optional custom delimiter and avoid escaping at all so it's more flexible but slightly more verbose.
+
+  You can think about `Text`, `String` and `RawString` as a spectrum that you can dial up/down based on the need.
 
 * `Number`
 
@@ -152,18 +164,6 @@ A pseudo constructor is a construct that allows values to be passed to the FARR 
 
   * Defines two contextual keywords `@source` and `@target` that relate to the input that was passed through the pseudo constructor.
     * When an `Item` does not have a target and `@target` is specified it is an error.
-
-* `Text`
-
-  * Is a series of arbitrary Unicode characters.
-
-  * Can contain only intermediate spaces.
-
-  * Cannot have leading spaces as they are treated as indentations and as such are considered as `Subitem`s.
-
-  * Cannot have trailing spaces as they might get added for alignment and as such are considered insignificant whitespaces.
-
-  * Cannot be passed as an argument.
 
 ## Annotation
 
