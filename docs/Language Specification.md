@@ -163,6 +163,8 @@ A pseudo constructor is a construct that allows values to be passed to the FARR 
 
   * Cannot have trailing spaces as they might get added for alignment and as such are considered insignificant whitespaces.
 
+  * Cannot be passed as an argument.
+
 ## Annotation
 
 An annotation has to start with `@`
