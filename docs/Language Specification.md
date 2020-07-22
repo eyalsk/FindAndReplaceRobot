@@ -72,6 +72,14 @@ in this case, we can be explicit and pass the information using the pseudo const
 "(class\s+)"@source > "$1"@target :: Regex(Foo > FooBar)
 ```
 
+### Pseudo Constructor
+
+A pseudo constructor is a construct that allow pseudo values to be passed to the FARR engine.
+
+* Can have multiple arguments or none passed to the constructor.
+
+* More details can be [found here](Language%20Specification.md#farr-engine-net-core-types).
+
 ### Built-in Types
 
 * `String`
@@ -195,10 +203,15 @@ A multi-line comment starts with `<#` and ends with `#>`.
 
 Comments are ignored by the syntax.
 
-## FARR Engine - Core Types
+## FARR Engine: .NET Core Types
 
 Users can create custom `Type`s and `Annotation`s by deriving from the following .NET classes.
 
 * `FarrType`
 
 * `FarrAnnotation`
+
+* `IHasPseudoConstructor`
+
+  * When a .NET class that derives from `FarrType` is created and then loaded by the engine, 
+    it checks for the `IHasPseudoConstructor` interface and then use the `Invoke` method to get the arguments that were passed to the type.
