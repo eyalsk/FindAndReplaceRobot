@@ -74,7 +74,7 @@ in this case, we can be explicit and pass the information using the pseudo const
 
 ### Pseudo Constructor
 
-A pseudo constructor is a construct that allow pseudo values to be passed to the FARR engine.
+A pseudo constructor is a construct that allows values to be passed to the FARR engine.
 
 * Can have multiple arguments or none passed to the constructor.
 
@@ -130,19 +130,19 @@ A pseudo constructor is a construct that allow pseudo values to be passed to the
 
     * The exact syntax is specified by the [Syntax Definition](Syntax%20Definition.md#Number) file.
 
-  * Can be sized by passing the following pseudo values to the pseudo constructor:
-    | Value | .NET Type |
-    | ----- | :-------: |
-    | i8    |   SByte   |
-    | u8    |   Byte    |
-    | i16   |   Int16   |
-    | u16   |  UInt16   |
-    | i32   |   Int32   |
-    | u32   |  UInt32   |
-    | i64   |   Int64   |
-    | u64   |  UInt64   |
-    | f32   |  Single   |
-    | f64   |  Double   |
+  * Can have a fixed size by passing the following constants to the pseudo constructor:
+    | Constants | .NET Type |
+    | --------- | :-------: |
+    | i8        |   SByte   |
+    | u8        |   Byte    |
+    | i16       |   Int16   |
+    | u16       |  UInt16   |
+    | i32       |   Int32   |
+    | u32       |  UInt32   |
+    | i64       |   Int64   |
+    | u64       |  UInt64   |
+    | f32       |  Single   |
+    | f64       |  Double   |
 
 * `Regex`
 
