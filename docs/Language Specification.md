@@ -207,11 +207,15 @@ Comments are ignored by the syntax.
 
 ## FARR Engine: .NET Core Types
 
-Users can create custom `Type`s and `Annotation`s by deriving from the following .NET classes.
+### Classes
+
+Users can create custom `Type`s and `Annotation`s by deriving from the following .NET classes:
 
 * `FarrType`
 
 * `FarrAnnotation`
+
+### Interfaces
 
 * `IHasPseudoConstructor`
 
