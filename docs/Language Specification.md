@@ -27,11 +27,9 @@ in the example above `ItemA` and `ItemB` are plain text hence their type is `Tex
 
 ## Section
 
-A section has a fixed set of items that are processed as a unit by the engine.
+A section is a fixed set of items that are processed as a unit by the engine.
 
 * Can be labeled. A label accepts only letters and intermediate spaces as defined by Unicode `Lu`, `Ll`, `Lt`, `Lm`, `Lo`, `U+0020`.
-
-* Can be decorated with `Type`s or `Annotation`s that are applied to all of the items in the set.
 
 * Is a fixed set therefore during processing items cannot be modified, added or removed.
 
@@ -46,21 +44,13 @@ and has a well defined type in the language depending on the shape of the item.
 
 * Can be listed as a transformation using `>` that is a syntactic sugar to the key-value pair with the `@Transform` annotation that applies to the item.
 
-* Can be decorated with a `Type` or an `Annotation`s.
-
 ## Type
 
-A type can be specified to the left of an `Item` or a `Section` using `::`
-and start with a Unicode character in the following categories `Lu`, `Ll`, `Lt`, `Lm`, `Lo`
-that can be followed by `Nd` and `Nl`.
+A type can be specified to inform the FARR engine how it should treat the content.
 
-All of the built-in types can be inferred from the context so there is no need to specify the type explicitly;
-however, sometimes we may want to pass valuable information to the FARR engine,
-in this case, we can be explicit and pass the information using the pseudo constructor of the type, e.g., `Regex(Foo > FooBar)`.
-
-* Can be applied to a `Section` or an `Item` to pass information to the engine or to enhance the IDE experience.
-
-* Can either take no arguments at all or have multiple arguments.
+* Can be specified to the right of an `Item` or a `Section` using `::`
+  and start with a Unicode character in the following categories `Lu`, `Ll`, `Lt`, `Lm`, `Lo`
+  that can be followed by `Nd` and `Nl`.
 
 * Can be extended via plugins.
 
@@ -74,11 +64,15 @@ in this case, we can be explicit and pass the information using the pseudo const
 
 A pseudo constructor is a construct that allows values to be passed to the FARR engine.
 
-* Can have multiple arguments or none passed to the constructor.
+* Can have zero or more arguments separated by `,`.
 
 * More details can be [found here](Language%20Specification.md#farr-engine-net-core-types).
 
 ### Built-in Types
+
+All of the built-in types can be inferred from the context so there is no need to specify the type explicitly;
+however, sometimes we may want to pass valuable information to the FARR engine,
+in this case, we can be explicit and pass the information using the pseudo constructor of the type, e.g., `Regex(Foo > FooBar)`.
 
 * `Text`
 
@@ -172,7 +166,7 @@ followed by Unicode characters in the following categories `Lu`, `Ll`, `Lt`, `Lm
 
 * Can be applied to a `Section` or an `Item` to pass information to the engine.
 
-* Can either take no arguments at all or have multiple arguments.
+* Can have zero or more arguments separated by `,`.
 
 * Can be extended via plugins.
 
@@ -189,9 +183,11 @@ in fact, conceptually you can think about `Annotation`s as a special case of `Ty
 
 ### Built-in Annotations
 
-* `@Use`
+* `@Add`
 
-* `@AddTo`
+* `@Include`
+
+* `@Use`
 
 * `@Transform`
 
