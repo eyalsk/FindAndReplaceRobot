@@ -137,6 +137,7 @@ in this case, we can be explicit and pass the information using the pseudo const
     * The exact syntax is specified by the [Syntax Definition](Syntax%20Definition.md#Number) file.
 
   * Can have a fixed size by passing the following constants to the pseudo constructor:
+    
     | Constants | .NET Type |
     | --------- | :-------: |
     | i8        |   SByte   |
