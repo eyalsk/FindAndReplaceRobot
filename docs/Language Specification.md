@@ -137,7 +137,7 @@ in this case, we can be explicit and pass the information using the pseudo const
     * The exact syntax is specified by the [Syntax Definition](Syntax%20Definition.md#Number) file.
 
   * Can have a fixed size by passing the following constants to the pseudo constructor:
-    
+
     | Constants | .NET Type |
     | --------- | :-------: |
     | i8        |   SByte   |
@@ -186,7 +186,11 @@ in fact, conceptually you can think about `Annotation`s as a special case of `Ty
 
 * `@Add`
 
+  Adds all of the `Item`s and their children to an existing `Section`.
+
 * `@Include`
+
+  Includes the `Item`s of a `Section` within `Item`s of another `Section`.
 
 * `@Use`
 
